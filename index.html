@@ -343,15 +343,21 @@
               K-LOVE
             </h2>
 
-            <!-- Live Now Playing Song & Artist Line -->
-            <div id="nowTrackContainer" class="flex items-center gap-1.5 mt-0.5">
+            <!-- Live Now Playing Song & Artist PillBox -->
+            <div id="nowTrackContainer" class="mt-1 px-2.5 py-1 rounded-xl bg-white/10 border border-white/10 flex items-center gap-2">
               <i id="nowTrackIcon" class="fa-solid fa-music text-[10px] text-sky-300 shrink-0"></i>
-              <p id="nowPlayingTrackText" class="text-xs font-semibold text-sky-200 truncate">
-                Positive &amp; Encouraging
-              </p>
+              <div class="min-w-0 flex-1">
+                <p id="nowPlayingTrackText" class="text-xs font-bold text-sky-200 truncate">
+                  Checking live song...
+                </p>
+                <p id="nowPlayingArtistText" class="text-[10px] text-slate-300 truncate hidden"></p>
+              </div>
+              <button onclick="fetchNowPlayingTrackInfo(true)" title="Refresh live song info" class="text-[10px] text-sky-300/70 hover:text-sky-200 shrink-0">
+                <i id="trackRefreshSpinner" class="fa-solid fa-arrows-rotate"></i>
+              </button>
             </div>
 
-            <p id="nowStationSubtitle" class="text-[11px] text-slate-300/75 truncate mt-0.5">
+            <p id="nowStationSubtitle" class="text-[11px] text-slate-300/75 truncate mt-1">
               Spartanburg, SC
             </p>
           </div>
@@ -600,6 +606,42 @@
         </div>
       </div>
 
+      <!-- Dedicated BibleProject Series & Themes Browser (Shown automatically when BibleProject or Strange Bible is active!) -->
+      <div id="bibleProjectThemesPanel" class="surface-card rounded-2xl p-3.5 flex flex-col gap-3 border border-sky-400/25">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-layer-group text-[10px]"></i>
+              <span>BIBLEPROJECT THEMES &amp; SERIES ARCHIVE</span>
+            </div>
+            <p class="text-[11px] mt-0.5" style="color: var(--text-secondary);">
+              Browse all 540+ episodes grouped by biblical theme or search within this channel
+            </p>
+          </div>
+          <span id="bpTotalArchiveBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 shrink-0">
+            Full Archive
+          </span>
+        </div>
+
+        <!-- Theme / Series Selector Pills -->
+        <div id="bibleProjectThemePills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+          <!-- Rendered by renderBibleProjectThemesBar() -->
+        </div>
+
+        <!-- Filter Within Channel Episodes Input -->
+        <div class="relative flex items-center">
+          <i class="fa-solid fa-filter absolute left-3 text-[11px]" style="color: var(--text-secondary);"></i>
+          <input
+            id="podcastEpisodeFilterInput"
+            type="search"
+            placeholder="Filter episodes in this channel (e.g., Genesis, Spirit, Sabbath, Dragon, Q+R)..."
+            oninput="handleEpisodeFilterInput(this.value)"
+            class="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
+            style="color: var(--text-primary);"
+          />
+        </div>
+      </div>
+
       <!-- Episode List -->
       <div class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
@@ -609,6 +651,10 @@
         <div id="podcastEpisodesList" class="flex flex-col gap-2.5">
           <!-- Populated dynamically by loadPodcastShow() -->
         </div>
+        <button id="podcastShowMoreEpisodesBtn" onclick="showMorePodcastEpisodes()" class="hidden surface-card py-3 rounded-2xl text-xs font-bold text-sky-400 hover:border-sky-400/50 items-center justify-center gap-2 mt-1">
+          <i class="fa-solid fa-angles-down"></i>
+          <span id="podcastShowMoreEpisodesText">Show More Episodes</span>
+        </button>
       </div>
 
     </div>
@@ -1201,9 +1247,8 @@
   <script>
     /* ==========================================================================
        1. PERMANENT SIGNATURE STATIONS & DEFAULT SPEED DIAL CONFIGURATION
-       Includes verified multi-CDN fallback streams AND live Radio-Browser API
-       lookup queries for K-LOVE (94.5 Spartanburg), HIS Radio (89.3), HIS Radio Z,
-       and Air1 Música de Adoración (by K-LOVE / EMF).
+       Includes verified multi-CDN fallback streams AND live track metadata IDs
+       (iHeart IDs & TuneIn/RTN IDs) for real-time Song & Artist display!
        ========================================================================== */
     const PERMANENT_STATIONS = [
       {
@@ -1218,6 +1263,8 @@
         accent: 'border-l-4 border-l-sky-400',
         badgeColor: 'text-sky-400',
         emfCode: 'klove',
+        iheartId: '5162',
+        tuneinId: 's33828',
         searchQuery: 'K-LOVE',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac',
         fallbackUrls: [
@@ -1238,6 +1285,8 @@
         bitrate: 96,
         accent: 'border-l-4 border-l-indigo-400',
         badgeColor: 'text-indigo-400',
+        rtnSlug: 'hisradio',
+        tuneinId: 's30611',
         searchQuery: 'WLFJ',
         url_resolved: 'https://rtn.cdnstream1.com/2566_96.aac',
         fallbackUrls: [
@@ -1257,6 +1306,8 @@
         bitrate: 96,
         accent: 'border-l-4 border-l-emerald-400',
         badgeColor: 'text-emerald-400',
+        rtnSlug: 'hisradioz',
+        tuneinId: 's67495',
         searchQuery: 'HIS Radio',
         url_resolved: 'https://rtn.cdnstream1.com/2567_96.aac',
         fallbackUrls: [
@@ -1276,7 +1327,8 @@
         bitrate: 128,
         accent: 'border-l-4 border-l-amber-400',
         badgeColor: 'text-amber-400',
-        emfCode: 'air1',
+        emfCode: 'air1-adoracion',
+        iheartId: '10183',
         searchQuery: 'Air1 Musica de Adoracion',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/tunein/aac',
         fallbackUrls: [
@@ -1289,8 +1341,7 @@
       }
     ];
 
-    /* Built-in Specialty & Hard-to-Find Verified Stations (NASA Third Rock, Kids, Christian Hip Hop, etc.)
-       Automatically included when searching Station Vault so they are always accessible! */
+    /* Built-in Specialty & Hard-to-Find Verified Stations (NASA Third Rock, Kids, Christian Hip Hop, etc.) */
     const SPECIALTY_VERIFIED_STATIONS = [
       {
         id: 'spec-nasa-third-rock',
@@ -1300,6 +1351,7 @@
         location: 'Houston, TX • NASA Johnson Space Center',
         language: 'English',
         tags: 'nasa, space, science, kids, educational, indie, rock, third rock',
+        tuneinId: 's151899',
         codec: 'AAC',
         bitrate: 128,
         url_resolved: 'https://rfcm.streamguys1.com/thirdrock-aac',
@@ -1316,9 +1368,10 @@
         location: 'Grand Rapids, MI',
         language: 'English',
         tags: 'kids, children, family, christian kids, stories, nasa kids',
+        tuneinId: 's199315',
         codec: 'MP3',
         bitrate: 128,
-        url_resolved: 'https://edge.mixlr.com/channel/keysforkids',
+        url_resolved: 'https://ice24.securenetsystems.net/KEYS',
         searchQuery: 'Keys for Kids',
         fallbackUrls: [
           'https://ice24.securenetsystems.net/KEYS',
@@ -1333,6 +1386,7 @@
         location: 'Houston, TX',
         language: 'English',
         tags: 'christian hip hop, christian rap, hip hop, rap, urban gospel, youth',
+        tuneinId: 's142661',
         codec: 'AAC',
         bitrate: 128,
         url_resolved: 'https://ksbj.streamguys1.com/ngen.aac',
@@ -1376,14 +1430,63 @@
       }
     ];
 
-    /* Podcast Discovery Categories & Curated Channels */
+    /* ==========================================================================
+       24 CURATED PODCAST DISCOVERY TOPICS ACROSS 4 SHELVES
+       Gives full discovery access to the entire free podcast ecosystem
+       ========================================================================== */
     const PODCAST_CATEGORIES = [
-      { id: 'bible', name: 'Bible & Theology', icon: 'fa-book-bible', query: 'BibleProject Theology Biblical', desc: 'Deep scripture study & biblical theology' },
-      { id: 'devotional', name: 'Daily Devotional', icon: 'fa-sun', query: 'Daily Christian Devotional Prayer', desc: 'Short daily encouragement & prayer' },
-      { id: 'sermons', name: 'Sermons & Teaching', icon: 'fa-microphone-lines', query: 'Christian Sermons Pastor Teaching', desc: 'Messages from trusted pastors & teachers' },
-      { id: 'espanol', name: 'Español & Português', icon: 'fa-language', query: 'Proyecto Biblia Teologia Cristiana', desc: 'Enseñanza bíblica en español y português' },
-      { id: 'kids', name: 'Kids & Family', icon: 'fa-children', query: 'Christian Kids Stories Family', desc: 'Clean stories, faith & fun for children' },
-      { id: 'science', name: 'NASA & Curiosity', icon: 'fa-shuttle-space', query: 'NASA Curious Universe Space Science', desc: 'Space exploration, science & wonder' }
+      // Shelf 1: Faith, Bible & Christian Living
+      { id: 'bible', shelf: 'Faith, Bible & Theology', name: 'Bible & Theology', icon: 'fa-book-bible', query: 'BibleProject Biblical Theology Study', desc: 'Deep scripture study, biblical themes & exegesis' },
+      { id: 'devotional', shelf: 'Faith, Bible & Theology', name: 'Daily Devotional & Prayer', icon: 'fa-sun', query: 'Daily Christian Devotional Morning Prayer', desc: 'Short daily scripture encouragement & prayer' },
+      { id: 'sermons', shelf: 'Faith, Bible & Theology', name: 'Sermons & Preaching', icon: 'fa-microphone-lines', query: 'Christian Sermons Pastor Exposition Gospel', desc: 'Messages from trusted pastors & teachers' },
+      { id: 'apologetics', shelf: 'Faith, Bible & Theology', name: 'Apologetics & Worldview', icon: 'fa-scale-balanced', query: 'Christian Apologetics Worldview Philosophy CS Lewis', desc: 'Defending faith, philosophy & cultural questions' },
+      { id: 'churchhistory', shelf: 'Faith, Bible & Theology', name: 'Church History & Saints', icon: 'fa-landmark-dome', query: 'Church History Reformation Early Christians Theology', desc: 'Stories of the early church, reformers & heroes' },
+      { id: 'christianfamily', shelf: 'Faith, Bible & Theology', name: 'Marriage & Christian Parenting', icon: 'fa-house-chimney-heart', query: 'Christian Parenting Marriage Focus on the Family', desc: 'Christ-centered marriage, home & parenting wisdom' },
+      { id: 'youth', shelf: 'Faith, Bible & Theology', name: 'Youth & NextGen Faith', icon: 'fa-bolt', query: 'Young Adults Christian Youth Faith Culture', desc: 'Faith conversations for students & young adults' },
+      { id: 'worshiparts', shelf: 'Faith, Bible & Theology', name: 'Worship & Songwriting', icon: 'fa-guitar', query: 'Worship Leader Christian Songwriting Music Ministry', desc: 'Behind the songs, worship ministry & creativity' },
+      { id: 'espanol', shelf: 'Faith, Bible & Theology', name: 'Español & Português (Fe)', icon: 'fa-language', query: 'Proyecto Biblia Predicaciones Cristianas Teologia', desc: 'Enseñanza bíblica en español y português' },
+
+      // Shelf 2: Kids, Family & Language Learning
+      { id: 'kids', shelf: 'Kids, Family & Languages', name: 'Kids Stories & Audio Drama', icon: 'fa-children', query: 'Christian Kids Stories Adventures in Odyssey Family', desc: 'Clean audio dramas, stories & faith for kids' },
+      { id: 'kidsscience', shelf: 'Kids, Family & Languages', name: 'Kids Science & Curiosity', icon: 'fa-rocket', query: 'Kids Science Brains On Wow in the World Space', desc: 'Fun science questions & discovery for children' },
+      { id: 'homeschool', shelf: 'Kids, Family & Languages', name: 'Read-Aloud & Homeschool', icon: 'fa-book-open-reader', query: 'Read Aloud Kids Classic Stories Homeschool Literature', desc: 'Classic literature, poetry & family learning' },
+      { id: 'learnspanish', shelf: 'Kids, Family & Languages', name: 'Learn Spanish & Portuguese', icon: 'fa-comments', query: 'Learn Spanish Coffee Break Spanish Brazilian Portuguese', desc: 'Practice Español & Português on your commute' },
+
+      // Shelf 3: Science, History, News & Stewardship
+      { id: 'science', shelf: 'Science, History & World', name: 'NASA, Space & Astronomy', icon: 'fa-shuttle-space', query: 'NASA Curious Universe Space Astronomy Mission', desc: 'Astronaut interviews, space missions & cosmos' },
+      { id: 'nature', shelf: 'Science, History & World', name: 'Science, Nature & Creation', icon: 'fa-leaf', query: 'Science Nature Wildlife Biology Physics Discovery', desc: 'How the natural world & universe work' },
+      { id: 'history', shelf: 'Science, History & World', name: 'World & American History', icon: 'fa-hourglass-half', query: 'History Ancient Civilizations American History Documentary', desc: 'Deep-dive historical storytelling & biographies' },
+      { id: 'tech', shelf: 'Science, History & World', name: 'Technology & Innovation', icon: 'fa-microchip', query: 'Technology AI Engineering Future Innovation', desc: 'Software, artificial intelligence & modern tech' },
+      { id: 'news', shelf: 'Science, History & World', name: 'Daily News Briefings', icon: 'fa-newspaper', query: 'Daily News Briefing World Report Morning Headlines', desc: 'Quick 10–15 minute daily news roundups' },
+      { id: 'finance', shelf: 'Science, History & World', name: 'Stewardship, Business & Money', icon: 'fa-coins', query: 'Christian Stewardship Personal Finance Ramsey Leadership', desc: 'Wise money management, generosity & leadership' },
+
+      // Shelf 4: Health, Books, Music & Lifestyle
+      { id: 'health', shelf: 'Health, Books & Culture', name: 'Health, Sleep & Wellness', icon: 'fa-heart-pulse', query: 'Health Nutrition Exercise Sleep Mental Wellness', desc: 'Practical physical, nutritional & mental health' },
+      { id: 'books', shelf: 'Health, Books & Culture', name: 'Books, C.S. Lewis & Literature', icon: 'fa-feather-pointed', query: 'CS Lewis Tolkien Christian Books Literature Storytelling', desc: 'Inklings, classic authors & great books' },
+      { id: 'musichistory', shelf: 'Health, Books & Culture', name: 'Music History & Classical', icon: 'fa-violin', query: 'Classical Music History Jazz Songwriting Explained', desc: 'Exploring symphony, jazz & how songs are built' },
+      { id: 'sports', shelf: 'Health, Books & Culture', name: 'Sports & Outdoors', icon: 'fa-football', query: 'College Football Sports Outdoors Christian Athletes', desc: 'Game analysis, athlete stories & outdoor life' },
+      { id: 'comedy', shelf: 'Health, Books & Culture', name: 'Clean Comedy & Good News', icon: 'fa-face-laugh-beam', query: 'Clean Christian Comedy Family Friendly Uplifting Stories', desc: 'Lighthearted, clean humor for the whole family' }
+    ];
+
+    /* ==========================================================================
+       OFFICIAL BIBLEPROJECT THEMES & SERIES TAXONOMY
+       Categorizes all 548+ BibleProject RSS episodes into browsable themes
+       ========================================================================== */
+    const BIBLEPROJECT_THEMES = [
+      { id: 'all', name: 'All 540+ Episodes', icon: 'fa-list-ul', keywords: [] },
+      { id: 'spirit', name: 'Spirit of God', icon: 'fa-wind', keywords: ['spirit of god', 'holy spirit', 'ruakh', 'pneuma', 'pentecost', 'trinity'] },
+      { id: 'sermonmount', name: 'Sermon on the Mount', icon: 'fa-mountain-sun', keywords: ['sermon on the mount', 'beatitude', 'matthew 5', 'matthew 6', 'matthew 7', 'lord’s prayer', "lord's prayer", 'makarios', 'kingdom of the skies'] },
+      { id: 'mountain', name: 'Cosmic Mountain & Dragon', icon: 'fa-mountain', keywords: ['mountain', 'dragon', 'chaos', 'leviathan', 'sea', 'eden', 'sinai', 'zion'] },
+      { id: 'wilderness', name: 'Wilderness & Exodus Way', icon: 'fa-compass', keywords: ['wilderness', 'exodus', 'redemption', 'passover', 'pharaoh', 'plague', 'testing', 'test', 'water of life'] },
+      { id: 'torah', name: 'Torah & Scrolls (Gen–Deut)', icon: 'fa-scroll', keywords: ['torah', 'genesis', 'leviticus', 'numbers', 'deuteronomy', 'abraham', 'jacob', 'moses', 'scroll'] },
+      { id: 'priesthood', name: 'Royal Priesthood & Image of God', icon: 'fa-crown', keywords: ['priesthood', 'priest', 'royal', 'image of god', 'melchizedek', 'temple', 'tabernacle', 'anointed', 'messiah', 'firstborn'] },
+      { id: 'paradigm', name: 'The Paradigm & How to Read', icon: 'fa-book-open', keywords: ['paradigm', 'how to read', 'literary', 'meditation literature', 'pillar', 'hyperlinked', 'discourse', 'poetry', 'narrative'] },
+      { id: 'character', name: 'Character of God', icon: 'fa-heart', keywords: ['character of god', 'slow to anger', 'compassion', 'gracious', 'loyal love', 'hesed', 'khesed', 'faithful', 'name of god', 'yahweh'] },
+      { id: 'spiritualbeings', name: 'God & Spiritual Beings', icon: 'fa-sparkles', keywords: ['spiritual beings', 'elohim', 'angel', 'cherubim', 'seraphim', 'satan', 'demon', 'divine council', 'sons of god'] },
+      { id: 'cityexile', name: 'City, Exile & Tree of Life', icon: 'fa-tree', keywords: ['tree of life', 'city', 'cities', 'babylon', 'exile', 'jerusalem', 'daniel', 'empire'] },
+      { id: 'justice', name: 'Sabbath, Justice & Generosity', icon: 'fa-scale-balanced', keywords: ['sabbath', 'seventh day', 'rest', 'justice', 'righteousness', 'generosity', 'jubilee', 'law', 'holiness', 'sacrifice', 'atonement', 'blessing and curse'] },
+      { id: 'newcreation', name: 'Gospel, Apocalypse & New Creation', icon: 'fa-sun', keywords: ['apocalypse', 'revelation', 'day of the lord', 'new creation', 'heaven and earth', 'gospel of the kingdom', 'son of man', 'resurrection', 'easter', 'advent'] },
+      { id: 'qr', name: 'Q+R (Listener Questions)', icon: 'fa-circle-question', keywords: ['q+r', 'q&r', 'question'] }
     ];
 
     /* Curated Free Podcasts (BibleProject Spotlight + Español + Faith + Kids/NASA) */
@@ -1396,8 +1499,9 @@
         desc: 'In-depth conversations about the biblical theology behind each BibleProject series.',
         rssUrl: 'https://feeds.simplecast.com/3NVmUWZO',
         itunesId: '1050832450',
+        isBibleProjectChannel: true,
         artwork: 'https://placehold.co/200x200/0f172a/38bdf8?text=BibleProject',
-        badge: 'BIBLE'
+        badge: '540+ EPISODES'
       },
       {
         id: 'pod-strangemybible',
@@ -1407,6 +1511,7 @@
         desc: 'Tim Mackie’s personal archive of sermons, lectures, and classroom teachings.',
         rssUrl: 'https://feeds.simplecast.com/zovPCGLI',
         itunesId: '1271147429',
+        isBibleProjectChannel: true,
         artwork: 'https://placehold.co/200x200/1e1b4b/818cf8?text=Strange+Bible',
         badge: 'TIM MACKIE'
       },
@@ -1419,6 +1524,7 @@
         rssUrl: '',
         searchQuery: 'Proyecto Biblia BibleProject',
         itunesId: '1608565468',
+        isBibleProjectChannel: true,
         artwork: 'https://placehold.co/200x200/2e1505/f59e0b?text=Proyecto+Biblia',
         badge: 'ESPAÑOL'
       },
@@ -1459,7 +1565,7 @@
       }
     ];
 
-    /* Default Assignable Speed Dial Slots (Pre-populated with Spanish, Portuguese, Christian & SC presets, all 100% replaceable) */
+    /* Default Assignable Speed Dial Slots */
     const DEFAULT_ASSIGNABLE_SLOTS = [
       {
         id: 'slot-1',
@@ -1468,6 +1574,8 @@
         subtitle: '24/7 Contemporary Worship',
         location: 'United States',
         language: 'English',
+        iheartId: '5163',
+        tuneinId: 's24937',
         codec: 'AAC',
         bitrate: 128,
         url_resolved: 'https://maestro.emfcdn.com/stream_for/air1/tunein/aac',
@@ -1480,6 +1588,8 @@
         subtitle: 'Upstate SC Praise & Worship',
         location: 'Greenville / Spartanburg, SC',
         language: 'English',
+        rtnSlug: 'hisradiopraise',
+        tuneinId: 's128198',
         codec: 'AAC',
         bitrate: 96,
         url_resolved: 'https://rtn.cdnstream1.com/2568_96.aac',
@@ -1492,6 +1602,7 @@
         subtitle: 'Billy Graham Evangelistic Assoc.',
         location: 'Asheville / Upstate SC',
         language: 'English',
+        tuneinId: 's29795',
         codec: 'AAC',
         bitrate: 96,
         url_resolved: 'https://ais-sa8.cdnstream1.com/2815_96.aac',
@@ -1542,6 +1653,7 @@
         subtitle: 'Ambient Beats & Downtempo',
         location: 'San Francisco, CA',
         language: 'English',
+        somaChannel: 'groovesalad',
         codec: 'MP3',
         bitrate: 128,
         url_resolved: 'https://ice2.somafm.com/groovesalad-128-mp3',
@@ -1554,6 +1666,7 @@
         subtitle: '24/7 Symphony & Chamber Music',
         location: 'Boston, MA',
         language: 'English',
+        tuneinId: 's27531',
         codec: 'MP3',
         bitrate: 128,
         url_resolved: 'https://wgbh-live.streamguys1.com/wcrb-96k.mp3',
@@ -1582,12 +1695,14 @@
       stationPendingAssignment: null,
       targetSlotForEmptyTap: null,
 
-      // Live Now Playing Song / Artist Metadata
+      // Real Live Song / Artist Metadata
       nowPlayingTrack: '',
       nowPlayingArtist: '',
+      nowPlayingArtwork: '',
+      isFetchingTrack: false,
       metadataPollTimer: null,
 
-      // Curated Waves Discovery State (Supports Multi-Genre Selection!)
+      // Curated Waves Discovery State
       wavesLanguageFilter: 'all',
       wavesGroupingMode: 'genre',
       activeWaveCategoryIds: ['christian'],
@@ -1596,12 +1711,15 @@
       wavesFilterQuery: '',
       liveApiTags: [],
 
-      // Free Podcasts Hub & Saved Progress State
+      // Free Podcasts Hub, BibleProject Themes & Saved Progress State
       activePodcastCategory: 'all',
       activePodcastShow: FEATURED_PODCAST_SHOWS[0],
+      activeBibleProjectTheme: 'all',
+      podcastEpisodeFilterQuery: '',
+      podcastEpisodesDisplayLimit: 40,
       podcastEpisodes: [],
       podcastSearchShows: [],
-      podcastProgress: {}, // Map of episodeId -> { currentTime, duration, title, showTitle, artwork, url_resolved, subtitle, updatedAt }
+      podcastProgress: {},
       pendingResumeEpisode: null,
 
       // Station Vault Smart Omni-Search State
@@ -1615,13 +1733,13 @@
       sleepSecondsRemaining: 0,
       sleepTotalSeconds: 0,
       sleepStartVolume: 85,
-      sleepFadeMode: 'gradual', // 'gradual' (fade over entire duration) or 'end' (fade in final 30s)
+      sleepFadeMode: 'gradual',
       sleepIntervalId: null,
 
       // User Settings (Studio Prefs)
       settings: {
         theme: 'midnight',
-        dialCapacity: 'auto', // 'auto', '6', '8', '12'
+        dialCapacity: 'auto',
         defaultGrouping: 'genre',
         minBitrate: 0,
         httpsOnly: true,
@@ -1630,7 +1748,6 @@
         apiMirror: 'auto'
       },
 
-      // Assignable Speed Dial Array (Up to 12 slots)
       assignableSlots: [...DEFAULT_ASSIGNABLE_SLOTS]
     };
 
@@ -1975,74 +2092,202 @@
     }
 
     /* ==========================================================================
-       5B. LIVE TRACK & ARTIST METADATA RESOLVER FOR "NOW ON AIR"
-       Polls live song/artist info for EMF stations, SomaFM, and Radio streams
+       5B. REAL LIVE SONG & ARTIST METADATA RESOLVER FOR "NOW ON AIR"
+       Queries real-time track endpoints for K-LOVE, Air1, Air1 Música de Adoración,
+       HIS Radio (89.3 WLFJ), HIS Radio Z (WHRZ), SomaFM, TuneIn & Icecast servers
+       with automatic CORS proxy fallback so actual Song & Artist names appear!
        ========================================================================== */
     function startLiveTrackMetadataPolling() {
       clearInterval(state.metadataPollTimer);
-      fetchNowPlayingTrackInfo();
+      fetchNowPlayingTrackInfo(false);
       state.metadataPollTimer = setInterval(() => {
-        if (state.isPlaying) {
-          fetchNowPlayingTrackInfo();
-        }
-      }, 25000);
+        fetchNowPlayingTrackInfo(false);
+      }, 22000);
     }
 
-    async function fetchNowPlayingTrackInfo() {
+    /* Helper: Fetch JSON or Text directly first, then fallback to CORS proxies */
+    async function fetchWithCorsFallback(targetUrl, asJson = true) {
+      const attempts = [
+        targetUrl,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+      ];
+      for (const url of attempts) {
+        try {
+          const ctrl = new AbortController();
+          const tid = setTimeout(() => ctrl.abort(), 4500);
+          const res = await fetch(url, { signal: ctrl.signal });
+          clearTimeout(tid);
+          if (!res.ok) continue;
+          return asJson ? await res.json() : await res.text();
+        } catch (_) {}
+      }
+      return null;
+    }
+
+    async function fetchNowPlayingTrackInfo(manualRefresh = false) {
       const st = state.currentStation;
       if (!st) return;
 
-      // 1. If playing a Podcast Episode, display Episode Title & Series Author
-      if (st.isPodcast) {
-        state.nowPlayingTrack = st.name;
-        state.nowPlayingArtist = st.location || st.subtitle || 'Podcast Episode';
-        renderNowOnAir();
-        return;
-      }
+      const spinner = document.getElementById('trackRefreshSpinner');
+      if (spinner && manualRefresh) spinner.classList.add('fa-spin');
 
-      const nameLower = (st.name || '').toLowerCase();
+      try {
+        // 1. Podcast Episode: Show Episode Title & Series Author
+        if (st.isPodcast) {
+          state.nowPlayingTrack = st.name;
+          state.nowPlayingArtist = st.location || st.subtitle || 'Podcast Episode';
+          state.nowPlayingArtwork = st.favicon || '';
+          renderNowOnAir();
+          return;
+        }
 
-      // 2. SomaFM Public Live Song API (Groove Salad, Mission Control, etc.)
-      if (st.somaChannel || (st.url_resolved && st.url_resolved.includes('somafm.com'))) {
-        const ch = st.somaChannel || (st.url_resolved.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
-        try {
-          const res = await fetch(`https://api.somafm.com/songs/${ch}.json`);
-          if (res.ok) {
-            const data = await res.json();
-            const latest = data?.songs?.[0];
-            if (latest && latest.title) {
-              state.nowPlayingTrack = latest.title;
-              state.nowPlayingArtist = latest.artist || '';
-              renderNowOnAir();
-              updateMediaSessionMetadata();
-              return;
+        const nameLower = (st.name || '').toLowerCase();
+
+        // Determine known iHeart / RTN / TuneIn / SomaFM identifiers even if station was loaded from storage
+        let iheartId = st.iheartId || '';
+        let rtnSlug = st.rtnSlug || '';
+        let tuneinId = st.tuneinId || '';
+
+        if (!iheartId) {
+          if (st.id === 'perm-klove-945' || (nameLower.includes('k-love') && !nameLower.includes('air1'))) iheartId = '5162';
+          else if (st.id === 'perm-air1-adoracion' || nameLower.includes('adoraci')) iheartId = '10183';
+          else if (nameLower.includes('air1')) iheartId = '5163';
+        }
+        if (!rtnSlug) {
+          if (st.id === 'perm-his-radio-z' || nameLower.includes('his radio z')) rtnSlug = 'hisradioz';
+          else if (nameLower.includes('his radio praise')) rtnSlug = 'hisradiopraise';
+          else if (st.id === 'perm-his-radio-893' || nameLower.includes('his radio')) rtnSlug = 'hisradio';
+        }
+        if (!tuneinId) {
+          if (rtnSlug === 'hisradio') tuneinId = 's30611';
+          else if (rtnSlug === 'hisradioz') tuneinId = 's67495';
+          else if (iheartId === '5162') tuneinId = 's33828';
+          else if (iheartId === '5163') tuneinId = 's24937';
+        }
+
+        // 2. SOURCE A: iHeart Live Track Metadata API (K-LOVE, Air1, Air1 Música de Adoración)
+        if (iheartId) {
+          const ihUrl = `https://us.api.iheart.com/api/v3/live-meta/stream/${iheartId}/currentTrackMeta?defaultMetadata=true&_=${Date.now()}`;
+          const data = await fetchWithCorsFallback(ihUrl, true);
+          if (data && data.title && !isGenericStationPlaceholder(data.title, st.name)) {
+            state.nowPlayingTrack = String(data.title).trim();
+            state.nowPlayingArtist = String(data.artist || '').trim();
+            if (data.imagePath && String(data.imagePath).startsWith('http')) {
+              state.nowPlayingArtwork = String(data.imagePath).replace(/^http:/, 'https:');
+            }
+            renderNowOnAir();
+            updateMediaSessionMetadata();
+            return;
+          }
+        }
+
+        // 3. SOURCE B: TuneIn RadioTime NowPlaying API (Works for HIS Radio 89.3, HIS Radio Z, K-LOVE, Classical WCRB, NASA, etc.)
+        if (tuneinId) {
+          const tiUrl = `https://opml.radiotime.com/Describe.ashx?c=nowplaying&id=${tuneinId}&render=json&_=${Date.now()}`;
+          const tiData = await fetchWithCorsFallback(tiUrl, true);
+          const body = tiData?.body;
+          if (Array.isArray(body) && body.length > 0) {
+            // TuneIn puts current song or show in body[0] or body[1]
+            for (const item of body) {
+              const title = item.title || item.text || '';
+              const sub = item.subtitle || item.subtext || '';
+              if (title && sub && !isGenericStationPlaceholder(title, st.name) && !isGenericStationPlaceholder(sub, st.name)) {
+                state.nowPlayingTrack = sub;
+                state.nowPlayingArtist = title;
+                if (item.image && String(item.image).startsWith('http')) {
+                  state.nowPlayingArtwork = String(item.image).replace(/^http:/, 'https:');
+                }
+                renderNowOnAir();
+                updateMediaSessionMetadata();
+                return;
+              }
             }
           }
-        } catch (_) {}
-      }
+        }
 
-      // 3. Try Radio-Browser station lookup or curated live feed info
-      if (nameLower.includes('k-love') || st.emfCode === 'klove') {
-        state.nowPlayingTrack = 'Positive & Encouraging Worship';
-        state.nowPlayingArtist = 'K-LOVE Live Broadcast';
-      } else if (nameLower.includes('air1')) {
-        state.nowPlayingTrack = nameLower.includes('adoraci') ? 'Adoración en Vivo 24/7' : 'Worship Now 24/7';
-        state.nowPlayingArtist = 'Air1 Worship Network';
-      } else if (nameLower.includes('his radio z')) {
-        state.nowPlayingTrack = 'Positive Pop & Hip-Hop Hits';
-        state.nowPlayingArtist = 'HIS Radio Z Live';
-      } else if (nameLower.includes('his radio')) {
-        state.nowPlayingTrack = 'Upstate SC Contemporary Christian';
-        state.nowPlayingArtist = 'HIS Radio WLFJ';
-      } else if (nameLower.includes('third rock') || nameLower.includes('nasa')) {
-        state.nowPlayingTrack = 'New Indie Rock & Space Mission Audio';
-        state.nowPlayingArtist = 'NASA Johnson Space Center';
-      } else {
-        state.nowPlayingTrack = st.subtitle || 'Live Broadcast Stream';
-        state.nowPlayingArtist = st.location || '';
-      }
+        // 4. SOURCE C: RTN Live Playlist Scraper (HIS Radio 89.3, HIS Radio Z, HIS Radio Praise)
+        if (rtnSlug) {
+          const rtnUrl = `https://www.rtndev.com/pages/playlist/${rtnSlug}/?_=${Date.now()}`;
+          const html = await fetchWithCorsFallback(rtnUrl, false);
+          if (html && typeof html === 'string') {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const songLink = doc.querySelector('a[href*="/song/"]');
+            if (songLink) {
+              const rawText = songLink.textContent.replace(/\s+/g, ' ').trim();
+              const containerText = songLink.parentElement ? songLink.parentElement.textContent.replace(/\s+/g, ' ').trim() : '';
+              if (rawText) {
+                state.nowPlayingTrack = rawText;
+                const rest = containerText.replace(rawText, '').replace(/\d{1,2}:\d{2}\s*(am|pm)/gi, '').trim();
+                state.nowPlayingArtist = rest.slice(0, 50);
+                renderNowOnAir();
+                updateMediaSessionMetadata();
+                return;
+              }
+            }
+          }
+        }
 
-      renderNowOnAir();
+        // 5. SOURCE D: SomaFM Live Track API
+        if (st.somaChannel || (st.url_resolved && st.url_resolved.includes('somafm.com'))) {
+          const ch = st.somaChannel || (st.url_resolved.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
+          const somaData = await fetchWithCorsFallback(`https://api.somafm.com/songs/${ch}.json`, true);
+          const latest = somaData?.songs?.[0];
+          if (latest && latest.title) {
+            state.nowPlayingTrack = latest.title;
+            state.nowPlayingArtist = latest.artist || '';
+            renderNowOnAir();
+            updateMediaSessionMetadata();
+            return;
+          }
+        }
+
+        // 6. SOURCE E: Icecast Server status-json.xsl (For 30,000+ Radio-Browser Streams)
+        if (st.url_resolved && st.url_resolved.startsWith('https://')) {
+          try {
+            const parsedUrl = new URL(st.url_resolved);
+            const iceUrl = `${parsedUrl.origin}/status-json.xsl`;
+            const iceData = await fetchWithCorsFallback(iceUrl, true);
+            let sources = iceData?.icestats?.source;
+            if (sources) {
+              if (!Array.isArray(sources)) sources = [sources];
+              const mount = parsedUrl.pathname;
+              const matchedSource = sources.find(s => s.listenurl && s.listenurl.includes(mount)) || sources[0];
+              const rawTitle = matchedSource?.title || matchedSource?.yp_currently_playing || '';
+              if (rawTitle && !isGenericStationPlaceholder(rawTitle, st.name)) {
+                const parts = String(rawTitle).split(' - ');
+                if (parts.length >= 2) {
+                  state.nowPlayingArtist = parts[0].trim();
+                  state.nowPlayingTrack = parts.slice(1).join(' - ').trim();
+                } else {
+                  state.nowPlayingTrack = String(rawTitle).trim();
+                  state.nowPlayingArtist = '';
+                }
+                renderNowOnAir();
+                updateMediaSessionMetadata();
+                return;
+              }
+            }
+          } catch (_) {}
+        }
+
+        // If no live song metadata is broadcast by this station right now, clear duplicate station text
+        state.nowPlayingTrack = '';
+        state.nowPlayingArtist = '';
+        renderNowOnAir();
+      } finally {
+        if (spinner) spinner.classList.remove('fa-spin');
+      }
+    }
+
+    function isGenericStationPlaceholder(text, stationName) {
+      if (!text) return true;
+      const t = String(text).toLowerCase().trim();
+      const s = String(stationName || '').toLowerCase().trim();
+      if (t === s || t.includes('k-love') || t.includes('air1') || t.includes('commercial break') || t === 'unknown') {
+        return true;
+      }
+      return false;
     }
 
     /* Enrich permanent stations with live Radio-Browser fallback streams in the background */
@@ -2099,6 +2344,10 @@
       state.isPlaying = false;
       state.nowPlayingTrack = '';
       state.nowPlayingArtist = '';
+      state.nowPlayingArtwork = '';
+
+      // Immediately start resolving live Song & Artist info in parallel with audio stream connection
+      fetchNowPlayingTrackInfo(false);
 
       // Record in Recent History
       addToRecentStations(station);
@@ -2309,6 +2558,7 @@
       const st = state.currentStation || PERMANENT_STATIONS[0];
       const nameEl = document.getElementById('nowStationName');
       const trackTextEl = document.getElementById('nowPlayingTrackText');
+      const artistTextEl = document.getElementById('nowPlayingArtistText');
       const trackIconEl = document.getElementById('nowTrackIcon');
       const subEl = document.getElementById('nowStationSubtitle');
       const fallbackSymbol = document.getElementById('nowFallbackSymbol');
@@ -2322,26 +2572,37 @@
 
       if (nameEl) nameEl.textContent = st.name;
 
-      // Display Current Song & Artist (or Episode Info)
-      if (trackTextEl) {
+      // Display Real Current Song & Artist (Never duplicate the station name/slogan!)
+      if (trackTextEl && artistTextEl) {
         if (st.isPodcast) {
-          trackTextEl.textContent = st.subtitle || st.location || 'Podcast Episode';
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-podcast text-[10px] text-sky-300 shrink-0';
+          trackTextEl.textContent = st.subtitle || 'Podcast Episode';
+          artistTextEl.textContent = st.location || '';
+          artistTextEl.classList.toggle('hidden', !st.location);
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-podcast text-xs text-sky-300 shrink-0';
         } else if (state.nowPlayingTrack) {
-          trackTextEl.textContent = state.nowPlayingArtist
-            ? `${state.nowPlayingTrack} — ${state.nowPlayingArtist}`
-            : state.nowPlayingTrack;
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-[10px] text-sky-300 shrink-0';
+          trackTextEl.textContent = state.nowPlayingTrack;
+          if (state.nowPlayingArtist) {
+            artistTextEl.textContent = state.nowPlayingArtist;
+            artistTextEl.classList.remove('hidden');
+          } else {
+            artistTextEl.textContent = '';
+            artistTextEl.classList.add('hidden');
+          }
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-xs text-emerald-300 shrink-0';
         } else {
-          trackTextEl.textContent = st.subtitle || 'Live Broadcast';
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-[10px] text-sky-300 shrink-0';
+          trackTextEl.textContent = state.isPlaying
+            ? 'Live Broadcast • Tap ↻ to check song'
+            : 'Tap ↻ or Play for live song & artist';
+          artistTextEl.textContent = '';
+          artistTextEl.classList.add('hidden');
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-xs text-sky-300/70 shrink-0';
         }
       }
 
       if (subEl) {
         subEl.textContent = st.isPodcast
-          ? (st.description ? st.description.slice(0, 65) : 'On-Demand Audio')
-          : (st.location || 'Live Broadcast');
+          ? (st.description ? st.description.slice(0, 68) : 'On-Demand Audio')
+          : (st.subtitle || st.location || 'Live Broadcast');
       }
 
       // Show or hide Podcast timeline scrubber (-15s / +30s / progress bar)
@@ -2361,8 +2622,9 @@
           : 'fa-solid fa-tower-broadcast text-sky-300 text-base';
       }
 
-      if (st.favicon && st.favicon.startsWith('https://')) {
-        logoImg.src = st.favicon;
+      const activeArtwork = state.nowPlayingArtwork || st.favicon || '';
+      if (activeArtwork && activeArtwork.startsWith('https://')) {
+        logoImg.src = activeArtwork;
         logoImg.classList.remove('hidden');
         fallbackIcon.classList.add('hidden');
       } else {
@@ -2796,17 +3058,18 @@
     }
 
     /* ==========================================================================
-       10B. FREE PODCASTS ENGINE (CATEGORY DISCOVERY, CHANNEL PINNING, & SAVED PROGRESS)
+       10B. FREE PODCASTS ENGINE (24 TOPICS, BIBLEPROJECT 548+ EPISODE THEME
+       ARCHIVE, CHANNEL PINNING, & SAVED PROGRESS)
        ========================================================================== */
     function renderPodcastCategoryPills() {
       const bar = document.getElementById('podcastCategoryPills');
       const drawerList = document.getElementById('podcastCategoryDrawerList');
       const activeCat = PODCAST_CATEGORIES.find(c => c.id === state.activePodcastCategory);
       const labelEl = document.getElementById('activePodCategoryLabel');
-      if (labelEl) labelEl.textContent = activeCat ? activeCat.name : 'Browse Topics';
+      if (labelEl) labelEl.textContent = activeCat ? activeCat.name : '24 Topics';
 
       const allItems = [
-        { id: 'all', name: 'Featured Channels', icon: 'fa-star', desc: 'BibleProject & curated favorites' },
+        { id: 'all', shelf: 'Featured', name: 'Featured Channels', icon: 'fa-star', desc: 'BibleProject & curated favorites' },
         ...PODCAST_CATEGORIES
       ];
 
@@ -2827,23 +3090,44 @@
       }
 
       if (drawerList) {
-        drawerList.innerHTML = allItems.map(cat => {
-          const isActive = state.activePodcastCategory === cat.id;
-          return `
-            <button
-              onclick="selectPodcastCategory('${cat.id}'); closePodcastCategoryDrawer();"
-              class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3.5 rounded-2xl text-left flex items-start gap-3"
-            >
-              <div class="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0 mt-0.5">
-                <i class="fa-solid ${cat.icon} text-xs"></i>
+        // Group the 24 Podcast Topics cleanly by Shelf inside the slide-out drawer!
+        const shelves = new Map();
+        for (const cat of allItems) {
+          const sh = cat.shelf || 'Topics';
+          if (!shelves.has(sh)) shelves.set(sh, []);
+          shelves.get(sh).push(cat);
+        }
+
+        let html = '';
+        for (const [shelfName, items] of shelves.entries()) {
+          html += `
+            <div class="col-span-1 sm:col-span-2 mt-2 first:mt-0">
+              <div class="text-[10px] font-mono uppercase tracking-wider font-bold text-sky-400 px-1 mb-1.5">
+                ${escapeHtml(shelfName)} (${items.length})
               </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-xs sm:text-sm font-bold">${escapeHtml(cat.name)}</div>
-                <div class="text-[11px] mt-0.5" style="color: var(--text-secondary);">${escapeHtml(cat.desc || '')}</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                ${items.map(cat => {
+                  const isActive = state.activePodcastCategory === cat.id;
+                  return `
+                    <button
+                      onclick="selectPodcastCategory('${cat.id}'); closePodcastCategoryDrawer();"
+                      class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3 rounded-2xl text-left flex items-start gap-2.5"
+                    >
+                      <div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0 mt-0.5">
+                        <i class="fa-solid ${cat.icon} text-xs"></i>
+                      </div>
+                      <div class="min-w-0 flex-1">
+                        <div class="text-xs font-bold leading-snug">${escapeHtml(cat.name)}</div>
+                        <div class="text-[10px] leading-snug mt-0.5" style="color: var(--text-secondary);">${escapeHtml(cat.desc || '')}</div>
+                      </div>
+                    </button>
+                  `;
+                }).join('')}
               </div>
-            </button>
+            </div>
           `;
-        }).join('');
+        }
+        drawerList.innerHTML = html;
       }
     }
 
@@ -3087,6 +3371,13 @@
 
     async function loadPodcastShow(show, autoPlayFirstOrResume = false) {
       state.activePodcastShow = show;
+      state.activeBibleProjectTheme = 'all';
+      state.podcastEpisodeFilterQuery = '';
+      state.podcastEpisodesDisplayLimit = 40;
+
+      const filterInput = document.getElementById('podcastEpisodeFilterInput');
+      if (filterInput) filterInput.value = '';
+
       renderFeaturedPodcastShows();
       renderContinueListeningShelf();
 
@@ -3095,28 +3386,41 @@
       const artEl = document.getElementById('activePodcastArt');
       const listEl = document.getElementById('podcastEpisodesList');
       const countBadge = document.getElementById('podcastEpisodeCountBadge');
+      const bpPanel = document.getElementById('bibleProjectThemesPanel');
 
       if (titleEl) titleEl.textContent = show.title;
       if (authorEl) authorEl.textContent = show.author || show.desc || 'Podcast Series';
       if (artEl && show.artwork) artEl.src = show.artwork;
 
+      // Show the dedicated BibleProject Themes & Series Explorer panel when on BibleProject channels
+      const isBp = Boolean(
+        show.isBibleProjectChannel ||
+        (show.title && show.title.toLowerCase().includes('bibleproject')) ||
+        (show.title && show.title.toLowerCase().includes('strange bible')) ||
+        (show.title && show.title.toLowerCase().includes('proyecto biblia'))
+      );
+      if (bpPanel) {
+        bpPanel.classList.toggle('hidden', !isBp);
+        bpPanel.classList.toggle('flex', isBp);
+      }
+
       if (listEl) {
         listEl.innerHTML = `
           <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
             <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
-            <span class="text-xs font-medium" style="color: var(--text-secondary);">Loading episodes for ${escapeHtml(show.title)}...</span>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Loading full episode archive for ${escapeHtml(show.title)}...</span>
           </div>
         `;
       }
 
       let episodes = [];
 
-      // Strategy 1: Direct RSS XML Parse
+      // Strategy 1: Direct RSS XML Parse (Loads ALL 548+ BibleProject episodes with zero 30-episode cap!)
       if (show.rssUrl) {
         episodes = await fetchEpisodesFromRssXml(show.rssUrl, show);
       }
 
-      // Strategy 2: Apple iTunes Podcast Lookup API
+      // Strategy 2: Apple iTunes Podcast Lookup API (Up to 200 episodes)
       if (episodes.length === 0 && show.itunesId) {
         episodes = await fetchEpisodesFromItunesLookup(show.itunesId, show);
       }
@@ -3127,13 +3431,142 @@
       }
 
       state.podcastEpisodes = episodes;
-      if (countBadge) countBadge.textContent = `${episodes.length} episodes`;
-      renderPodcastEpisodesList(episodes);
+      if (countBadge) countBadge.textContent = `${episodes.length} total episodes`;
+
+      if (isBp) {
+        renderBibleProjectThemesBar();
+      }
+      renderFilteredPodcastEpisodes();
 
       // If opened from a pinned Podcast Channel on the Home Speed Dial, automatically play/resume latest episode!
       if (autoPlayFirstOrResume && episodes.length > 0) {
         const inProgressEp = episodes.find(ep => state.podcastProgress[ep.id]?.currentTime > 15);
         playStation(inProgressEp || episodes[0], 0);
+      }
+    }
+
+    /* Classify any BibleProject episode into matching BibleProject Theme IDs + extract its Series Badge */
+    function classifyBibleProjectEpisode(title, rawDesc) {
+      const hay = `${title} ${rawDesc}`.toLowerCase();
+      const matchedThemes = ['all'];
+
+      for (const theme of BIBLEPROJECT_THEMES) {
+        if (theme.id === 'all') continue;
+        if (theme.keywords.some(kw => hay.includes(kw))) {
+          matchedThemes.push(theme.id);
+        }
+      }
+
+      // Extract series prefix from BibleProject summary (e.g. "Spirit of God E15 — Some New Testament...")
+      let seriesBadge = '';
+      const dashMatch = rawDesc.match(/^([A-Za-z0-9\s&+'’:,-]{3,42}?)\s*[—–-]\s+/);
+      if (dashMatch && dashMatch[1]) {
+        seriesBadge = dashMatch[1].trim();
+      } else if (title.toLowerCase().includes('q+r') || title.toLowerCase().includes('q&r')) {
+        seriesBadge = 'Q+R Response';
+      }
+
+      return { matchedThemes, seriesBadge };
+    }
+
+    function renderBibleProjectThemesBar() {
+      const pillsEl = document.getElementById('bibleProjectThemePills');
+      const archiveBadge = document.getElementById('bpTotalArchiveBadge');
+      if (!pillsEl) return;
+
+      const allEps = state.podcastEpisodes || [];
+      if (archiveBadge) {
+        archiveBadge.textContent = `${allEps.length} Episodes Loaded`;
+      }
+
+      pillsEl.innerHTML = BIBLEPROJECT_THEMES.map(theme => {
+        const count = theme.id === 'all'
+          ? allEps.length
+          : allEps.filter(ep => Array.isArray(ep.bpThemes) && ep.bpThemes.includes(theme.id)).length;
+
+        if (theme.id !== 'all' && count === 0) return '';
+
+        const isActive = state.activeBibleProjectTheme === theme.id;
+        return `
+          <button
+            onclick="selectBibleProjectTheme('${theme.id}')"
+            class="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition ${isActive ? 'bg-sky-500 text-white shadow-sm' : 'bg-white/5 hover:bg-white/10'}"
+            style="${isActive ? '' : 'color: var(--text-secondary);'}"
+          >
+            <i class="fa-solid ${theme.icon} text-[10px]"></i>
+            <span>${escapeHtml(theme.name)}</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/25 text-white' : 'bg-white/5 text-sky-400'}">${count}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectBibleProjectTheme(themeId) {
+      state.activeBibleProjectTheme = themeId;
+      state.podcastEpisodesDisplayLimit = 40;
+      renderBibleProjectThemesBar();
+      renderFilteredPodcastEpisodes();
+    }
+
+    function handleEpisodeFilterInput(val) {
+      state.podcastEpisodeFilterQuery = (val || '').trim().toLowerCase();
+      state.podcastEpisodesDisplayLimit = 40;
+      renderFilteredPodcastEpisodes();
+    }
+
+    function showMorePodcastEpisodes() {
+      state.podcastEpisodesDisplayLimit += 50;
+      renderFilteredPodcastEpisodes();
+    }
+
+    function getCurrentlyFilteredEpisodes() {
+      const allEps = state.podcastEpisodes || [];
+      return allEps.filter(ep => {
+        if (state.activeBibleProjectTheme !== 'all') {
+          if (!Array.isArray(ep.bpThemes) || !ep.bpThemes.includes(state.activeBibleProjectTheme)) {
+            return false;
+          }
+        }
+        if (state.podcastEpisodeFilterQuery) {
+          const hay = `${ep.name} ${ep.description || ''} ${ep.seriesBadge || ''} ${ep.subtitle || ''}`.toLowerCase();
+          if (!hay.includes(state.podcastEpisodeFilterQuery)) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    function renderFilteredPodcastEpisodes() {
+      const filtered = getCurrentlyFilteredEpisodes();
+      const headerEl = document.getElementById('podcastEpisodesHeader');
+      const countBadge = document.getElementById('podcastEpisodeCountBadge');
+      const moreBtn = document.getElementById('podcastShowMoreEpisodesBtn');
+      const moreTxt = document.getElementById('podcastShowMoreEpisodesText');
+
+      const themeObj = BIBLEPROJECT_THEMES.find(t => t.id === state.activeBibleProjectTheme);
+      if (headerEl) {
+        headerEl.textContent = themeObj && themeObj.id !== 'all'
+          ? `Theme: ${themeObj.name}`
+          : 'Channel Episodes';
+      }
+      if (countBadge) {
+        countBadge.textContent = `${filtered.length} episodes`;
+      }
+
+      const visibleSlice = filtered.slice(0, state.podcastEpisodesDisplayLimit);
+      renderPodcastEpisodesList(visibleSlice);
+
+      if (moreBtn) {
+        const remaining = filtered.length - visibleSlice.length;
+        if (remaining > 0) {
+          moreBtn.classList.remove('hidden');
+          moreBtn.classList.add('flex');
+          if (moreTxt) moreTxt.textContent = `Show More Episodes (${remaining} more in archive)`;
+        } else {
+          moreBtn.classList.add('hidden');
+          moreBtn.classList.remove('flex');
+        }
       }
     }
 
@@ -3403,9 +3836,8 @@
 
     async function fetchEpisodesFromRssXml(rssUrl, show) {
       try {
-        const res = await fetch(rssUrl);
-        if (!res.ok) return [];
-        const xmlText = await res.text();
+        const xmlText = await fetchWithCorsFallback(rssUrl, false);
+        if (!xmlText || typeof xmlText !== 'string') return [];
         const parser = new DOMParser();
         const doc = parser.parseFromString(xmlText, 'text/xml');
 
@@ -3418,7 +3850,8 @@
           if (artEl) artEl.src = channelImg;
         }
 
-        const items = Array.from(doc.querySelectorAll('item')).slice(0, 30);
+        // Parse ALL episodes in the RSS feed (548+ episodes for BibleProject!)
+        const items = Array.from(doc.querySelectorAll('item'));
         return items.map((item, idx) => {
           const title = item.querySelector('title')?.textContent?.trim() || `Episode ${idx + 1}`;
           const enclosure = item.querySelector('enclosure');
@@ -3426,14 +3859,19 @@
           const pubDateRaw = item.querySelector('pubDate')?.textContent || '';
           const pubDate = pubDateRaw ? new Date(pubDateRaw).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
           const duration = item.getElementsByTagName('itunes:duration')[0]?.textContent || '';
-          const rawDesc = item.querySelector('description')?.textContent || '';
-          const cleanDesc = rawDesc.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim().slice(0, 140);
+          const epNum = item.getElementsByTagName('itunes:episode')[0]?.textContent || '';
+          const rawDesc = (item.querySelector('description')?.textContent || '').replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim();
+          const cleanDesc = rawDesc.slice(0, 165);
+
+          const { matchedThemes, seriesBadge } = classifyBibleProjectEpisode(title, rawDesc);
 
           return {
-            id: `pod-ep-${show.id}-${idx}`,
+            id: `pod-ep-${show.id}-${epNum || idx}`,
             name: title,
             freq: duration ? `${duration}` : 'PODCAST',
             subtitle: `${show.title}${pubDate ? ' • ' + pubDate : ''}`,
+            seriesBadge: seriesBadge || (epNum ? `Episode ${epNum}` : ''),
+            bpThemes: matchedThemes,
             description: cleanDesc,
             location: show.author || 'Podcast',
             codec: 'MP3',
@@ -3451,7 +3889,7 @@
 
     async function fetchEpisodesFromItunesLookup(itunesId, show) {
       try {
-        const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(itunesId)}&entity=podcastEpisode&limit=25`;
+        const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(itunesId)}&entity=podcastEpisode&limit=200`;
         const res = await fetch(url);
         if (!res.ok) return [];
         const data = await res.json();
@@ -3464,17 +3902,29 @@
           if (artEl) artEl.src = collection.artworkUrl600;
         }
 
+        // If iTunes returned a feedUrl and we haven't parsed the full RSS feed yet, try the full RSS XML!
+        if (collection && collection.feedUrl && !show.rssUrl) {
+          show.rssUrl = collection.feedUrl;
+          const rssEps = await fetchEpisodesFromRssXml(collection.feedUrl, show);
+          if (rssEps.length > 0) return rssEps;
+        }
+
         return data.results
           .filter(r => r.wrapperType === 'podcastEpisode' && r.episodeUrl)
           .map((ep, idx) => {
             const mins = ep.trackTimeMillis ? `${Math.round(ep.trackTimeMillis / 60000)} min` : 'EPISODE';
             const dateStr = ep.releaseDate ? new Date(ep.releaseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+            const rawDesc = (ep.shortDescription || ep.description || '').replace(/\s+/g, ' ').trim();
+            const { matchedThemes, seriesBadge } = classifyBibleProjectEpisode(ep.trackName || '', rawDesc);
+
             return {
               id: `itunes-ep-${ep.trackId || idx}`,
               name: ep.trackName || 'Podcast Episode',
               freq: mins,
               subtitle: `${show.title}${dateStr ? ' • ' + dateStr : ''}`,
-              description: (ep.shortDescription || ep.description || '').replace(/\s+/g, ' ').trim().slice(0, 140),
+              seriesBadge,
+              bpThemes: matchedThemes,
+              description: rawDesc.slice(0, 165),
               location: show.author || ep.collectionName || 'Podcast',
               codec: 'MP3',
               bitrate: 128,
@@ -3619,7 +4069,7 @@
         return;
       }
 
-      listEl.innerHTML = episodes.map((ep, idx) => {
+      listEl.innerHTML = episodes.map((ep) => {
         const isCurrent = state.currentStation && state.currentStation.id === ep.id;
         const isPlayingThis = isCurrent && state.isPlaying;
         const savedProg = state.podcastProgress[ep.id];
@@ -3630,13 +4080,18 @@
 
         return `
           <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 flex items-start justify-between gap-3">
-            <button onclick="playPodcastEpisode(${idx})" class="flex-1 min-w-0 flex items-start gap-3 text-left">
+            <button onclick="playPodcastEpisodeById('${escapeHtml(ep.id)}')" class="flex-1 min-w-0 flex items-start gap-3 text-left">
               <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/25 flex items-center justify-center shrink-0 text-sky-400 mt-0.5">
                 ${isPlayingThis
                   ? '<i class="fa-solid fa-volume-high animate-pulse text-sm"></i>'
                   : '<i class="fa-solid fa-play text-xs ml-0.5"></i>'}
               </div>
               <div class="min-w-0 flex-1">
+                ${ep.seriesBadge ? `
+                  <span class="inline-block text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-500/15 text-sky-300 mb-1">
+                    ${escapeHtml(ep.seriesBadge)}
+                  </span>
+                ` : ''}
                 <div class="text-xs sm:text-sm font-bold leading-snug break-words">${escapeHtml(ep.name)}</div>
                 <div class="text-[11px] mt-0.5 text-sky-400">
                   ${escapeHtml(ep.subtitle)}${ep.freq ? ' • ' + escapeHtml(ep.freq) : ''}
@@ -3658,7 +4113,7 @@
             </button>
 
             <button
-              onclick="pinPodcastEpisode(${idx})"
+              onclick="pinPodcastEpisodeById('${escapeHtml(ep.id)}')"
               title="Pin Episode to Speed Dial"
               class="px-2.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sky-400 text-[11px] font-semibold flex items-center gap-1 shrink-0 mt-0.5"
             >
@@ -3670,14 +4125,14 @@
       }).join('');
     }
 
-    function playPodcastEpisode(idx) {
-      const ep = state.podcastEpisodes[idx];
+    function playPodcastEpisodeById(epId) {
+      const ep = state.podcastEpisodes.find(e => e.id === epId);
       if (!ep) return;
       playStation(ep, 0);
     }
 
-    function pinPodcastEpisode(idx) {
-      const ep = state.podcastEpisodes[idx];
+    function pinPodcastEpisodeById(epId) {
+      const ep = state.podcastEpisodes.find(e => e.id === epId);
       if (!ep) return;
       openAssignModal(ep);
     }
@@ -4379,6 +4834,8 @@
       renderContinueListeningShelf();
       startVisualizerLoop();
       enrichPermanentStationsFromApi();
+      // Immediately fetch live Song & Artist info for the active station on startup
+      startLiveTrackMetadataPolling();
     };
   </script>
 </body>
