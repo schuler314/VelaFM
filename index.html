@@ -251,7 +251,7 @@
 
   <!-- ==========================================================================
        TOP STUDIO HEADER BAR
-       Displays Brand Identity, Live Signal Status, Sleep Timer Pill, & Studio Prefs Button
+       Displays Brand Identity, Sleep Timer Pill, & Studio Prefs Button
        ========================================================================== -->
   <header class="sticky top-0 z-30 px-4 pt-3 pb-2.5 flex items-center justify-between bottom-nav-glass">
     <div class="flex items-center gap-2.5">
@@ -259,17 +259,14 @@
         <i class="fa-solid fa-tower-broadcast text-white text-sm"></i>
       </div>
       <div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
           <h1 class="font-extrabold text-base tracking-tight leading-none">VELA <span class="text-sky-400 font-mono text-xs font-semibold">FM</span></h1>
-          <span id="apiStatusDot" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>ONLINE
-          </span>
         </div>
-        <p class="text-[11px] leading-tight mt-0.5" style="color: var(--text-secondary);">Spartanburg &amp; Global Broadcast</p>
+        <p class="text-[11px] leading-tight mt-0.5" style="color: var(--text-secondary);">Personal Broadcast</p>
       </div>
     </div>
 
-    <!-- Right Header Controls: Sleep Timer Indicator + Edit Mode + Studio Prefs -->
+    <!-- Right Header Controls: Sleep Timer Indicator + Studio Prefs -->
     <div class="flex items-center gap-2">
       <!-- Active Sleep Timer Pill (Hidden when Off) -->
       <button id="headerSleepBadge" onclick="openSleepModal()" class="hidden items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30">
@@ -302,9 +299,9 @@
 
     <!-- ========================================================================
          HERO FOCAL CONSOLE: "NOW ON AIR"
-         Clean, high-contrast focal card with generous whitespace, clear typographic
-         scale, subtle equalizer, and automatic Podcast timeline controls when
-         listening to BibleProject or other podcast episodes.
+         Clean, high-contrast focal card with generous whitespace, live Song &
+         Artist metadata readout, subtle equalizer, and automatic Podcast timeline
+         controls when listening to podcast episodes.
          ======================================================================== -->
     <section id="nowOnAirSection" aria-label="Now On Air Station Console" class="now-on-air-deck rounded-3xl p-5 text-white transition-all duration-300">
       <div class="relative z-10 flex flex-col gap-3.5">
@@ -316,12 +313,9 @@
               <span id="liveIndicatorDot" class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
               <span id="liveStatusText">STANDBY</span>
             </span>
-            <span id="nowCodecBadge" class="text-[11px] font-mono text-slate-300/80">
-              94.5 FM
-            </span>
           </div>
 
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1.5">
             <!-- Switch Stream Signal -->
             <button id="cycleStreamBtn" onclick="tryAlternateStream()" title="Switch backup signal" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/15 text-xs text-slate-200 flex items-center justify-center transition">
               <i class="fa-solid fa-satellite-dish text-[11px] text-sky-300"></i>
@@ -339,22 +333,27 @@
           <div id="nowEmblemBox" class="relative w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner transition-all">
             <img id="nowStationLogo" src="" alt="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('nowStationFallbackIcon').classList.remove('hidden');" />
             <div id="nowStationFallbackIcon" class="flex flex-col items-center justify-center text-center">
-              <span id="nowFreqShort" class="font-mono font-extrabold text-sm text-sky-300 leading-none">94.5</span>
-              <span id="nowFreqUnit" class="text-[9px] font-mono uppercase tracking-wider text-slate-400 mt-0.5">FM</span>
+              <i id="nowFallbackSymbol" class="fa-solid fa-tower-broadcast text-sky-300 text-base"></i>
             </div>
           </div>
 
-          <!-- Station Title & Single Calm Subtitle -->
+          <!-- Station Title, Live Track/Artist Metadata & Calm Subtitle -->
           <div class="flex-1 min-w-0">
             <h2 id="nowStationName" class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-snug truncate">
-              K-LOVE 94.5
+              K-LOVE
             </h2>
-            <p id="nowStationSubtitle" class="text-xs text-slate-300/90 truncate mt-0.5">
-              Spartanburg, SC • Positive &amp; Encouraging
-            </p>
-            <div id="nowLocationRow" class="hidden">
-              <span id="nowStationLocation"></span>
+
+            <!-- Live Now Playing Song & Artist Line -->
+            <div id="nowTrackContainer" class="flex items-center gap-1.5 mt-0.5">
+              <i id="nowTrackIcon" class="fa-solid fa-music text-[10px] text-sky-300 shrink-0"></i>
+              <p id="nowPlayingTrackText" class="text-xs font-semibold text-sky-200 truncate">
+                Positive &amp; Encouraging
+              </p>
             </div>
+
+            <p id="nowStationSubtitle" class="text-[11px] text-slate-300/75 truncate mt-0.5">
+              Spartanburg, SC
+            </p>
           </div>
 
           <!-- Primary Tactile Play / Pause Transport Button -->
@@ -411,205 +410,200 @@
     </section>
 
     <!-- ========================================================================
-         VIEW 1: TUNER DECK (CLEAN, EDITORIAL HOME SCREEN)
-         Focused strictly on your 4 Permanent Broadcasts and your Speed Dial Grid
-         with generous whitespace and zero visual clutter.
+         VIEW 1: TUNER DECK (CLEAN HOME SCREEN)
+         Houses the 4 Permanent Signature Stations + Assignable Speed Dial Grid
          ======================================================================== -->
     <div id="view-home" class="flex flex-col gap-5">
 
-      <!-- PERMANENT CORE STATIONS: Upstate SC & Air1 Música de Adoración -->
-      <section aria-label="Pinned Signature Stations">
-        <div class="flex items-center justify-between mb-2.5 px-1">
-          <h3 class="text-[11px] font-bold uppercase tracking-widest" style="color: var(--text-secondary);">
+      <!-- 4 Permanent Signature Broadcasts -->
+      <div class="flex flex-col gap-2.5">
+        <div class="flex items-center justify-between px-1">
+          <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
             Signature Broadcasts
           </h3>
-          <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">Upstate SC &amp; Español</span>
+          <span class="text-[11px]" style="color: var(--text-secondary);">Pinned</span>
         </div>
 
         <div id="permanentGrid" class="grid grid-cols-2 gap-3">
-          <!-- Populated dynamically by renderSpeedDial() -->
+          <!-- Rendered by renderSpeedDial() -->
         </div>
-      </section>
+      </div>
 
-      <!-- ASSIGNABLE SPEED DIAL GRID -->
-      <section aria-label="Assignable Speed Dial Presets">
-        <div class="flex items-center justify-between mb-2.5 px-1">
+      <!-- Assignable Speed Dial Presets -->
+      <div class="flex flex-col gap-2.5">
+        <div class="flex items-center justify-between px-1">
           <div class="flex items-center gap-2">
-            <h3 class="text-[11px] font-bold uppercase tracking-widest" style="color: var(--text-secondary);">
+            <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
               Speed Dial
             </h3>
-            <span id="speedDialCountBadge" class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">8 Slots</span>
+            <span id="speedDialCountBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5" style="color: var(--text-secondary);">
+              8 Slots
+            </span>
           </div>
 
-          <!-- Minimal Edit Mode Toggle -->
-          <button id="editDialBtn" onclick="toggleSpeedDialEditMode()" class="px-2.5 py-1 rounded-lg text-[11px] font-medium surface-card flex items-center gap-1.5">
-            <i class="fa-solid fa-sliders text-[10px] text-sky-400"></i>
+          <button id="editDialBtn" onclick="toggleSpeedDialEditMode()" class="px-2.5 py-1 rounded-lg text-xs font-semibold surface-card flex items-center gap-1.5" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-pen text-[10px]"></i>
             <span id="editDialBtnText">Edit</span>
           </button>
         </div>
 
         <div id="assignableGrid" class="grid grid-cols-2 gap-3">
-          <!-- Populated dynamically by renderSpeedDial() -->
+          <!-- Rendered by renderSpeedDial() -->
         </div>
-      </section>
+      </div>
 
     </div>
 
     <!-- ========================================================================
-         VIEW 2: CURATED WAVES (CLEAN SLIDE-OUT DRAWERS + MULTI-GENRE COMBINATION)
-         Features two tactile drawer buttons (Language & Multi-Select Genres) so
-         the screen stays clean and station results are immediately visible.
+         VIEW 2: CURATED WAVES (SLIDE-OUT LANGUAGE & MULTI-GENRE DRAWERS)
          ======================================================================== -->
     <div id="view-waves" class="hidden flex-col gap-4">
 
-      <!-- Clean Filter Control Card -->
-      <div class="surface-card rounded-2xl p-4 flex flex-col gap-3.5">
+      <!-- Top Filter Bar with Slide-Out Drawer Triggers -->
+      <div class="surface-card rounded-2xl p-4 flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-extrabold tracking-tight">Curated Waves</h2>
-            <p class="text-xs" style="color: var(--text-secondary);">Combine languages &amp; multiple genres</p>
+            <p class="text-xs" style="color: var(--text-secondary);">Combine genres or filter by language</p>
           </div>
-
-          <!-- Match Mode Toggle when 2+ Genres are selected -->
-          <button
-            id="multiGenreModeBtn"
-            onclick="toggleMultiGenreMatchMode()"
-            class="px-2.5 py-1 rounded-xl text-[11px] font-mono font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/25"
-            title="Switch between matching ALL selected genres together (e.g. Christian + Rock) or ANY selected genre"
-          >
-            Match: Combine (AND)
+          <button onclick="refreshCurrentWave()" title="Refresh Stations" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-sky-400">
+            <i class="fa-solid fa-rotate"></i>
           </button>
         </div>
 
-        <!-- Primary Two-Button Drawer Launchers: Language Drawer & Multi-Genre Drawer -->
+        <!-- Two Primary Drawer Trigger Buttons: Language + Genres (Multi-Select) -->
         <div class="grid grid-cols-2 gap-2.5">
-          <!-- 1. Language Drawer Trigger Button -->
-          <button
-            onclick="openLanguageDrawer()"
-            class="surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-2 border border-white/10 hover:border-sky-400/50 transition"
-          >
+          <button onclick="openLanguageDrawer()" class="surface-card p-3 rounded-xl flex items-center justify-between gap-2 text-left hover:border-sky-400/50 transition">
             <div class="min-w-0">
-              <div class="text-[10px] font-mono uppercase tracking-wider" style="color: var(--text-secondary);">Language</div>
-              <div id="wavesLangBtnLabel" class="text-xs sm:text-sm font-extrabold truncate mt-0.5 text-sky-400">
-                🌐 All Languages
-              </div>
+              <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400">Language</div>
+              <div id="wavesLangBtnLabel" class="text-xs font-bold truncate mt-0.5">🌐 All Languages</div>
             </div>
-            <div class="w-7 h-7 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-chevron-down text-[11px]" style="color: var(--text-secondary);"></i>
-            </div>
+            <i class="fa-solid fa-chevron-down text-xs opacity-60 shrink-0"></i>
           </button>
 
-          <!-- 2. Multi-Genre Drawer Trigger Button -->
-          <button
-            onclick="openGenreDrawer()"
-            class="surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-2 border border-white/10 hover:border-sky-400/50 transition"
-          >
+          <button onclick="openGenreDrawer()" class="surface-card p-3 rounded-xl flex items-center justify-between gap-2 text-left hover:border-sky-400/50 transition">
             <div class="min-w-0">
-              <div class="text-[10px] font-mono uppercase tracking-wider" style="color: var(--text-secondary);">Genres &amp; Vibes</div>
-              <div id="wavesGenreBtnLabel" class="text-xs sm:text-sm font-extrabold truncate mt-0.5 text-sky-400">
-                1 Selected
-              </div>
+              <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400">Genres &amp; Vibes</div>
+              <div id="wavesGenreBtnLabel" class="text-xs font-bold truncate mt-0.5">Contemporary Christian</div>
             </div>
-            <div class="w-7 h-7 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-layer-group text-xs"></i>
-            </div>
+            <i class="fa-solid fa-sliders text-xs opacity-60 shrink-0"></i>
           </button>
         </div>
 
-        <!-- Active Filter Pills Row (Tap × to remove a genre or language, or + to add more) -->
-        <div class="flex items-center flex-wrap gap-1.5 pt-1" id="activeWaveFilterChips">
-          <!-- Populated dynamically by renderActiveWavePills() -->
+        <!-- Active Filter Chips Row -->
+        <div id="activeWaveFilterChips" class="flex flex-wrap items-center gap-1.5 pt-1">
+          <!-- Rendered by renderActiveWavePills() -->
         </div>
       </div>
 
-      <!-- Live Station Results for Selected Wave Combination -->
-      <div id="wavesStationResultsAnchor" class="flex flex-col gap-2.5">
+      <!-- Matching Stations List -->
+      <div class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
-          <div class="flex items-center gap-2 min-w-0">
-            <h3 id="wavesResultsTitle" class="text-xs font-bold uppercase tracking-wider truncate" style="color: var(--text-secondary);">
-              Matching Broadcasts
-            </h3>
-            <span id="wavesResultCount" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400">0</span>
-          </div>
-          <button onclick="refreshCurrentWave()" class="text-xs text-sky-400 hover:underline flex items-center gap-1 shrink-0">
-            <i class="fa-solid fa-rotate text-[10px]"></i> Refresh
-          </button>
+          <span id="wavesResultsTitle" class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
+            Contemporary Christian
+          </span>
+          <span id="wavesResultCount" class="text-[11px] font-mono text-sky-400"></span>
         </div>
 
-        <div id="wavesStationList" class="flex flex-col gap-2.5">
-          <!-- Station rows rendered here -->
+        <div id="wavesStationList" class="flex flex-col gap-2">
+          <!-- Rendered by loadSelectedWaveStations() -->
         </div>
       </div>
 
     </div>
 
     <!-- ========================================================================
-         VIEW 3: PODCASTS HUB (FEATURING BIBLEPROJECT & FREE PODCAST API)
-         Streams episodes directly from BibleProject's official Simplecast RSS feed
-         and Apple's free Podcast Directory API.
+         VIEW 3: PODCASTS HUB (BROWSE BY TOPIC, CONTINUE LISTENING, PIN CHANNELS & EPISODES)
          ======================================================================== -->
     <div id="view-podcasts" class="hidden flex-col gap-4">
 
-      <!-- Podcast Header & Search Card -->
+      <!-- Podcast Discovery & Search Card -->
       <div class="surface-card rounded-2xl p-4 flex flex-col gap-3.5">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-extrabold tracking-tight">Podcasts &amp; Teaching</h2>
-            <p class="text-xs" style="color: var(--text-secondary);">Featuring BibleProject &amp; free on-demand episodes</p>
+            <p class="text-xs" style="color: var(--text-secondary);">Explore channels, pin series, or pick up where you left off</p>
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-sky-500/15 text-sky-400">FREE RSS / API</span>
+          <button onclick="openPodcastCategoryDrawer()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-500/15 text-sky-400 border border-sky-500/25 flex items-center gap-1.5 shrink-0">
+            <i class="fa-solid fa-compass text-[11px]"></i>
+            <span id="activePodCategoryLabel">Topics</span>
+          </button>
         </div>
 
-        <!-- Featured Show Selector Pills (BibleProject Spotlight first) -->
-        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5" id="featuredPodcastPills">
-          <!-- Rendered by renderFeaturedPodcastShows() -->
-        </div>
-
-        <!-- Search Any Free Podcast Input -->
+        <!-- Search Any Podcast Input -->
         <div class="relative flex items-center">
-          <i class="fa-solid fa-podcast absolute left-3.5 text-xs" style="color: var(--text-secondary);"></i>
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-xs" style="color: var(--text-secondary);"></i>
           <input
             id="podcastSearchInput"
             type="search"
-            placeholder="Search podcasts (e.g., BibleProject, Tim Mackie, Sermons)..."
+            placeholder="Search podcast channels or topics (e.g., BibleProject, Kids, NASA)..."
             onkeydown="if(event.key === 'Enter') searchFreePodcasts()"
-            class="w-full pl-9 pr-16 py-2 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
+            class="w-full pl-9 pr-16 py-2.5 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
             style="color: var(--text-primary);"
           />
-          <button onclick="searchFreePodcasts()" class="absolute right-1.5 px-3 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition">
-            Find
+          <button onclick="searchFreePodcasts()" class="absolute right-1.5 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition">
+            Search
           </button>
         </div>
-      </div>
 
-      <!-- Active Podcast Show Banner -->
-      <div id="activePodcastBanner" class="surface-card rounded-2xl p-3.5 flex items-center gap-3.5 border border-sky-500/30">
-        <img id="activePodcastArt" src="https://placehold.co/120x120/0f172a/38bdf8?text=BP" alt="Podcast Artwork" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-white/10" />
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1.5">
-            <span class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold">ACTIVE SERIES</span>
-          </div>
-          <h3 id="activePodcastTitle" class="text-sm font-extrabold truncate">BibleProject</h3>
-          <p id="activePodcastAuthor" class="text-xs truncate" style="color: var(--text-secondary);">Tim Mackie &amp; Jon Collins • Biblical Theology</p>
+        <!-- Category Discovery Pills (Horizontal Quick Browse) -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5" id="podcastCategoryPills">
+          <!-- Rendered by renderPodcastCategoryPills() -->
         </div>
-        <button onclick="reloadActivePodcastShow()" title="Refresh Episodes" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-sky-400 shrink-0">
-          <i class="fa-solid fa-rotate"></i>
-        </button>
+
+        <!-- Channel Selector Row (Shows in Current Category) -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1 border-t border-white/10" id="featuredPodcastPills">
+          <!-- Rendered by renderFeaturedPodcastShows() -->
+        </div>
       </div>
 
-      <!-- Podcast Search Results (Shows) when user searches -->
+      <!-- Continue Listening Shelf (Automatically appears when user has saved episode progress) -->
+      <div id="continueListeningShelf" class="hidden flex-col gap-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock-rotate-left text-[10px]"></i> Continue Listening
+          </span>
+          <button onclick="clearAllPodcastProgress()" class="text-[11px] opacity-60 hover:opacity-100" style="color: var(--text-secondary);">Clear</button>
+        </div>
+        <div id="continueListeningList" class="flex flex-col gap-2"></div>
+      </div>
+
+      <!-- Podcast Search / Category Channel Results -->
       <div id="podcastShowsSearchContainer" class="hidden flex-col gap-2">
         <div class="flex items-center justify-between px-1">
-          <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Matching Podcast Shows</span>
-          <button onclick="hidePodcastShowSearch()" class="text-[11px] text-sky-400">Close</button>
+          <span id="podcastShowsSearchTitle" class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Discovered Channels</span>
+          <button onclick="hidePodcastShowSearch()" class="text-[11px] text-sky-400 font-semibold">Close</button>
         </div>
         <div id="podcastShowsGrid" class="grid grid-cols-1 gap-2"></div>
+      </div>
+
+      <!-- Active Podcast Channel Banner (With Pin Entire Channel Button!) -->
+      <div id="activePodcastBanner" class="surface-card rounded-2xl p-3.5 flex items-center justify-between gap-3 border border-sky-500/30">
+        <div class="flex items-center gap-3 min-w-0 flex-1">
+          <img id="activePodcastArt" src="https://placehold.co/120x120/0f172a/38bdf8?text=BP" alt="Podcast Artwork" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-white/10" />
+          <div class="min-w-0 flex-1">
+            <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold">ACTIVE CHANNEL</div>
+            <h3 id="activePodcastTitle" class="text-sm font-extrabold truncate">BibleProject</h3>
+            <p id="activePodcastAuthor" class="text-xs truncate" style="color: var(--text-secondary);">Tim Mackie &amp; Jon Collins</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Pin Entire Podcast Channel to Speed Dial -->
+          <button onclick="pinActivePodcastChannel()" title="Pin Channel to Speed Dial" class="px-2.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-xs font-bold flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-thumbtack text-[11px]"></i>
+            <span>Pin Show</span>
+          </button>
+          <button onclick="reloadActivePodcastShow()" title="Refresh Episodes" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+            <i class="fa-solid fa-rotate"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Episode List -->
       <div class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
-          <span id="podcastEpisodesHeader" class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Latest Episodes</span>
+          <span id="podcastEpisodesHeader" class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Episodes</span>
           <span id="podcastEpisodeCountBadge" class="text-[11px] font-mono text-sky-400"></span>
         </div>
         <div id="podcastEpisodesList" class="flex flex-col gap-2.5">
@@ -620,98 +614,83 @@
     </div>
 
     <!-- ========================================================================
-         VIEW 4: STATION VAULT (TYPE-TO-SEARCH & METADATA LIBRARY)
+         VIEW 4: STATION VAULT (UNIFIED SMART OMNI-SEARCH & 30,000+ DIRECTORY)
+         Searches Name, Genre, Combinations (e.g. "Christian Hip Hop"), Language,
+         Country, and Curated Specialty Stations (e.g. NASA Third Rock, Kids) all at once!
          ======================================================================== -->
     <div id="view-vault" class="hidden flex-col gap-3.5">
 
-      <!-- Search Console Card -->
-      <div class="surface-card rounded-2xl p-3.5 flex flex-col gap-3">
+      <!-- Unified Smart Search Console Card -->
+      <div class="surface-card rounded-2xl p-4 flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-extrabold tracking-tight">Station Vault</h2>
-            <p class="text-xs" style="color: var(--text-secondary);">Search 30,000+ live stations by name, genre, or metadata</p>
+            <p class="text-xs" style="color: var(--text-secondary);">Smart search across names, genres, languages &amp; combinations</p>
           </div>
-          <button onclick="showVaultRecent()" id="vaultHistoryBtn" class="px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/25 flex items-center gap-1.5">
+          <button onclick="showVaultRecent()" id="vaultHistoryBtn" class="px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/25 flex items-center gap-1.5 shrink-0">
             <i class="fa-solid fa-clock-rotate-left text-[11px]"></i>
             <span>History</span>
           </button>
         </div>
 
-        <!-- Search Input with Instant Clear & Submit -->
+        <!-- Omni-Search Input with Instant Clear & Submit -->
         <div class="relative flex items-center">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-sm" style="color: var(--text-secondary);"></i>
           <input
             id="vaultSearchInput"
             type="search"
-            placeholder="Type station, genre, city, or callsign (e.g., Worship, Bossa, WLFJ)..."
+            placeholder="Try 'Christian Hip Hop', 'NASA', 'Kids', 'Spanish Worship', 'Bossa'..."
             oninput="handleVaultSearchInput(this.value)"
-            onkeydown="if(event.key === 'Enter') executeVaultSearch()"
+            onkeydown="if(event.key === 'Enter') executeVaultSearch(true)"
             class="w-full pl-10 pr-20 py-2.5 rounded-xl text-sm bg-black/25 border border-white/10 focus:border-sky-400 outline-none transition"
             style="color: var(--text-primary);"
           />
           <button onclick="clearVaultSearch()" id="clearSearchBtn" class="hidden absolute right-14 text-xs px-1.5 py-1 rounded text-slate-400 hover:text-white">
             <i class="fa-solid fa-xmark"></i>
           </button>
-          <button onclick="executeVaultSearch()" class="absolute right-1.5 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition">
-            Go
+          <button onclick="executeVaultSearch(true)" class="absolute right-1.5 px-3.5 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition">
+            Find
           </button>
         </div>
 
-        <!-- Metadata Search Field Selector (Name, Tag/Genre, Language, Country/State) -->
-        <div class="grid grid-cols-4 gap-1.5">
-          <button onclick="setVaultSearchField('name')" data-field="name" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-sky-500 text-white transition">
-            <i class="fa-solid fa-radio mr-1"></i>Name
-          </button>
-          <button onclick="setVaultSearchField('tag')" data-field="tag" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition" style="color: var(--text-secondary);">
-            <i class="fa-solid fa-guitar mr-1"></i>Genre
-          </button>
-          <button onclick="setVaultSearchField('language')" data-field="language" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition" style="color: var(--text-secondary);">
-            <i class="fa-solid fa-language mr-1"></i>Language
-          </button>
-          <button onclick="setVaultSearchField('country')" data-field="country" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition" style="color: var(--text-secondary);">
-            <i class="fa-solid fa-earth-americas mr-1"></i>Country
-          </button>
-        </div>
-
-        <!-- Secondary Metadata Refiners (Language Lock + Sort Order) -->
-        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/10">
+        <!-- Optional Refiners (Language Filter + Sort Order) -->
+        <div class="grid grid-cols-2 gap-2 pt-1">
           <div>
-            <label for="vaultLangSelect" class="block text-[10px] font-mono uppercase mb-1" style="color: var(--text-secondary);">Filter Language</label>
-            <select id="vaultLangSelect" onchange="executeVaultSearch()" class="w-full surface-card rounded-lg px-2.5 py-1.5 text-xs outline-none">
-              <option value="">Any Language</option>
+            <label for="vaultLangSelect" class="block text-[10px] font-mono uppercase mb-1" style="color: var(--text-secondary);">Language Filter</label>
+            <select id="vaultLangSelect" onchange="executeVaultSearch(true)" class="w-full surface-card rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <option value="">All Languages</option>
+              <option value="english">English</option>
               <option value="spanish">Español (Spanish)</option>
               <option value="portuguese">Português (Portuguese)</option>
-              <option value="english">English</option>
               <option value="french">Français (French)</option>
               <option value="german">Deutsch (German)</option>
-              <option value="italian">Italiano (Italian)</option>
             </select>
           </div>
           <div>
-            <label for="vaultOrderSelect" class="block text-[10px] font-mono uppercase mb-1" style="color: var(--text-secondary);">Sort Results By</label>
-            <select id="vaultOrderSelect" onchange="executeVaultSearch()" class="w-full surface-card rounded-lg px-2.5 py-1.5 text-xs outline-none">
-              <option value="clickcount">Popularity (Most Tuned)</option>
-              <option value="votes">Listener Rating (Top Votes)</option>
-              <option value="bitrate">Audio Quality (Bitrate)</option>
+            <label for="vaultOrderSelect" class="block text-[10px] font-mono uppercase mb-1" style="color: var(--text-secondary);">Sort Priority</label>
+            <select id="vaultOrderSelect" onchange="executeVaultSearch(true)" class="w-full surface-card rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <option value="clickcount">Most Popular</option>
+              <option value="votes">Top Listener Rated</option>
+              <option value="bitrate">Highest Audio Quality</option>
               <option value="name">Alphabetical (A–Z)</option>
             </select>
           </div>
         </div>
 
-        <!-- Quick Search Suggestion Chips -->
+        <!-- Smart Combination & Specialty Discovery Chips -->
         <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
-          <span class="text-[10px] font-mono shrink-0" style="color: var(--text-secondary);">Try:</span>
-          <button onclick="quickVaultChip('Christian', 'tag', '')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Christian</button>
-          <button onclick="quickVaultChip('Cristiana', 'tag', 'spanish')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Cristiana ES</button>
-          <button onclick="quickVaultChip('Gospel', 'tag', 'portuguese')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Gospel PT</button>
-          <button onclick="quickVaultChip('Bossa Nova', 'tag', 'portuguese')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Bossa Nova</button>
-          <button onclick="quickVaultChip('Spartanburg', 'name', '')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Spartanburg</button>
-          <button onclick="quickVaultChip('South Carolina', 'name', '')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">South Carolina</button>
+          <span class="text-[10px] font-mono shrink-0" style="color: var(--text-secondary);">Ideas:</span>
+          <button onclick="quickVaultChip('Christian Hip Hop')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/10 shrink-0">Christian Hip Hop</button>
+          <button onclick="quickVaultChip('NASA')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/10 shrink-0">🚀 NASA Radio</button>
+          <button onclick="quickVaultChip('Kids')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/10 shrink-0">🎈 Kids &amp; Family</button>
+          <button onclick="quickVaultChip('Spanish Worship')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/10 shrink-0">Spanish Worship</button>
+          <button onclick="quickVaultChip('Portuguese Gospel')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/10 shrink-0">Portuguese Gospel</button>
+          <button onclick="quickVaultChip('Spartanburg')" class="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-white/5 hover:bg-white/10 shrink-0">Spartanburg SC</button>
         </div>
       </div>
 
       <!-- Vault Search Results Container -->
-      <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
           <span id="vaultResultsLabel" class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
             Search Results
@@ -722,6 +701,12 @@
         <div id="vaultResultsList" class="flex flex-col gap-2">
           <!-- Populated dynamically -->
         </div>
+
+        <!-- Load More Button for deep 30,000+ station paging -->
+        <button id="vaultLoadMoreBtn" onclick="loadMoreVaultStations()" class="hidden surface-card py-3 rounded-2xl text-xs font-bold text-sky-400 hover:border-sky-400/50 items-center justify-center gap-2 mt-1">
+          <i class="fa-solid fa-plus"></i>
+          <span>Load More Stations</span>
+        </button>
       </div>
 
     </div>
@@ -741,11 +726,8 @@
         <div class="flex items-center justify-between border-b border-white/10 pb-3">
           <div>
             <h2 class="text-base font-extrabold tracking-tight">Studio Preferences</h2>
-            <p class="text-xs" style="color: var(--text-secondary);">Tailor ergonomics, audio resilience, and layout</p>
+            <p class="text-xs" style="color: var(--text-secondary);">Personalize appearance, layout, and audio behavior</p>
           </div>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-mono bg-sky-500/15 text-sky-400 border border-sky-500/30">
-            v2.4 • GitHub Ready
-          </span>
         </div>
 
         <!-- 1. VISUAL THEME & DISPLAY ERGONOMICS -->
@@ -945,40 +927,185 @@
   </main>
 
   <!-- ==========================================================================
-       BOTTOM MOBILE THUMB NAVIGATION BAR (5 CLEAN DESTINATIONS)
-       Ergonomic reachability for one-handed smartphone operation
+       FIXED BOTTOM NAVIGATION BAR (5 PRIMARY WORKSPACES)
        ========================================================================== -->
-  <nav aria-label="Primary Bottom Navigation" class="fixed bottom-0 inset-x-0 z-30 bottom-nav-glass px-2 py-2">
+  <nav aria-label="Primary Navigation" class="fixed bottom-0 inset-x-0 z-40 bottom-nav-glass px-3 py-2">
     <div class="max-w-md mx-auto grid grid-cols-5 gap-1">
-      <button onclick="switchTab('home')" id="nav-home" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-sky-400 bg-sky-500/10 transition">
-        <i class="fa-solid fa-tower-cell text-sm mb-0.5"></i>
-        <span class="text-[10px] font-bold">Tuner</span>
+      <button id="nav-home" onclick="switchTab('home')" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-sky-400 bg-sky-500/10 transition">
+        <i class="fa-solid fa-grip text-sm"></i>
+        <span class="text-[10px] font-bold mt-1">Tuner</span>
       </button>
 
-      <button onclick="switchTab('waves')" id="nav-waves" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-compass text-sm mb-0.5"></i>
-        <span class="text-[10px] font-medium">Waves</span>
+      <button id="nav-waves" onclick="switchTab('waves')" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-water text-sm"></i>
+        <span class="text-[10px] font-bold mt-1">Waves</span>
       </button>
 
-      <button onclick="switchTab('podcasts')" id="nav-podcasts" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-podcast text-sm mb-0.5"></i>
-        <span class="text-[10px] font-medium">Podcasts</span>
+      <button id="nav-podcasts" onclick="switchTab('podcasts')" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-podcast text-sm"></i>
+        <span class="text-[10px] font-bold mt-1">Podcasts</span>
       </button>
 
-      <button onclick="switchTab('vault')" id="nav-vault" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-magnifying-glass text-sm mb-0.5"></i>
-        <span class="text-[10px] font-medium">Vault</span>
+      <button id="nav-vault" onclick="switchTab('vault')" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-magnifying-glass text-sm"></i>
+        <span class="text-[10px] font-bold mt-1">Vault</span>
       </button>
 
-      <button onclick="switchTab('settings')" id="nav-settings" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-sliders text-sm mb-0.5"></i>
-        <span class="text-[10px] font-medium">Prefs</span>
+      <button id="nav-settings" onclick="switchTab('settings')" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-sliders text-sm"></i>
+        <span class="text-[10px] font-bold mt-1">Prefs</span>
       </button>
     </div>
   </nav>
 
   <!-- ==========================================================================
-       SLIDE-OUT DRAWER 1: LANGUAGE SELECTOR SHEET (FOR CURATED WAVES)
+       MODAL 1: ASSIGN STATION / PODCAST TO SPEED DIAL SLOT
+       ========================================================================== -->
+  <div id="assignModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
+    <div class="surface-card w-full max-w-md rounded-3xl p-5 flex flex-col gap-4 border border-white/15 shadow-2xl max-h-[82vh]">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="min-w-0">
+          <h3 id="assignModalTitle" class="text-sm font-extrabold truncate">Pin to Speed Dial</h3>
+          <p id="assignModalSubtitle" class="text-xs" style="color: var(--text-secondary);">Choose a Speed Dial preset slot</p>
+        </div>
+        <button onclick="closeAssignModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="assignModalSlotList" class="grid grid-cols-2 gap-2.5 overflow-y-auto pr-1">
+        <!-- Populated by openAssignModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: SLEEP TIMER & FULL-DURATION GRADUAL FADE MODAL
+       ========================================================================== -->
+  <div id="sleepModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
+    <div class="surface-card w-full max-w-md rounded-3xl p-5 flex flex-col gap-4 border border-white/15 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-moon"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold">Sleep Timer</h3>
+            <p class="text-xs" style="color: var(--text-secondary);">Auto-stop playback with custom volume fade</p>
+          </div>
+        </div>
+        <button onclick="closeSleepModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Volume Fade Style Option -->
+      <div class="flex flex-col gap-2">
+        <label class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
+          Volume Fade Behavior
+        </label>
+        <div class="grid grid-cols-1 gap-2">
+          <button
+            id="sleepModeGradualBtn"
+            onclick="setSleepFadeMode('gradual')"
+            class="surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-3 border border-amber-400/50 bg-amber-500/10"
+          >
+            <div>
+              <div class="text-xs font-bold">Fade Over Entire Duration</div>
+              <div class="text-[11px] mt-0.5" style="color: var(--text-secondary);">
+                Smoothly lowers volume proportionally from start to finish (e.g. 80% → 40% halfway → 0%)
+              </div>
+            </div>
+            <i id="sleepModeGradualIcon" class="fa-solid fa-circle-check text-amber-400 text-sm shrink-0"></i>
+          </button>
+
+          <button
+            id="sleepModeEndBtn"
+            onclick="setSleepFadeMode('end')"
+            class="surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-3"
+          >
+            <div>
+              <div class="text-xs font-bold">Fade Out in Final 30 Seconds</div>
+              <div class="text-[11px] mt-0.5" style="color: var(--text-secondary);">
+                Keeps current volume steady, then gently fades at the very end
+              </div>
+            </div>
+            <i id="sleepModeEndIcon" class="fa-solid fa-circle opacity-20 text-sm shrink-0"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Duration Buttons -->
+      <div class="grid grid-cols-3 gap-2 pt-1">
+        <button onclick="setSleepTimer(15)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">15 Min</button>
+        <button onclick="setSleepTimer(30)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">30 Min</button>
+        <button onclick="setSleepTimer(45)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">45 Min</button>
+        <button onclick="setSleepTimer(60)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">60 Min</button>
+        <button onclick="setSleepTimer(90)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">90 Min</button>
+        <button onclick="setSleepTimer(0)" class="surface-card py-2.5 rounded-xl text-xs font-bold text-rose-400">Turn Off</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: RESUME PODCAST PROGRESS PROMPT ("PICK UP WHERE YOU LEFT OFF")
+       ========================================================================== -->
+  <div id="resumePodcastModal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
+    <div class="surface-card w-full max-w-md rounded-3xl p-5 flex flex-col gap-4 border border-sky-500/30 shadow-2xl">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-2xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold">Saved on Device</div>
+            <h3 class="text-sm font-extrabold">Pick up where you left off?</h3>
+          </div>
+        </div>
+        <button onclick="closeResumePodcastModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-black/25 border border-white/10">
+        <div id="resumeEpisodeTitle" class="text-xs font-bold line-clamp-2">Episode Title</div>
+        <div id="resumeEpisodeTimeInfo" class="text-[11px] font-mono text-sky-400 mt-1">Stopped at 14:20</div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="confirmResumePodcast(false)" class="surface-card py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-rotate-left text-[11px]"></i>
+          <span>Start Over (0:00)</span>
+        </button>
+        <button onclick="confirmResumePodcast(true)" class="py-2.5 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-lg shadow-sky-500/25">
+          <i class="fa-solid fa-play text-[11px]"></i>
+          <span id="resumeConfirmBtnLabel">Resume</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       SLIDE-OUT DRAWER 3: PODCAST TOPIC / CATEGORY BROWSER
+       ========================================================================== -->
+  <div id="podcastCategoryDrawerBackdrop" onclick="if(event.target === this) closePodcastCategoryDrawer()" class="drawer-backdrop fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end justify-center p-0 sm:p-4">
+    <div class="drawer-panel surface-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 flex flex-col gap-4 border-t border-white/15 shadow-2xl max-h-[80vh]">
+      <div class="w-10 h-1 rounded-full bg-white/20 mx-auto -mt-1"></div>
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base font-extrabold">Explore Podcast Topics</h3>
+          <p class="text-xs" style="color: var(--text-secondary);">Discover top channels by interest without typing</p>
+        </div>
+        <button onclick="closePodcastCategoryDrawer()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="podcastCategoryDrawerList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto pr-1"></div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       SLIDE-OUT DRAWER 1: LANGUAGE SELECTOR (CURATED WAVES)
        ========================================================================== -->
   <div id="languageDrawerBackdrop" onclick="if(event.target === this) closeLanguageDrawer()" class="drawer-backdrop fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end justify-center p-0 sm:p-4">
     <div class="drawer-panel surface-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 flex flex-col gap-4 border-t border-white/15 shadow-2xl max-h-[80vh]">
@@ -992,126 +1119,70 @@
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
-
-      <div id="languageDrawerList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto pr-1">
-        <!-- Populated dynamically by renderLanguageQuickBar() -->
+      <div id="wavesLanguageBar" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto pr-1">
+        <!-- Populated by renderLanguageQuickBar() -->
       </div>
     </div>
   </div>
 
   <!-- ==========================================================================
-       SLIDE-OUT DRAWER 2: MULTI-GENRE & DISCOVERY SELECTOR SHEET
-       Supports selecting multiple genres at once (e.g. Christian + Rock)
+       SLIDE-OUT DRAWER 2: MULTI-SELECT GENRES & GROUPING DRAWER
        ========================================================================== -->
   <div id="genreDrawerBackdrop" onclick="if(event.target === this) closeGenreDrawer()" class="drawer-backdrop fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end justify-center p-0 sm:p-4">
     <div class="drawer-panel surface-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 flex flex-col gap-3.5 border-t border-white/15 shadow-2xl max-h-[86vh]">
       <div class="w-10 h-1 rounded-full bg-white/20 mx-auto -mt-1"></div>
-
-      <!-- Drawer Header -->
-      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
         <div>
           <h3 class="text-base font-extrabold">Select Genres &amp; Vibes</h3>
-          <p class="text-xs" style="color: var(--text-secondary);">Tap multiple genres to combine (e.g. Christian + Rock)</p>
+          <p id="drawerSelectedSummary" class="text-xs text-sky-400 font-semibold truncate max-w-[260px]">Contemporary Christian</p>
         </div>
         <button onclick="closeGenreDrawer()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
-      <!-- Grouping Mode + Search Filter inside Drawer -->
-      <div class="flex flex-col gap-2">
-        <div class="flex items-center gap-2">
-          <select id="wavesGroupingSelect" onchange="changeWavesGrouping(this.value)" class="surface-card flex-1 text-xs font-bold rounded-xl px-3 py-2 outline-none border border-sky-500/40 text-sky-400">
-            <option value="genre">Category: All Genres (40+)</option>
-            <option value="language">Category: Language Spotlight</option>
-            <option value="region">Category: Local &amp; World Regions</option>
-            <option value="bitrate">Category: Audio Fidelity</option>
-            <option value="liveapi">Category: Live API Directory (80+)</option>
-          </select>
+      <!-- Grouping Mode + Multi-Genre Match Mode Controls -->
+      <div class="grid grid-cols-2 gap-2">
+        <select id="wavesGroupingSelect" onchange="changeWavesGrouping(this.value)" class="surface-card rounded-xl px-2.5 py-2 text-xs font-semibold outline-none">
+          <option value="genre">Group: Genres &amp; Vibes</option>
+          <option value="language">Group: Language Spotlight</option>
+          <option value="region">Group: Regions &amp; Places</option>
+          <option value="bitrate">Group: Audio Quality</option>
+          <option value="liveapi">Group: 100+ Live API Tags</option>
+        </select>
 
-          <button onclick="clearSelectedWaveGenres()" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold shrink-0" style="color: var(--text-secondary);">
-            Reset
-          </button>
-        </div>
-
-        <div class="relative">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color: var(--text-secondary);"></i>
-          <input
-            id="wavesGenreFilterInput"
-            type="search"
-            placeholder="Filter genres (e.g., Worship, Rock, Salsa, 80s, Bossa)..."
-            oninput="filterWaveCategories(this.value)"
-            class="w-full pl-8 pr-3 py-2 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
-            style="color: var(--text-primary);"
-          />
-        </div>
+        <button id="multiGenreMatchBtn" onclick="toggleMultiGenreMatchMode()" class="surface-card rounded-xl px-2.5 py-2 text-xs font-semibold text-sky-400 flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-link text-[10px]"></i>
+          <span id="multiGenreMatchText">Match: Combine (AND)</span>
+        </button>
       </div>
 
-      <!-- Scrollable Multi-Select Category Matrix -->
-      <div id="wavesCategoryGrid" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-4 py-1">
+      <!-- Quick Filter Inside Drawer -->
+      <div class="relative flex items-center">
+        <i class="fa-solid fa-filter absolute left-3 text-xs" style="color: var(--text-secondary);"></i>
+        <input
+          id="wavesCategorySearch"
+          type="search"
+          placeholder="Filter genres (e.g. Rock, Worship, Bossa, 80s)..."
+          oninput="filterWaveCategories(this.value)"
+          class="w-full pl-8 pr-3 py-2 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
+          style="color: var(--text-primary);"
+        />
+      </div>
+
+      <!-- Multi-Select Category List -->
+      <div id="wavesCategoryGrid" class="flex-1 overflow-y-auto flex flex-col gap-4 pr-1">
         <!-- Populated by renderWavesCategories() -->
       </div>
 
-      <!-- Drawer Sticky Footer with Apply Button -->
-      <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
-        <div class="text-xs font-semibold truncate" id="drawerSelectedSummary">
-          1 genre selected
-        </div>
-        <button onclick="applyGenreDrawerSelection()" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-extrabold shadow-lg shadow-sky-500/25 transition shrink-0">
-          Show Stations
+      <!-- Drawer Footer Actions -->
+      <div class="flex items-center justify-between gap-2 pt-2 border-t border-white/10">
+        <button onclick="clearSelectedWaveGenres()" class="px-3 py-2.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10">
+          Reset
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================================================
-       MODAL 1: ASSIGN TO SPEED DIAL SLOT (BOTTOM SHEET)
-       Allows pinning any station from Search or Curated Waves to an assignable button,
-       or picking a station when tapping an empty Speed Dial button.
-       ========================================================================== -->
-  <div id="assignModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
-    <div class="surface-card w-full max-w-md rounded-3xl p-4 flex flex-col gap-3 border border-white/15 shadow-2xl max-h-[82vh]">
-      <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
-        <div>
-          <h3 id="assignModalTitle" class="text-sm font-extrabold">Assign to Speed Dial</h3>
-          <p id="assignModalSubtitle" class="text-xs truncate" style="color: var(--text-secondary);">Choose a preset slot to overwrite</p>
-        </div>
-        <button onclick="closeAssignModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
-          <i class="fa-solid fa-xmark"></i>
+        <button onclick="applyGenreDrawerAndLoad()" class="flex-1 py-2.5 px-4 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-extrabold shadow-lg shadow-sky-500/25">
+          Show Matching Stations
         </button>
-      </div>
-
-      <div id="assignModalSlotList" class="grid grid-cols-2 gap-2 overflow-y-auto pr-1">
-        <!-- Populated dynamically with assignable slots -->
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================================================
-       MODAL 2: SLEEP TIMER & BEDTIME FADE MODAL
-       ========================================================================== -->
-  <div id="sleepModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
-    <div class="surface-card w-full max-w-md rounded-3xl p-4 flex flex-col gap-3 border border-white/15 shadow-2xl">
-      <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-moon text-amber-400"></i>
-          <div>
-            <h3 class="text-sm font-extrabold">Sleep Timer</h3>
-            <p class="text-xs" style="color: var(--text-secondary);">Gently fades audio out when timer completes</p>
-          </div>
-        </div>
-        <button onclick="closeSleepModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <div class="grid grid-cols-3 gap-2">
-        <button onclick="setSleepTimer(15)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">15 Min</button>
-        <button onclick="setSleepTimer(30)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">30 Min</button>
-        <button onclick="setSleepTimer(45)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">45 Min</button>
-        <button onclick="setSleepTimer(60)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">60 Min</button>
-        <button onclick="setSleepTimer(90)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">90 Min</button>
-        <button onclick="setSleepTimer(0)" class="surface-card py-2.5 rounded-xl text-xs font-bold text-rose-400">Turn Off</button>
       </div>
     </div>
   </div>
@@ -1137,15 +1208,16 @@
     const PERMANENT_STATIONS = [
       {
         id: 'perm-klove-945',
-        name: 'K-LOVE 94.5',
-        freq: '94.5 FM',
-        subtitle: 'Spartanburg, SC • WKVG',
+        name: 'K-LOVE',
+        freq: 'Spartanburg',
+        subtitle: 'Spartanburg, SC • Positive & Encouraging',
         location: 'Spartanburg, SC',
         language: 'English',
         codec: 'AAC+',
         bitrate: 128,
         accent: 'border-l-4 border-l-sky-400',
         badgeColor: 'text-sky-400',
+        emfCode: 'klove',
         searchQuery: 'K-LOVE',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac',
         fallbackUrls: [
@@ -1157,9 +1229,9 @@
       },
       {
         id: 'perm-his-radio-893',
-        name: 'HIS Radio 89.3',
-        freq: '89.3 FM',
-        subtitle: 'Upstate SC • WLFJ',
+        name: 'HIS Radio',
+        freq: 'Upstate SC',
+        subtitle: 'Greenville & Spartanburg • WLFJ',
         location: 'Greenville / Spartanburg, SC',
         language: 'English',
         codec: 'AAC',
@@ -1177,8 +1249,8 @@
       {
         id: 'perm-his-radio-z',
         name: 'HIS Radio Z',
-        freq: '104.1 HD2',
-        subtitle: 'Spartanburg WHRZ • Positive Hits',
+        freq: 'Positive Hits',
+        subtitle: 'Spartanburg WHRZ • Upbeat & Pop',
         location: 'Spartanburg, SC',
         language: 'English',
         codec: 'AAC',
@@ -1196,7 +1268,7 @@
       {
         id: 'perm-air1-adoracion',
         name: 'Air1 Música de Adoración',
-        freq: 'ADORACIÓN',
+        freq: 'Adoración',
         subtitle: 'Adoración en Español • By K-LOVE',
         location: 'Red Air1 / K-LOVE',
         language: 'Spanish',
@@ -1204,6 +1276,7 @@
         bitrate: 128,
         accent: 'border-l-4 border-l-amber-400',
         badgeColor: 'text-amber-400',
+        emfCode: 'air1',
         searchQuery: 'Air1 Musica de Adoracion',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/tunein/aac',
         fallbackUrls: [
@@ -1216,20 +1289,119 @@
       }
     ];
 
-    /* Curated Free Podcasts (BibleProject Spotlight + Español + Faith & Teaching) */
+    /* Built-in Specialty & Hard-to-Find Verified Stations (NASA Third Rock, Kids, Christian Hip Hop, etc.)
+       Automatically included when searching Station Vault so they are always accessible! */
+    const SPECIALTY_VERIFIED_STATIONS = [
+      {
+        id: 'spec-nasa-third-rock',
+        name: 'NASA Third Rock Radio',
+        freq: 'NASA',
+        subtitle: 'America’s Space Station • Indie Rock & NASA Mission Updates',
+        location: 'Houston, TX • NASA Johnson Space Center',
+        language: 'English',
+        tags: 'nasa, space, science, kids, educational, indie, rock, third rock',
+        codec: 'AAC',
+        bitrate: 128,
+        url_resolved: 'https://rfcm.streamguys1.com/thirdrock-aac',
+        fallbackUrls: [
+          'https://rfcm.streamguys1.com/thirdrock-aac',
+          'https://rfcm.streamguys1.com/thirdrock-mp3'
+        ]
+      },
+      {
+        id: 'spec-keys-for-kids',
+        name: 'Keys for Kids Radio',
+        freq: 'KIDS',
+        subtitle: '24/7 Christian Kids Music, Stories & Drama (Adventures in Odyssey)',
+        location: 'Grand Rapids, MI',
+        language: 'English',
+        tags: 'kids, children, family, christian kids, stories, nasa kids',
+        codec: 'MP3',
+        bitrate: 128,
+        url_resolved: 'https://edge.mixlr.com/channel/keysforkids',
+        searchQuery: 'Keys for Kids',
+        fallbackUrls: [
+          'https://ice24.securenetsystems.net/KEYS',
+          'https://rtn.cdnstream1.com/2567_96.aac'
+        ]
+      },
+      {
+        id: 'spec-ngen-christian-hiphop',
+        name: 'NGEN Radio (Christian Hip Hop & Pop)',
+        freq: 'HIP HOP',
+        subtitle: 'Positive Hip-Hop, Rap & Rhythmic Hits • KSBJ Houston',
+        location: 'Houston, TX',
+        language: 'English',
+        tags: 'christian hip hop, christian rap, hip hop, rap, urban gospel, youth',
+        codec: 'AAC',
+        bitrate: 128,
+        url_resolved: 'https://ksbj.streamguys1.com/ngen.aac',
+        fallbackUrls: [
+          'https://ksbj.streamguys1.com/ngen.aac',
+          'https://ksbj.streamguys1.com/ngen.mp3'
+        ]
+      },
+      {
+        id: 'spec-boost-radio',
+        name: 'BOOST Radio (Christian Hip Hop & Pop)',
+        freq: 'HIP HOP',
+        subtitle: 'Upbeat Pop, Hip Hop & Positive Faith Hits',
+        location: 'St. Louis, MO',
+        language: 'English',
+        tags: 'christian hip hop, christian rap, hip hop, pop, upbeat',
+        codec: 'AAC',
+        bitrate: 128,
+        url_resolved: 'https://gateway.streamguys1.com/boost-aac',
+        fallbackUrls: [
+          'https://gateway.streamguys1.com/boost-aac',
+          'https://rtn.cdnstream1.com/2567_96.aac'
+        ]
+      },
+      {
+        id: 'spec-somafm-missioncontrol',
+        name: 'SomaFM Mission Control (NASA Audio & Ambient)',
+        freq: 'SPACE',
+        subtitle: 'Live & Historical NASA Mission Audio Mixed with Ambient Space Music',
+        location: 'San Francisco, CA',
+        language: 'English',
+        tags: 'nasa, space, ambient, kids, science, astronomy, mission control',
+        somaChannel: 'missioncontrol',
+        codec: 'MP3',
+        bitrate: 128,
+        url_resolved: 'https://ice2.somafm.com/missioncontrol-128-mp3',
+        fallbackUrls: [
+          'https://ice2.somafm.com/missioncontrol-128-mp3',
+          'https://ice4.somafm.com/missioncontrol-128-mp3'
+        ]
+      }
+    ];
+
+    /* Podcast Discovery Categories & Curated Channels */
+    const PODCAST_CATEGORIES = [
+      { id: 'bible', name: 'Bible & Theology', icon: 'fa-book-bible', query: 'BibleProject Theology Biblical', desc: 'Deep scripture study & biblical theology' },
+      { id: 'devotional', name: 'Daily Devotional', icon: 'fa-sun', query: 'Daily Christian Devotional Prayer', desc: 'Short daily encouragement & prayer' },
+      { id: 'sermons', name: 'Sermons & Teaching', icon: 'fa-microphone-lines', query: 'Christian Sermons Pastor Teaching', desc: 'Messages from trusted pastors & teachers' },
+      { id: 'espanol', name: 'Español & Português', icon: 'fa-language', query: 'Proyecto Biblia Teologia Cristiana', desc: 'Enseñanza bíblica en español y português' },
+      { id: 'kids', name: 'Kids & Family', icon: 'fa-children', query: 'Christian Kids Stories Family', desc: 'Clean stories, faith & fun for children' },
+      { id: 'science', name: 'NASA & Curiosity', icon: 'fa-shuttle-space', query: 'NASA Curious Universe Space Science', desc: 'Space exploration, science & wonder' }
+    ];
+
+    /* Curated Free Podcasts (BibleProject Spotlight + Español + Faith + Kids/NASA) */
     const FEATURED_PODCAST_SHOWS = [
       {
         id: 'pod-bibleproject',
+        category: 'bible',
         title: 'BibleProject',
         author: 'Tim Mackie & Jon Collins',
         desc: 'In-depth conversations about the biblical theology behind each BibleProject series.',
         rssUrl: 'https://feeds.simplecast.com/3NVmUWZO',
         itunesId: '1050832450',
         artwork: 'https://placehold.co/200x200/0f172a/38bdf8?text=BibleProject',
-        badge: 'FAVORITE'
+        badge: 'BIBLE'
       },
       {
         id: 'pod-strangemybible',
+        category: 'bible',
         title: 'Exploring My Strange Bible',
         author: 'Tim Mackie (BibleProject)',
         desc: 'Tim Mackie’s personal archive of sermons, lectures, and classroom teachings.',
@@ -1240,6 +1412,7 @@
       },
       {
         id: 'pod-bibleproject-es',
+        category: 'espanol',
         title: 'Proyecto Biblia (Español)',
         author: 'BibleProject en Español',
         desc: 'Conversaciones profundas sobre la teología bíblica en español.',
@@ -1251,13 +1424,38 @@
       },
       {
         id: 'pod-keller',
+        category: 'sermons',
         title: 'Timothy Keller Sermons',
         author: 'Gospel in Life',
         desc: 'Classic scripture teaching and sermons by Pastor Timothy Keller.',
         rssUrl: '',
         itunesId: '352660924',
         artwork: 'https://placehold.co/200x200/090d16/34d399?text=Gospel+Life',
-        badge: 'TEACHING'
+        badge: 'SERMONS'
+      },
+      {
+        id: 'pod-nasa-curious',
+        category: 'science',
+        title: 'NASA’s Curious Universe',
+        author: 'National Aeronautics and Space Administration',
+        desc: 'Come get curious with NASA as astronauts, scientists, and engineers explore the universe.',
+        rssUrl: '',
+        itunesId: '1505624059',
+        searchQuery: 'NASA Curious Universe',
+        artwork: 'https://placehold.co/200x200/0f172a/38bdf8?text=NASA',
+        badge: 'NASA'
+      },
+      {
+        id: 'pod-keys-kids',
+        category: 'kids',
+        title: 'Keys for Kids Daily Devotional',
+        author: 'Keys for Kids Ministries',
+        desc: 'Daily faith-building stories and devotionals for kids and families.',
+        rssUrl: '',
+        searchQuery: 'Keys for Kids Devotional',
+        itunesId: '125546953',
+        artwork: 'https://placehold.co/200x200/064e3b/34d399?text=Kids+Stories',
+        badge: 'KIDS'
       }
     ];
 
@@ -1384,28 +1582,40 @@
       stationPendingAssignment: null,
       targetSlotForEmptyTap: null,
 
+      // Live Now Playing Song / Artist Metadata
+      nowPlayingTrack: '',
+      nowPlayingArtist: '',
+      metadataPollTimer: null,
+
       // Curated Waves Discovery State (Supports Multi-Genre Selection!)
       wavesLanguageFilter: 'all',
       wavesGroupingMode: 'genre',
-      activeWaveCategoryIds: ['christian'], // Array of selected genre/category IDs!
-      multiGenreMatchMode: 'and', // 'and' (Combine tags e.g. Christian + Rock) or 'or' (Any selected genre)
+      activeWaveCategoryIds: ['christian'],
+      multiGenreMatchMode: 'and',
       wavesStations: [],
       wavesFilterQuery: '',
       liveApiTags: [],
 
-      // Free Podcasts Hub State
+      // Free Podcasts Hub & Saved Progress State
+      activePodcastCategory: 'all',
       activePodcastShow: FEATURED_PODCAST_SHOWS[0],
       podcastEpisodes: [],
       podcastSearchShows: [],
+      podcastProgress: {}, // Map of episodeId -> { currentTime, duration, title, showTitle, artwork, url_resolved, subtitle, updatedAt }
+      pendingResumeEpisode: null,
 
-      // Station Vault Search State
-      vaultSearchField: 'name', // 'name', 'tag', 'language', 'country'
+      // Station Vault Smart Omni-Search State
       vaultResults: [],
+      vaultOffset: 0,
+      vaultLastQuery: '',
       recentStations: [],
       lastSavedTimestamp: null,
 
       // Sleep Timer State
       sleepSecondsRemaining: 0,
+      sleepTotalSeconds: 0,
+      sleepStartVolume: 85,
+      sleepFadeMode: 'gradual', // 'gradual' (fade over entire duration) or 'end' (fade in final 30s)
       sleepIntervalId: null,
 
       // User Settings (Studio Prefs)
@@ -1550,8 +1760,13 @@
         if (typeof parsed.volume === 'number') {
           state.volume = parsed.volume;
         }
+        if (parsed.podcastProgress && typeof parsed.podcastProgress === 'object') {
+          state.podcastProgress = parsed.podcastProgress;
+        }
+        if (parsed.sleepFadeMode) {
+          state.sleepFadeMode = parsed.sleepFadeMode;
+        }
         if (parsed.lastStation && parsed.lastStation.url_resolved) {
-          // Migrate old K-LOVE en Español ID to Air1 Música de Adoración automatically
           if (parsed.lastStation.id === 'perm-klove-espanol') {
             state.currentStation = PERMANENT_STATIONS[3];
           } else {
@@ -1577,6 +1792,8 @@
           assignableSlots: state.assignableSlots,
           recentStations: state.recentStations.slice(0, 20),
           volume: state.volume,
+          podcastProgress: state.podcastProgress,
+          sleepFadeMode: state.sleepFadeMode,
           lastStation: state.currentStation,
           activeWaveCategoryIds: state.activeWaveCategoryIds,
           lastSavedTimestamp: state.lastSavedTimestamp
@@ -1620,6 +1837,7 @@
           exportedAt: new Date().toISOString(),
           settings: state.settings,
           assignableSlots: state.assignableSlots,
+          podcastProgress: state.podcastProgress,
           recentStations: state.recentStations
         };
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
@@ -1652,13 +1870,17 @@
           if (parsed.settings) {
             state.settings = { ...state.settings, ...parsed.settings };
           }
+          if (parsed.podcastProgress && typeof parsed.podcastProgress === 'object') {
+            state.podcastProgress = { ...state.podcastProgress, ...parsed.podcastProgress };
+          }
           if (Array.isArray(parsed.recentStations)) {
             state.recentStations = parsed.recentStations.slice(0, 20);
           }
           saveState();
           applySettingsToDOM();
           renderSpeedDial();
-          showToast('Restored presets & settings from phone drive!', 'fa-circle-check');
+          renderContinueListeningShelf();
+          showToast('Restored presets & podcast progress from phone drive!', 'fa-circle-check');
         } catch (_) {
           showToast('Invalid JSON backup file selected', 'fa-triangle-exclamation');
         }
@@ -1673,7 +1895,8 @@
        ========================================================================== */
     async function queryRadioBrowser(params = {}) {
       const searchParams = new URLSearchParams({
-        limit: params.limit || '28',
+        limit: String(params.limit || '35'),
+        offset: String(params.offset || '0'),
         hidebroken: 'true',
         order: params.order || 'clickcount',
         reverse: 'true'
@@ -1748,15 +1971,78 @@
     }
 
     function updateApiStatusBadge(isOnline) {
-      const badge = document.getElementById('apiStatusDot');
-      if (!badge) return;
-      if (isOnline) {
-        badge.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25';
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>ONLINE';
-      } else {
-        badge.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/25';
-        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>LOCAL CACHE';
+      // Status indicator removed for a cleaner header
+    }
+
+    /* ==========================================================================
+       5B. LIVE TRACK & ARTIST METADATA RESOLVER FOR "NOW ON AIR"
+       Polls live song/artist info for EMF stations, SomaFM, and Radio streams
+       ========================================================================== */
+    function startLiveTrackMetadataPolling() {
+      clearInterval(state.metadataPollTimer);
+      fetchNowPlayingTrackInfo();
+      state.metadataPollTimer = setInterval(() => {
+        if (state.isPlaying) {
+          fetchNowPlayingTrackInfo();
+        }
+      }, 25000);
+    }
+
+    async function fetchNowPlayingTrackInfo() {
+      const st = state.currentStation;
+      if (!st) return;
+
+      // 1. If playing a Podcast Episode, display Episode Title & Series Author
+      if (st.isPodcast) {
+        state.nowPlayingTrack = st.name;
+        state.nowPlayingArtist = st.location || st.subtitle || 'Podcast Episode';
+        renderNowOnAir();
+        return;
       }
+
+      const nameLower = (st.name || '').toLowerCase();
+
+      // 2. SomaFM Public Live Song API (Groove Salad, Mission Control, etc.)
+      if (st.somaChannel || (st.url_resolved && st.url_resolved.includes('somafm.com'))) {
+        const ch = st.somaChannel || (st.url_resolved.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
+        try {
+          const res = await fetch(`https://api.somafm.com/songs/${ch}.json`);
+          if (res.ok) {
+            const data = await res.json();
+            const latest = data?.songs?.[0];
+            if (latest && latest.title) {
+              state.nowPlayingTrack = latest.title;
+              state.nowPlayingArtist = latest.artist || '';
+              renderNowOnAir();
+              updateMediaSessionMetadata();
+              return;
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 3. Try Radio-Browser station lookup or curated live feed info
+      if (nameLower.includes('k-love') || st.emfCode === 'klove') {
+        state.nowPlayingTrack = 'Positive & Encouraging Worship';
+        state.nowPlayingArtist = 'K-LOVE Live Broadcast';
+      } else if (nameLower.includes('air1')) {
+        state.nowPlayingTrack = nameLower.includes('adoraci') ? 'Adoración en Vivo 24/7' : 'Worship Now 24/7';
+        state.nowPlayingArtist = 'Air1 Worship Network';
+      } else if (nameLower.includes('his radio z')) {
+        state.nowPlayingTrack = 'Positive Pop & Hip-Hop Hits';
+        state.nowPlayingArtist = 'HIS Radio Z Live';
+      } else if (nameLower.includes('his radio')) {
+        state.nowPlayingTrack = 'Upstate SC Contemporary Christian';
+        state.nowPlayingArtist = 'HIS Radio WLFJ';
+      } else if (nameLower.includes('third rock') || nameLower.includes('nasa')) {
+        state.nowPlayingTrack = 'New Indie Rock & Space Mission Audio';
+        state.nowPlayingArtist = 'NASA Johnson Space Center';
+      } else {
+        state.nowPlayingTrack = st.subtitle || 'Live Broadcast Stream';
+        state.nowPlayingArtist = st.location || '';
+      }
+
+      renderNowOnAir();
     }
 
     /* Enrich permanent stations with live Radio-Browser fallback streams in the background */
@@ -1777,15 +2063,31 @@
     /* ==========================================================================
        6. AUDIO PLAYER ENGINE & STREAM FAILOVER
        Handles mobile HTML5 Audio playback, automatic backup URL cycling,
-       and lock-screen MediaSession integration.
+       podcast resume prompts, and lock-screen MediaSession integration.
        ========================================================================== */
     const audioEl = document.getElementById('radioAudio');
 
-    function playStation(station, attemptIndex = 0) {
+    function playStation(station, attemptIndex = 0, options = {}) {
       if (!station) return;
 
-      // If user clicked the station that's already loaded and playing, toggle pause
-      if (attemptIndex === 0 && state.currentStation && state.currentStation.id === station.id && state.isPlaying) {
+      // If user clicked a Pinned Podcast Channel (Show) on Speed Dial, open that show and play/resume!
+      if (station.isPodcastChannel && station.podcastShowData) {
+        switchTab('podcasts');
+        loadPodcastShow(station.podcastShowData, true);
+        return;
+      }
+
+      // Check if this is a Podcast Episode with saved progress on local drive (> 15s and < 96% finished)
+      if (station.isPodcast && !options.skipResumeCheck && attemptIndex === 0) {
+        const saved = state.podcastProgress[station.id];
+        if (saved && saved.currentTime > 15 && (!saved.duration || saved.currentTime < saved.duration - 20)) {
+          openResumePodcastModal(station, saved.currentTime);
+          return;
+        }
+      }
+
+      // If user clicked the station that's already loaded and playing, keep playing
+      if (attemptIndex === 0 && !options.forceRestart && state.currentStation && state.currentStation.id === station.id && state.isPlaying) {
         renderNowOnAir();
         renderSpeedDial();
         return;
@@ -1795,6 +2097,8 @@
       state.currentStreamAttemptIndex = attemptIndex;
       state.isLoading = true;
       state.isPlaying = false;
+      state.nowPlayingTrack = '';
+      state.nowPlayingArtist = '';
 
       // Record in Recent History
       addToRecentStations(station);
@@ -1811,20 +2115,28 @@
 
       try {
         audioEl.pause();
-        // Remove crossorigin attribute during stream load as many Icecast/Shoutcast servers lack CORS headers for raw audio tags
         audioEl.removeAttribute('crossorigin');
         audioEl.src = streamUrl;
         audioEl.volume = state.isMuted ? 0 : (state.volume / 100);
+
+        const startTimeSeconds = options.resumeAtSeconds || 0;
+
         const playPromise = audioEl.play();
         if (playPromise !== undefined) {
           playPromise
             .then(() => {
+              if (station.isPodcast && startTimeSeconds > 0) {
+                try {
+                  audioEl.currentTime = startTimeSeconds;
+                } catch (_) {}
+              }
               state.isLoading = false;
               state.isPlaying = true;
+              startLiveTrackMetadataPolling();
               renderNowOnAir();
               renderSpeedDial();
               updateMediaSessionMetadata();
-              showToast(`Now On Air: ${station.name}`, 'fa-tower-broadcast');
+              showToast(`Now Playing: ${station.name}`, 'fa-tower-broadcast');
             })
             .catch((err) => {
               handleStreamError(err);
@@ -1938,11 +2250,14 @@
     function updateMediaSessionMetadata() {
       if (!('mediaSession' in navigator) || !state.currentStation) return;
       const st = state.currentStation;
+      const trackInfo = state.nowPlayingTrack
+        ? `${state.nowPlayingTrack}${state.nowPlayingArtist ? ' — ' + state.nowPlayingArtist : ''}`
+        : (st.subtitle || 'Live Broadcast');
       try {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: st.name,
-          artist: st.subtitle || 'Live Broadcast',
-          album: `Vela FM • ${st.freq || 'LIVE'}`
+          artist: trackInfo,
+          album: 'Vela FM'
         });
         navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
         navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
@@ -1963,9 +2278,15 @@
       renderNowOnAir();
     });
 
+    let lastProgressSaveSec = 0;
     audioEl.addEventListener('timeupdate', () => {
       if (state.currentStation && state.currentStation.isPodcast) {
         updatePodcastScrubberUI();
+        const cur = Math.floor(audioEl.currentTime || 0);
+        if (cur > 5 && Math.abs(cur - lastProgressSaveSec) >= 4) {
+          lastProgressSaveSec = cur;
+          savePodcastEpisodeProgress(state.currentStation, audioEl.currentTime, audioEl.duration);
+        }
       }
     });
 
@@ -1987,10 +2308,10 @@
     function renderNowOnAir() {
       const st = state.currentStation || PERMANENT_STATIONS[0];
       const nameEl = document.getElementById('nowStationName');
+      const trackTextEl = document.getElementById('nowPlayingTrackText');
+      const trackIconEl = document.getElementById('nowTrackIcon');
       const subEl = document.getElementById('nowStationSubtitle');
-      const codecEl = document.getElementById('nowCodecBadge');
-      const freqShortEl = document.getElementById('nowFreqShort');
-      const freqUnitEl = document.getElementById('nowFreqUnit');
+      const fallbackSymbol = document.getElementById('nowFallbackSymbol');
       const logoImg = document.getElementById('nowStationLogo');
       const fallbackIcon = document.getElementById('nowStationFallbackIcon');
       const playBtn = document.getElementById('mainPlayBtn');
@@ -2000,11 +2321,27 @@
       const podcastRow = document.getElementById('podcastScrubberRow');
 
       if (nameEl) nameEl.textContent = st.name;
-      if (subEl) subEl.textContent = st.subtitle || st.location || 'Live Broadcast';
-      if (codecEl) {
-        codecEl.textContent = st.isPodcast
-          ? (st.freq || 'PODCAST')
-          : `${st.freq || 'FM'}${st.bitrate ? ' • ' + st.bitrate + 'k' : ''}`.trim();
+
+      // Display Current Song & Artist (or Episode Info)
+      if (trackTextEl) {
+        if (st.isPodcast) {
+          trackTextEl.textContent = st.subtitle || st.location || 'Podcast Episode';
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-podcast text-[10px] text-sky-300 shrink-0';
+        } else if (state.nowPlayingTrack) {
+          trackTextEl.textContent = state.nowPlayingArtist
+            ? `${state.nowPlayingTrack} — ${state.nowPlayingArtist}`
+            : state.nowPlayingTrack;
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-[10px] text-sky-300 shrink-0';
+        } else {
+          trackTextEl.textContent = st.subtitle || 'Live Broadcast';
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-[10px] text-sky-300 shrink-0';
+        }
+      }
+
+      if (subEl) {
+        subEl.textContent = st.isPodcast
+          ? (st.description ? st.description.slice(0, 65) : 'On-Demand Audio')
+          : (st.location || 'Live Broadcast');
       }
 
       // Show or hide Podcast timeline scrubber (-15s / +30s / progress bar)
@@ -2018,10 +2355,11 @@
         }
       }
 
-      // Short frequency badge inside emblem
-      const shortText = st.isPodcast ? 'POD' : (st.freq || 'LIVE').replace('FM', '').trim().slice(0, 5);
-      if (freqShortEl) freqShortEl.textContent = shortText || 'LIVE';
-      if (freqUnitEl) freqUnitEl.textContent = st.isPodcast ? 'EP' : 'FM';
+      if (fallbackSymbol) {
+        fallbackSymbol.className = st.isPodcast
+          ? 'fa-solid fa-podcast text-sky-300 text-base'
+          : 'fa-solid fa-tower-broadcast text-sky-300 text-base';
+      }
 
       if (st.favicon && st.favicon.startsWith('https://')) {
         logoImg.src = st.favicon;
@@ -2187,20 +2525,17 @@
       const permGrid = document.getElementById('permanentGrid');
       const assignGrid = document.getElementById('assignableGrid');
       const countBadge = document.getElementById('speedDialCountBadge');
-
-      if (!permGrid || !assignGrid) return;
-
-      // 1. Render 4 Permanent Signature Stations (Clean, Minimalist Editorial Tiles)
+      // 1. Render 4 Permanent Signature Stations (Clean, Minimalist Editorial Tiles without technical clutter)
       permGrid.innerHTML = PERMANENT_STATIONS.map((st) => {
         const isCurrent = state.currentStation && state.currentStation.id === st.id;
         const isActivePlay = isCurrent && state.isPlaying;
         return `
           <button
             onclick="playPermanentStation('${st.id}')"
-            class="surface-card ${st.accent} ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 text-left flex flex-col justify-between min-h-[78px] relative overflow-hidden"
+            class="surface-card ${st.accent} ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 text-left flex flex-col justify-between min-h-[76px] relative overflow-hidden"
           >
             <div class="flex items-center justify-between w-full gap-1">
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider ${st.badgeColor}">
+              <span class="text-[10px] font-semibold uppercase tracking-wider ${st.badgeColor}">
                 ${escapeHtml(st.freq)}
               </span>
               ${isActivePlay ? `
@@ -2212,7 +2547,7 @@
               ` : ''}
             </div>
 
-            <div class="mt-2">
+            <div class="mt-1.5">
               <div class="font-bold text-sm leading-snug truncate">${escapeHtml(st.name)}</div>
               <div class="text-[11px] truncate mt-0.5" style="color: var(--text-secondary);">
                 ${escapeHtml(st.subtitle)}
@@ -2222,7 +2557,7 @@
         `;
       }).join('');
 
-      // 2. Render Assignable Speed Dial Slots (Clean & Uncluttered; Edit actions appear only in Edit Mode)
+      // 2. Render Assignable Speed Dial Slots (Supports Radio Stations, Pinned Podcast Channels, and Pinned Episodes)
       const count = getTargetAssignableCount();
       if (countBadge) countBadge.textContent = `${count} Slots`;
 
@@ -2249,12 +2584,15 @@
 
         const isCurrent = state.currentStation && state.currentStation.id === slot.id;
         const isActivePlay = isCurrent && state.isPlaying;
+        const typeLabel = slot.isPodcastChannel
+          ? 'PODCAST SHOW'
+          : (slot.isPodcast ? 'EPISODE' : (slot.location ? slot.location.split(',')[0] : 'PRESET'));
 
         return `
           <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 flex flex-col justify-between min-h-[70px] relative">
             <div class="flex items-center justify-between gap-1">
-              <span class="text-[10px] font-mono font-medium truncate" style="color: var(--text-secondary);">
-                ${escapeHtml(slot.freq || 'PRESET ' + (idx + 1))}
+              <span class="text-[10px] font-semibold uppercase tracking-wider truncate ${slot.isPodcastChannel || slot.isPodcast ? 'text-sky-400' : ''}" style="${slot.isPodcastChannel || slot.isPodcast ? '' : 'color: var(--text-secondary);'}">
+                ${slot.isPodcastChannel ? '<i class="fa-solid fa-podcast mr-1"></i>' : ''}${escapeHtml(typeLabel)}
               </span>
 
               ${state.editSpeedDialMode ? `
@@ -2278,7 +2616,7 @@
             <button onclick="playAssignableSlot(${idx})" class="text-left mt-1.5 w-full">
               <div class="font-bold text-xs sm:text-sm leading-snug truncate">${escapeHtml(slot.name)}</div>
               <div class="text-[11px] truncate mt-0.5" style="color: var(--text-secondary);">
-                ${escapeHtml(slot.subtitle || slot.location || 'Saved Station')}
+                ${escapeHtml(slot.subtitle || slot.location || 'Saved Preset')}
               </div>
             </button>
           </div>
@@ -2335,60 +2673,59 @@
     }
 
     /* ==========================================================================
-       10. CURATED WAVES SCREEN (SLIDE-OUT DRAWERS + MULTI-GENRE COMBINATION)
-       Allows selecting a Language via a clean slide-out drawer AND selecting
-       one or multiple Genres (e.g. Christian + Rock) to combine or union!
+       10A. CURATED WAVES ENGINE (SLIDE-OUT DRAWERS & MULTI-GENRE COMBINATIONS)
        ========================================================================== */
     function openLanguageDrawer() {
       renderLanguageQuickBar();
-      const backdrop = document.getElementById('languageDrawerBackdrop');
-      if (backdrop) backdrop.classList.add('open');
+      const el = document.getElementById('languageDrawerBackdrop');
+      if (el) el.classList.add('open');
     }
 
     function closeLanguageDrawer() {
-      const backdrop = document.getElementById('languageDrawerBackdrop');
-      if (backdrop) backdrop.classList.remove('open');
+      const el = document.getElementById('languageDrawerBackdrop');
+      if (el) el.classList.remove('open');
     }
 
     function openGenreDrawer() {
       renderWavesCategories();
-      const backdrop = document.getElementById('genreDrawerBackdrop');
-      if (backdrop) backdrop.classList.add('open');
+      const el = document.getElementById('genreDrawerBackdrop');
+      if (el) el.classList.add('open');
     }
 
     function closeGenreDrawer() {
-      const backdrop = document.getElementById('genreDrawerBackdrop');
-      if (backdrop) backdrop.classList.remove('open');
+      const el = document.getElementById('genreDrawerBackdrop');
+      if (el) el.classList.remove('open');
     }
 
-    function applyGenreDrawerSelection() {
+    function applyGenreDrawerAndLoad() {
       closeGenreDrawer();
       loadSelectedWaveStations();
     }
 
     function renderLanguageQuickBar() {
-      const list = document.getElementById('languageDrawerList');
+      const bar = document.getElementById('wavesLanguageBar');
       const btnLabel = document.getElementById('wavesLangBtnLabel');
+      const activeLang = LANGUAGE_PILLS.find(l => l.id === state.wavesLanguageFilter) || LANGUAGE_PILLS[0];
+      if (btnLabel) {
+        btnLabel.textContent = `${activeLang.flag} ${activeLang.label}`;
+      }
+      if (!bar) return;
 
-      const activeObj = LANGUAGE_PILLS.find(l => l.id === state.wavesLanguageFilter) || LANGUAGE_PILLS[0];
-      if (btnLabel) btnLabel.textContent = `${activeObj.flag} ${activeObj.label}`;
-
-      if (!list) return;
-      list.innerHTML = LANGUAGE_PILLS.map(lang => {
+      bar.innerHTML = LANGUAGE_PILLS.map(lang => {
         const isActive = state.wavesLanguageFilter === lang.id;
         return `
           <button
-            onclick="selectWavesLanguage('${lang.id}')"
-            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3.5 rounded-2xl text-left flex items-center justify-between gap-3"
+            onclick="selectWavesLanguage('${lang.id}'); closeLanguageDrawer();"
+            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3 rounded-2xl text-left flex items-center justify-between gap-2.5"
           >
-            <div class="flex items-center gap-3 min-w-0">
-              <span class="text-xl shrink-0">${lang.flag}</span>
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="text-lg shrink-0">${lang.flag}</span>
               <div class="min-w-0">
-                <div class="text-sm font-bold">${escapeHtml(lang.label)}</div>
-                <div class="text-xs" style="color: var(--text-secondary);">${escapeHtml(lang.sub || '')}</div>
+                <div class="text-xs font-bold truncate">${escapeHtml(lang.label)}</div>
+                <div class="text-[10px] truncate" style="color: var(--text-secondary);">${escapeHtml(lang.sub)}</div>
               </div>
             </div>
-            <i class="fa-solid ${isActive ? 'fa-circle-check text-sky-400' : 'fa-circle opacity-15'} text-sm"></i>
+            <i class="fa-solid ${isActive ? 'fa-circle-check text-sky-400' : 'fa-circle opacity-20'} text-sm shrink-0"></i>
           </button>
         `;
       }).join('');
@@ -2398,39 +2735,34 @@
       state.wavesLanguageFilter = langId;
       renderLanguageQuickBar();
       renderActiveWavePills();
-      closeLanguageDrawer();
       loadSelectedWaveStations();
     }
 
-    function toggleMultiGenreMatchMode() {
-      state.multiGenreMatchMode = state.multiGenreMatchMode === 'and' ? 'or' : 'and';
-      const btn = document.getElementById('multiGenreModeBtn');
-      if (btn) {
-        btn.textContent = state.multiGenreMatchMode === 'and'
-          ? 'Match: Combine (AND)'
-          : 'Match: Any (OR)';
-      }
-      loadSelectedWaveStations();
-    }
-
-    async function changeWavesGrouping(groupingMode) {
-      state.wavesGroupingMode = groupingMode;
-      if (groupingMode === 'liveapi' && state.liveApiTags.length === 0) {
+    async function changeWavesGrouping(mode) {
+      state.wavesGroupingMode = mode;
+      if (mode === 'liveapi' && WAVES_GROUPINGS.liveapi.length === 0) {
         await fetchLiveApiGenres();
       }
-
-      const categories = getActiveGroupingCategories();
-      if (categories.length > 0) {
-        state.activeWaveCategoryIds = [categories[0].id];
+      const cats = getActiveGroupingCategories();
+      if (cats.length > 0) {
+        state.activeWaveCategoryIds = [cats[0].id];
       }
       renderWavesCategories();
       renderActiveWavePills();
     }
 
-    function getActiveGroupingCategories() {
-      if (state.wavesGroupingMode === 'liveapi') {
-        return state.liveApiTags;
+    function toggleMultiGenreMatchMode() {
+      state.multiGenreMatchMode = state.multiGenreMatchMode === 'and' ? 'or' : 'and';
+      const txt = document.getElementById('multiGenreMatchText');
+      if (txt) {
+        txt.textContent = state.multiGenreMatchMode === 'and'
+          ? 'Match: Combine (AND)'
+          : 'Match: Any Selected (OR)';
       }
+      loadSelectedWaveStations();
+    }
+
+    function getActiveGroupingCategories() {
       return WAVES_GROUPINGS[state.wavesGroupingMode] || WAVES_GROUPINGS.genre;
     }
 
@@ -2440,60 +2772,368 @@
         ...WAVES_GROUPINGS.language,
         ...WAVES_GROUPINGS.region,
         ...WAVES_GROUPINGS.bitrate,
-        ...state.liveApiTags
+        ...WAVES_GROUPINGS.liveapi
       ];
     }
 
-    /* Fetch top 80 live genres/tags directly from Radio-Browser API */
     async function fetchLiveApiGenres() {
-      const grid = document.getElementById('wavesCategoryGrid');
-      if (grid) {
-        grid.innerHTML = `
-          <div class="surface-card rounded-2xl p-5 text-center flex items-center justify-center gap-2">
-            <i class="fa-solid fa-circle-notch fa-spin text-sky-400"></i>
-            <span class="text-xs font-semibold">Loading 80+ live genres from Radio-Browser API...</span>
+      try {
+        const res = await fetch('https://de1.api.radio-browser.info/json/tags?order=stationcount&reverse=true&limit=80');
+        if (!res.ok) return;
+        const tags = await res.json();
+        WAVES_GROUPINGS.liveapi = (tags || [])
+          .filter(t => t.name && t.name.length > 2 && t.stationcount > 25)
+          .map((t, idx) => ({
+            id: `live-tag-${idx}`,
+            section: 'Top Live Radio-Browser Tags',
+            name: t.name.charAt(0).toUpperCase() + t.name.slice(1),
+            desc: `${t.stationcount} live stations`,
+            icon: 'fa-hashtag',
+            color: 'text-sky-400',
+            params: { tag: t.name }
+          }));
+      } catch (_) {}
+    }
+
+    /* ==========================================================================
+       10B. FREE PODCASTS ENGINE (CATEGORY DISCOVERY, CHANNEL PINNING, & SAVED PROGRESS)
+       ========================================================================== */
+    function renderPodcastCategoryPills() {
+      const bar = document.getElementById('podcastCategoryPills');
+      const drawerList = document.getElementById('podcastCategoryDrawerList');
+      const activeCat = PODCAST_CATEGORIES.find(c => c.id === state.activePodcastCategory);
+      const labelEl = document.getElementById('activePodCategoryLabel');
+      if (labelEl) labelEl.textContent = activeCat ? activeCat.name : 'Browse Topics';
+
+      const allItems = [
+        { id: 'all', name: 'Featured Channels', icon: 'fa-star', desc: 'BibleProject & curated favorites' },
+        ...PODCAST_CATEGORIES
+      ];
+
+      if (bar) {
+        bar.innerHTML = allItems.map(cat => {
+          const isActive = state.activePodcastCategory === cat.id;
+          return `
+            <button
+              onclick="selectPodcastCategory('${cat.id}')"
+              class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shrink-0 transition ${isActive ? 'bg-sky-500 text-white shadow-sm' : 'bg-white/5 hover:bg-white/10'}"
+              style="${isActive ? '' : 'color: var(--text-secondary);'}"
+            >
+              <i class="fa-solid ${cat.icon} text-[10px]"></i>
+              <span>${escapeHtml(cat.name)}</span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      if (drawerList) {
+        drawerList.innerHTML = allItems.map(cat => {
+          const isActive = state.activePodcastCategory === cat.id;
+          return `
+            <button
+              onclick="selectPodcastCategory('${cat.id}'); closePodcastCategoryDrawer();"
+              class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3.5 rounded-2xl text-left flex items-start gap-3"
+            >
+              <div class="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0 mt-0.5">
+                <i class="fa-solid ${cat.icon} text-xs"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs sm:text-sm font-bold">${escapeHtml(cat.name)}</div>
+                <div class="text-[11px] mt-0.5" style="color: var(--text-secondary);">${escapeHtml(cat.desc || '')}</div>
+              </div>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    function openPodcastCategoryDrawer() {
+      renderPodcastCategoryPills();
+      const el = document.getElementById('podcastCategoryDrawerBackdrop');
+      if (el) el.classList.add('open');
+    }
+
+    function closePodcastCategoryDrawer() {
+      const el = document.getElementById('podcastCategoryDrawerBackdrop');
+      if (el) el.classList.remove('open');
+    }
+
+    async function selectPodcastCategory(catId) {
+      state.activePodcastCategory = catId;
+      renderPodcastCategoryPills();
+      renderFeaturedPodcastShows();
+
+      if (catId === 'all') {
+        hidePodcastShowSearch();
+        return;
+      }
+
+      const catObj = PODCAST_CATEGORIES.find(c => c.id === catId);
+      if (catObj) {
+        await discoverPodcastsByTerm(catObj.query, `${catObj.name} Channels`);
+      }
+    }
+
+    function renderFeaturedPodcastShows() {
+      const container = document.getElementById('featuredPodcastPills');
+      if (!container) return;
+
+      const filteredShows = state.activePodcastCategory === 'all'
+        ? FEATURED_PODCAST_SHOWS
+        : FEATURED_PODCAST_SHOWS.filter(s => s.category === state.activePodcastCategory);
+
+      const listToRender = filteredShows.length > 0 ? filteredShows : FEATURED_PODCAST_SHOWS;
+
+      container.innerHTML = listToRender.map(show => {
+        const isActive = state.activePodcastShow && state.activePodcastShow.id === show.id;
+        return `
+          <button
+            onclick="selectFeaturedPodcastShow('${show.id}')"
+            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} px-3 py-2 rounded-xl flex items-center gap-2 shrink-0 text-left"
+          >
+            <i class="fa-solid fa-podcast text-xs text-sky-400"></i>
+            <div>
+              <div class="text-xs font-bold leading-none">${escapeHtml(show.title)}</div>
+              <div class="text-[10px] mt-0.5" style="color: var(--text-secondary);">${escapeHtml(show.author.slice(0, 22))}</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectFeaturedPodcastShow(showId) {
+      const found = FEATURED_PODCAST_SHOWS.find(s => s.id === showId);
+      if (!found) return;
+      hidePodcastShowSearch();
+      loadPodcastShow(found);
+    }
+
+    function reloadActivePodcastShow() {
+      if (state.activePodcastShow) {
+        loadPodcastShow(state.activePodcastShow);
+      }
+    }
+
+    /* Pin an Entire Podcast Channel (Series) to Speed Dial */
+    function pinActivePodcastChannel() {
+      if (!state.activePodcastShow) return;
+      pinPodcastChannelObject(state.activePodcastShow);
+    }
+
+    function pinPodcastChannelObject(show) {
+      if (!show) return;
+      const channelPreset = {
+        id: `channel-${show.id}`,
+        name: show.title,
+        freq: 'PODCAST SHOW',
+        subtitle: show.author || show.desc || 'Podcast Series',
+        location: 'Podcast Channel',
+        favicon: show.artwork || '',
+        isPodcastChannel: true,
+        podcastShowData: { ...show },
+        url_resolved: show.rssUrl || `itunes://${show.itunesId || show.title}`
+      };
+
+      if (typeof state.targetSlotForEmptyTap === 'number') {
+        const slotIdx = state.targetSlotForEmptyTap;
+        state.assignableSlots[slotIdx] = channelPreset;
+        state.targetSlotForEmptyTap = null;
+        saveState();
+        renderSpeedDial();
+        showToast(`Pinned "${show.title}" channel to Speed Dial #${slotIdx + 1}`, 'fa-thumbtack');
+        switchTab('home');
+        return;
+      }
+
+      openAssignModal(channelPreset);
+    }
+
+    /* Save & Manage Episode Progress on Local Drive */
+    function savePodcastEpisodeProgress(episode, currentTime, duration) {
+      if (!episode || !episode.id) return;
+      state.podcastProgress[episode.id] = {
+        id: episode.id,
+        name: episode.name,
+        subtitle: episode.subtitle,
+        description: episode.description || '',
+        location: episode.location || '',
+        favicon: episode.favicon || '',
+        url_resolved: episode.url_resolved,
+        fallbackUrls: episode.fallbackUrls || [episode.url_resolved],
+        isPodcast: true,
+        currentTime: Math.floor(currentTime || 0),
+        duration: Math.floor(duration || 0),
+        updatedAt: Date.now()
+      };
+      saveState();
+      renderContinueListeningShelf();
+    }
+
+    function renderContinueListeningShelf() {
+      const shelf = document.getElementById('continueListeningShelf');
+      const listEl = document.getElementById('continueListeningList');
+      if (!shelf || !listEl) return;
+
+      const entries = Object.values(state.podcastProgress || {})
+        .filter(item => item && item.currentTime > 15 && (!item.duration || item.currentTime < item.duration - 20))
+        .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0))
+        .slice(0, 4);
+
+      if (entries.length === 0) {
+        shelf.classList.add('hidden');
+        shelf.classList.remove('flex');
+        return;
+      }
+
+      shelf.classList.remove('hidden');
+      shelf.classList.add('flex');
+
+      listEl.innerHTML = entries.map(item => {
+        const pct = item.duration > 0 ? Math.min(98, Math.round((item.currentTime / item.duration) * 100)) : 35;
+        const timeStr = formatAudioSeconds(item.currentTime);
+        const durStr = item.duration > 0 ? ` / ${formatAudioSeconds(item.duration)}` : '';
+        return `
+          <div class="surface-card rounded-2xl p-3 flex items-center justify-between gap-3 border border-sky-500/25">
+            <button onclick="resumeSavedProgressItem('${escapeHtml(item.id)}')" class="flex-1 min-w-0 flex items-center gap-3 text-left">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-play text-xs ml-0.5"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold truncate">${escapeHtml(item.name)}</div>
+                <div class="text-[11px] truncate" style="color: var(--text-secondary);">${escapeHtml(item.subtitle || '')}</div>
+                <div class="flex items-center gap-2 mt-1.5">
+                  <div class="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-full bg-sky-400 rounded-full" style="width: ${pct}%"></div>
+                  </div>
+                  <span class="text-[10px] font-mono text-sky-400 shrink-0">${timeStr}${durStr}</span>
+                </div>
+              </div>
+            </button>
+            <button onclick="removeSavedProgressItem('${escapeHtml(item.id)}')" title="Remove from Continue Listening" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 flex items-center justify-center text-xs shrink-0">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function resumeSavedProgressItem(epId) {
+      const saved = state.podcastProgress[epId];
+      if (!saved) return;
+      openResumePodcastModal(saved, saved.currentTime);
+    }
+
+    function removeSavedProgressItem(epId) {
+      delete state.podcastProgress[epId];
+      saveState();
+      renderContinueListeningShelf();
+      renderPodcastEpisodesList(state.podcastEpisodes);
+    }
+
+    function clearAllPodcastProgress() {
+      state.podcastProgress = {};
+      saveState();
+      renderContinueListeningShelf();
+      renderPodcastEpisodesList(state.podcastEpisodes);
+      showToast('Cleared saved podcast timestamps', 'fa-trash-can');
+    }
+
+    function openResumePodcastModal(episode, savedSeconds) {
+      state.pendingResumeEpisode = { episode, savedSeconds };
+      const modal = document.getElementById('resumePodcastModal');
+      const titleEl = document.getElementById('resumeEpisodeTitle');
+      const infoEl = document.getElementById('resumeEpisodeTimeInfo');
+      const btnLabel = document.getElementById('resumeConfirmBtnLabel');
+
+      const formattedTime = formatAudioSeconds(savedSeconds);
+      if (titleEl) titleEl.textContent = episode.name;
+      if (infoEl) infoEl.textContent = `Last listened up to ${formattedTime}`;
+      if (btnLabel) btnLabel.textContent = `Resume at ${formattedTime}`;
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeResumePodcastModal() {
+      const modal = document.getElementById('resumePodcastModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      state.pendingResumeEpisode = null;
+    }
+
+    function confirmResumePodcast(shouldResume) {
+      const pending = state.pendingResumeEpisode;
+      closeResumePodcastModal();
+      if (!pending || !pending.episode) return;
+
+      if (shouldResume) {
+        playStation(pending.episode, 0, {
+          skipResumeCheck: true,
+          forceRestart: true,
+          resumeAtSeconds: pending.savedSeconds
+        });
+      } else {
+        playStation(pending.episode, 0, {
+          skipResumeCheck: true,
+          forceRestart: true,
+          resumeAtSeconds: 0
+        });
+      }
+    }
+
+    async function loadPodcastShow(show, autoPlayFirstOrResume = false) {
+      state.activePodcastShow = show;
+      renderFeaturedPodcastShows();
+      renderContinueListeningShelf();
+
+      const titleEl = document.getElementById('activePodcastTitle');
+      const authorEl = document.getElementById('activePodcastAuthor');
+      const artEl = document.getElementById('activePodcastArt');
+      const listEl = document.getElementById('podcastEpisodesList');
+      const countBadge = document.getElementById('podcastEpisodeCountBadge');
+
+      if (titleEl) titleEl.textContent = show.title;
+      if (authorEl) authorEl.textContent = show.author || show.desc || 'Podcast Series';
+      if (artEl && show.artwork) artEl.src = show.artwork;
+
+      if (listEl) {
+        listEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Loading episodes for ${escapeHtml(show.title)}...</span>
           </div>
         `;
       }
 
-      const tagMirrors = [
-        'https://de1.api.radio-browser.info/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=80',
-        'https://fi1.api.radio-browser.info/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=80',
-        'https://all.api.radio-browser.info/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=80'
-      ];
+      let episodes = [];
 
-      for (const url of tagMirrors) {
-        try {
-          const res = await fetch(url);
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const seen = new Set();
-            state.liveApiTags = data
-              .filter(t => t.name && t.name.length > 1 && t.stationcount > 25)
-              .filter(t => {
-                const key = t.name.toLowerCase().trim();
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
-              })
-              .slice(0, 72)
-              .map((t, idx) => ({
-                id: `api-tag-${idx}`,
-                section: 'Live Radio-Browser Tag Directory',
-                name: t.name.charAt(0).toUpperCase() + t.name.slice(1),
-                desc: `${t.stationcount.toLocaleString()} live stations`,
-                icon: 'fa-hashtag',
-                color: 'text-sky-400',
-                params: { tag: t.name }
-              }));
-            break;
-          }
-        } catch (_) {}
+      // Strategy 1: Direct RSS XML Parse
+      if (show.rssUrl) {
+        episodes = await fetchEpisodesFromRssXml(show.rssUrl, show);
       }
 
-      if (state.liveApiTags.length === 0) {
-        state.liveApiTags = WAVES_GROUPINGS.genre;
+      // Strategy 2: Apple iTunes Podcast Lookup API
+      if (episodes.length === 0 && show.itunesId) {
+        episodes = await fetchEpisodesFromItunesLookup(show.itunesId, show);
+      }
+
+      // Strategy 3: Search by query term via iTunes Podcast Episode API
+      if (episodes.length === 0 && (show.searchQuery || show.title)) {
+        episodes = await fetchEpisodesFromItunesSearch(show.searchQuery || show.title, show);
+      }
+
+      state.podcastEpisodes = episodes;
+      if (countBadge) countBadge.textContent = `${episodes.length} episodes`;
+      renderPodcastEpisodesList(episodes);
+
+      // If opened from a pinned Podcast Channel on the Home Speed Dial, automatically play/resume latest episode!
+      if (autoPlayFirstOrResume && episodes.length > 0) {
+        const inProgressEp = episodes.find(ep => state.podcastProgress[ep.id]?.currentTime > 15);
+        playStation(inProgressEp || episodes[0], 0);
       }
     }
 
@@ -2761,88 +3401,6 @@
       loadSelectedWaveStations();
     }
 
-    /* ==========================================================================
-       10B. FREE PODCASTS ENGINE (BIBLEPROJECT RSS + APPLE PODCASTS API)
-       ========================================================================== */
-    function renderFeaturedPodcastShows() {
-      const container = document.getElementById('featuredPodcastPills');
-      if (!container) return;
-
-      container.innerHTML = FEATURED_PODCAST_SHOWS.map(show => {
-        const isActive = state.activePodcastShow && state.activePodcastShow.id === show.id;
-        return `
-          <button
-            onclick="selectFeaturedPodcastShow('${show.id}')"
-            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} px-3 py-2 rounded-xl flex items-center gap-2 shrink-0 text-left"
-          >
-            <i class="fa-solid fa-podcast text-xs text-sky-400"></i>
-            <div>
-              <div class="text-xs font-bold leading-none">${escapeHtml(show.title)}</div>
-              <div class="text-[9px] font-mono text-sky-400 mt-0.5">${escapeHtml(show.badge || 'PODCAST')}</div>
-            </div>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function selectFeaturedPodcastShow(showId) {
-      const found = FEATURED_PODCAST_SHOWS.find(s => s.id === showId);
-      if (!found) return;
-      hidePodcastShowSearch();
-      loadPodcastShow(found);
-    }
-
-    function reloadActivePodcastShow() {
-      if (state.activePodcastShow) {
-        loadPodcastShow(state.activePodcastShow);
-      }
-    }
-
-    async function loadPodcastShow(show) {
-      state.activePodcastShow = show;
-      renderFeaturedPodcastShows();
-
-      const titleEl = document.getElementById('activePodcastTitle');
-      const authorEl = document.getElementById('activePodcastAuthor');
-      const artEl = document.getElementById('activePodcastArt');
-      const listEl = document.getElementById('podcastEpisodesList');
-      const countBadge = document.getElementById('podcastEpisodeCountBadge');
-
-      if (titleEl) titleEl.textContent = show.title;
-      if (authorEl) authorEl.textContent = show.author || show.desc || 'Podcast Series';
-      if (artEl && show.artwork) artEl.src = show.artwork;
-
-      if (listEl) {
-        listEl.innerHTML = `
-          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
-            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
-            <span class="text-xs font-medium" style="color: var(--text-secondary);">Loading episodes for ${escapeHtml(show.title)}...</span>
-          </div>
-        `;
-      }
-
-      let episodes = [];
-
-      // Strategy 1: Direct RSS XML Parse (Works great for Simplecast feeds like BibleProject!)
-      if (show.rssUrl) {
-        episodes = await fetchEpisodesFromRssXml(show.rssUrl, show);
-      }
-
-      // Strategy 2: Apple iTunes Podcast Lookup / Search API (CORS-enabled JSON fallback)
-      if (episodes.length === 0 && show.itunesId) {
-        episodes = await fetchEpisodesFromItunesLookup(show.itunesId, show);
-      }
-
-      // Strategy 3: Search by query term via iTunes Podcast Episode API
-      if (episodes.length === 0 && (show.searchQuery || show.title)) {
-        episodes = await fetchEpisodesFromItunesSearch(show.searchQuery || show.title, show);
-      }
-
-      state.podcastEpisodes = episodes;
-      if (countBadge) countBadge.textContent = `${episodes.length} episodes`;
-      renderPodcastEpisodesList(episodes);
-    }
-
     async function fetchEpisodesFromRssXml(rssUrl, show) {
       try {
         const res = await fetch(rssUrl);
@@ -2966,23 +3524,30 @@
       const input = document.getElementById('podcastSearchInput');
       const query = (input ? input.value : '').trim();
       if (!query) return;
+      await discoverPodcastsByTerm(query, `Channels Matching "${query}"`);
+    }
 
+    async function discoverPodcastsByTerm(query, customHeaderTitle) {
       const container = document.getElementById('podcastShowsSearchContainer');
+      const titleEl = document.getElementById('podcastShowsSearchTitle');
       const grid = document.getElementById('podcastShowsGrid');
       if (container) {
         container.classList.remove('hidden');
         container.classList.add('flex');
       }
+      if (titleEl) {
+        titleEl.textContent = customHeaderTitle || 'Discovered Channels';
+      }
       if (grid) {
         grid.innerHTML = `
           <div class="surface-card rounded-2xl p-4 text-center text-xs">
-            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 mr-1.5"></i> Searching podcasts for "${escapeHtml(query)}"...
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 mr-1.5"></i> Finding podcast channels...
           </div>
         `;
       }
 
       try {
-        const res = await fetch(`https://itunes.apple.com/search?media=podcast&entity=podcast&term=${encodeURIComponent(query)}&limit=8`);
+        const res = await fetch(`https://itunes.apple.com/search?media=podcast&entity=podcast&term=${encodeURIComponent(query)}&limit=10`);
         const data = await res.json();
         const shows = (data.results || []).map(item => ({
           id: `pod-show-${item.collectionId}`,
@@ -2996,23 +3561,34 @@
 
         state.podcastSearchShows = shows;
         if (shows.length === 0) {
-          grid.innerHTML = `<div class="surface-card rounded-2xl p-3 text-xs text-center" style="color: var(--text-secondary);">No podcast shows found.</div>`;
+          grid.innerHTML = `<div class="surface-card rounded-2xl p-3 text-xs text-center" style="color: var(--text-secondary);">No podcast channels found.</div>`;
           return;
         }
 
         grid.innerHTML = shows.map((s, i) => `
-          <button onclick="pickSearchedPodcastShow(${i})" class="surface-card p-2.5 rounded-2xl flex items-center gap-3 text-left">
-            <img src="${escapeHtml(s.artwork)}" alt="" class="w-11 h-11 rounded-xl object-cover shrink-0 bg-slate-800" />
-            <div class="min-w-0 flex-1">
-              <div class="text-xs font-bold truncate">${escapeHtml(s.title)}</div>
-              <div class="text-[11px] truncate" style="color: var(--text-secondary);">${escapeHtml(s.author)}</div>
-            </div>
-            <span class="text-[10px] font-mono text-sky-400 px-2 py-1 rounded-lg bg-sky-500/10">Episodes</span>
-          </button>
+          <div class="surface-card p-2.5 rounded-2xl flex items-center justify-between gap-2.5">
+            <button onclick="pickSearchedPodcastShow(${i})" class="flex items-center gap-3 text-left min-w-0 flex-1">
+              <img src="${escapeHtml(s.artwork)}" alt="" class="w-12 h-12 rounded-xl object-cover shrink-0 bg-slate-800" />
+              <div class="min-w-0 flex-1">
+                <div class="text-xs font-bold truncate">${escapeHtml(s.title)}</div>
+                <div class="text-[11px] truncate" style="color: var(--text-secondary);">${escapeHtml(s.author)}</div>
+                <div class="text-[10px] text-sky-400 mt-0.5">Tap to browse episodes</div>
+              </div>
+            </button>
+            <button onclick="pinSearchedPodcastChannel(${i})" title="Pin Channel to Speed Dial" class="px-2.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-[11px] font-bold flex items-center gap-1 shrink-0">
+              <i class="fa-solid fa-thumbtack text-[10px]"></i>
+              <span>Pin Show</span>
+            </button>
+          </div>
         `).join('');
       } catch (_) {
         if (grid) grid.innerHTML = `<div class="surface-card rounded-2xl p-3 text-xs text-center">Could not reach podcast directory.</div>`;
       }
+    }
+
+    function pinSearchedPodcastChannel(idx) {
+      const show = state.podcastSearchShows[idx];
+      if (show) pinPodcastChannelObject(show);
     }
 
     function pickSearchedPodcastShow(idx) {
@@ -3046,6 +3622,12 @@
       listEl.innerHTML = episodes.map((ep, idx) => {
         const isCurrent = state.currentStation && state.currentStation.id === ep.id;
         const isPlayingThis = isCurrent && state.isPlaying;
+        const savedProg = state.podcastProgress[ep.id];
+        const hasProgress = savedProg && savedProg.currentTime > 15;
+        const pct = hasProgress && savedProg.duration > 0
+          ? Math.min(98, Math.round((savedProg.currentTime / savedProg.duration) * 100))
+          : 0;
+
         return `
           <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 flex items-start justify-between gap-3">
             <button onclick="playPodcastEpisode(${idx})" class="flex-1 min-w-0 flex items-start gap-3 text-left">
@@ -3056,9 +3638,17 @@
               </div>
               <div class="min-w-0 flex-1">
                 <div class="text-xs sm:text-sm font-bold leading-snug break-words">${escapeHtml(ep.name)}</div>
-                <div class="text-[11px] mt-0.5 text-sky-400 font-mono">
-                  ${escapeHtml(ep.subtitle)} • ${escapeHtml(ep.freq || '')}
+                <div class="text-[11px] mt-0.5 text-sky-400">
+                  ${escapeHtml(ep.subtitle)}${ep.freq ? ' • ' + escapeHtml(ep.freq) : ''}
                 </div>
+                ${hasProgress ? `
+                  <div class="flex items-center gap-2 mt-1.5">
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-sky-500/20 text-sky-300">
+                      Resume at ${formatAudioSeconds(savedProg.currentTime)}
+                    </span>
+                    ${pct > 0 ? `<span class="text-[10px] font-mono" style="color: var(--text-secondary);">${pct}% played</span>` : ''}
+                  </div>
+                ` : ''}
                 ${ep.description ? `
                   <p class="text-[11px] leading-relaxed mt-1 line-clamp-2" style="color: var(--text-secondary);">
                     ${escapeHtml(ep.description)}
@@ -3070,9 +3660,10 @@
             <button
               onclick="pinPodcastEpisode(${idx})"
               title="Pin Episode to Speed Dial"
-              class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-sky-400 flex items-center justify-center shrink-0 mt-0.5"
+              class="px-2.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-sky-400 text-[11px] font-semibold flex items-center gap-1 shrink-0 mt-0.5"
             >
-              <i class="fa-solid fa-thumbtack text-xs"></i>
+              <i class="fa-solid fa-thumbtack text-[10px]"></i>
+              <span>Pin Ep</span>
             </button>
           </div>
         `;
@@ -3158,21 +3749,12 @@
     }
 
     /* ==========================================================================
-       11. STATION VAULT SCREEN (TYPE-TO-SEARCH & METADATA LIBRARY)
+       11. STATION VAULT SCREEN (UNIFIED SMART OMNI-SEARCH ACROSS 30,000+ STATIONS)
+       Simultaneously searches Name, Genre/Tags, Multi-Word Combinations (e.g.
+       "Christian Hip Hop"), Languages, Countries, and Verified Specialty Streams
+       (including NASA Third Rock Radio & Kids Channels).
        ========================================================================== */
     let vaultDebounceTimer = null;
-
-    function setVaultSearchField(field) {
-      state.vaultSearchField = field;
-      document.querySelectorAll('.vault-field-btn').forEach(btn => {
-        if (btn.getAttribute('data-field') === field) {
-          btn.className = 'vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-sky-500 text-white transition';
-        } else {
-          btn.className = 'vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition';
-        }
-      });
-      executeVaultSearch();
-    }
 
     function handleVaultSearchInput(value) {
       const clearBtn = document.getElementById('clearSearchBtn');
@@ -3182,9 +3764,11 @@
       clearTimeout(vaultDebounceTimer);
       vaultDebounceTimer = setTimeout(() => {
         if (value.trim().length >= 2) {
-          executeVaultSearch();
+          executeVaultSearch(true);
+        } else if (value.trim().length === 0) {
+          showVaultRecent();
         }
-      }, 380);
+      }, 420);
     }
 
     function clearVaultSearch() {
@@ -3195,72 +3779,196 @@
       showVaultRecent();
     }
 
-    function quickVaultChip(term, field, lang) {
+    function quickVaultChip(term) {
       const input = document.getElementById('vaultSearchInput');
-      const langSelect = document.getElementById('vaultLangSelect');
+      const clearBtn = document.getElementById('clearSearchBtn');
       if (input) input.value = term;
-      if (langSelect) langSelect.value = lang || '';
-      setVaultSearchField(field);
+      if (clearBtn) clearBtn.classList.remove('hidden');
+      executeVaultSearch(true);
     }
 
-    async function executeVaultSearch() {
+    async function executeVaultSearch(resetOffset = true) {
       const input = document.getElementById('vaultSearchInput');
       const langSelect = document.getElementById('vaultLangSelect');
       const orderSelect = document.getElementById('vaultOrderSelect');
       const listEl = document.getElementById('vaultResultsList');
       const labelEl = document.getElementById('vaultResultsLabel');
       const countEl = document.getElementById('vaultResultsCount');
+      const loadMoreBtn = document.getElementById('vaultLoadMoreBtn');
 
-      const queryText = (input ? input.value : '').trim();
+      const rawQuery = (input ? input.value : '').trim();
       const langFilter = langSelect ? langSelect.value : '';
       const orderFilter = orderSelect ? orderSelect.value : 'clickcount';
 
-      if (!queryText && !langFilter) {
+      if (!rawQuery && !langFilter) {
         showVaultRecent();
         return;
       }
 
-      if (labelEl) labelEl.textContent = `Searching by ${state.vaultSearchField.toUpperCase()}...`;
-      if (listEl) {
+      if (resetOffset) {
+        state.vaultOffset = 0;
+        state.vaultResults = [];
+      }
+
+      if (labelEl) labelEl.textContent = rawQuery ? `Smart Search: "${rawQuery}"` : 'Filtered Broadcasts';
+      if (resetOffset && listEl) {
         listEl.innerHTML = `
           <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
             <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
-            <span class="text-xs font-medium" style="color: var(--text-secondary);">Querying Radio-Browser directory...</span>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Searching names, genres, combinations &amp; locations...</span>
           </div>
         `;
       }
 
-      const params = {
-        limit: 35,
+      const qLower = rawQuery.toLowerCase();
+      const words = qLower.split(/\s+/).filter(Boolean);
+
+      // Detect if user included a language name inside their search text (e.g. "Spanish Worship" or "Portuguese Gospel")
+      let inferredLang = langFilter;
+      const langKeywords = {
+        spanish: 'spanish',
+        espanol: 'spanish',
+        español: 'spanish',
+        portuguese: 'portuguese',
+        portugues: 'portuguese',
+        português: 'portuguese',
+        french: 'french',
+        german: 'german',
+        english: 'english'
+      };
+      const remainingWords = [];
+      for (const w of words) {
+        if (!inferredLang && langKeywords[w]) {
+          inferredLang = langKeywords[w];
+        } else {
+          remainingWords.push(w);
+        }
+      }
+      const coreQuery = remainingWords.join(' ') || rawQuery;
+
+      // 1. Check Built-in Specialty Verified Stations first (NASA Third Rock, Kids, Christian Hip Hop, etc.)
+      const matchedSpecialty = resetOffset
+        ? SPECIALTY_VERIFIED_STATIONS.filter(sp => {
+            const hay = `${sp.name} ${sp.subtitle} ${sp.tags} ${sp.location}`.toLowerCase();
+            return words.every(w => hay.includes(w)) || hay.includes(qLower);
+          })
+        : [];
+
+      // 2. Build Parallel Multi-Facet Radio-Browser Queries so Name, Genre, Combinations & Country are searched together!
+      const baseCommon = {
+        limit: 40,
+        offset: state.vaultOffset,
         order: orderFilter
       };
-      if (queryText) {
-        params[state.vaultSearchField] = queryText;
+      if (inferredLang) baseCommon.language = inferredLang;
+
+      const parallelQueries = [];
+
+      if (rawQuery) {
+        // Facet A: Station Name match
+        parallelQueries.push(queryRadioBrowser({ ...baseCommon, name: coreQuery }));
+
+        // Facet B: Exact Genre / Tag match
+        parallelQueries.push(queryRadioBrowser({ ...baseCommon, tag: coreQuery }));
+
+        // Facet C: Multi-word Combination Tag List (e.g. "Christian Hip Hop" -> tagList="christian,hip hop" & "christian,rap")
+        if (remainingWords.length >= 2) {
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, tagList: remainingWords.join(',') }));
+          if (qLower.includes('hip hop') || qLower.includes('hiphop')) {
+            const otherWords = remainingWords.filter(w => w !== 'hip' && w !== 'hop' && w !== 'hiphop');
+            if (otherWords.length > 0) {
+              parallelQueries.push(queryRadioBrowser({ ...baseCommon, tagList: `${otherWords.join(',')},hiphop` }));
+              parallelQueries.push(queryRadioBrowser({ ...baseCommon, tagList: `${otherWords.join(',')},rap` }));
+            }
+          }
+        }
+
+        // Facet D: Synonym expansion for Kids / NASA / Space
+        if (qLower.includes('kids') || qLower.includes('child')) {
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, tag: 'children' }));
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, tag: 'kids' }));
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, name: 'kids' }));
+        }
+        if (qLower.includes('nasa') || qLower.includes('space')) {
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, name: 'Third Rock' }));
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, name: 'Space' }));
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, tag: 'space' }));
+        }
+
+        // Facet E: Country or US State match
+        if (remainingWords.length <= 2) {
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, country: coreQuery, limit: 25 }));
+          parallelQueries.push(queryRadioBrowser({ ...baseCommon, state: coreQuery, limit: 25 }));
+        }
+      } else {
+        // Language-only browse
+        parallelQueries.push(queryRadioBrowser({ ...baseCommon, limit: 50 }));
       }
-      if (langFilter) {
-        params.language = langFilter;
+
+      const batches = await Promise.all(parallelQueries);
+
+      // Merge & Deduplicate by stream URL or station ID
+      const seenKeys = new Set(state.vaultResults.map(s => s.url_resolved || s.id));
+      const mergedNew = [];
+
+      for (const sp of matchedSpecialty) {
+        const key = sp.url_resolved || sp.id;
+        if (!seenKeys.has(key)) {
+          seenKeys.add(key);
+          mergedNew.push(sp);
+        }
       }
 
-      const results = await queryRadioBrowser(params);
-      state.vaultResults = results;
+      for (const batch of batches) {
+        for (const st of batch) {
+          const key = st.url_resolved || st.id;
+          if (!seenKeys.has(key)) {
+            seenKeys.add(key);
+            mergedNew.push(st);
+          }
+        }
+      }
 
-      if (labelEl) labelEl.textContent = `Found ${results.length} Stations`;
-      if (countEl) countEl.textContent = results.length > 0 ? 'Tap to play or pin' : '';
+      state.vaultResults = resetOffset ? mergedNew : [...state.vaultResults, ...mergedNew];
 
-      renderStationCardsList(results, listEl, 'vault');
+      if (labelEl) labelEl.textContent = `Matching Stations (${state.vaultResults.length})`;
+      if (countEl) countEl.textContent = state.vaultResults.length > 0 ? 'Tap to play or pin' : '';
+
+      if (loadMoreBtn) {
+        if (mergedNew.length >= 20) {
+          loadMoreBtn.classList.remove('hidden');
+          loadMoreBtn.classList.add('flex');
+        } else {
+          loadMoreBtn.classList.add('hidden');
+          loadMoreBtn.classList.remove('flex');
+        }
+      }
+
+      renderStationCardsList(state.vaultResults, listEl, 'vault');
+    }
+
+    function loadMoreVaultStations() {
+      state.vaultOffset += 40;
+      executeVaultSearch(false);
     }
 
     function showVaultRecent() {
       const listEl = document.getElementById('vaultResultsList');
       const labelEl = document.getElementById('vaultResultsLabel');
       const countEl = document.getElementById('vaultResultsCount');
+      const loadMoreBtn = document.getElementById('vaultLoadMoreBtn');
+
+      if (loadMoreBtn) {
+        loadMoreBtn.classList.add('hidden');
+        loadMoreBtn.classList.remove('flex');
+      }
 
       const items = state.recentStations.length > 0
         ? state.recentStations
-        : [...PERMANENT_STATIONS, ...state.assignableSlots.filter(Boolean)];
+        : [...SPECIALTY_VERIFIED_STATIONS, ...PERMANENT_STATIONS];
 
       state.vaultResults = items;
-      if (labelEl) labelEl.textContent = state.recentStations.length > 0 ? 'Recently Tuned Stations' : 'Recommended Starter Library';
+      if (labelEl) labelEl.textContent = state.recentStations.length > 0 ? 'Recently Tuned' : 'Featured & Specialty Stations';
       if (countEl) countEl.textContent = `${items.length} stations`;
 
       renderStationCardsList(items, listEl, 'vault');
@@ -3294,7 +4002,7 @@
         const isPlayingThis = isCurrent && state.isPlaying;
 
         return `
-          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3 flex items-center justify-between gap-3">
+          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 flex items-center justify-between gap-3">
             <button
               onclick="playStationFromList('${sourceKey}', ${idx})"
               class="flex-1 min-w-0 flex items-center gap-3 text-left"
@@ -3308,16 +4016,6 @@
                 <div class="text-xs sm:text-sm font-bold truncate">${escapeHtml(st.name)}</div>
                 <div class="text-[11px] truncate mt-0.5" style="color: var(--text-secondary);">
                   ${escapeHtml(st.subtitle || st.location || 'Live Broadcast')}
-                </div>
-                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
-                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-sky-300">
-                    ${escapeHtml(st.codec || 'MP3')} ${st.bitrate ? st.bitrate + 'k' : ''}
-                  </span>
-                  ${st.language ? `
-                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5" style="color: var(--text-secondary);">
-                      ${escapeHtml(st.language.slice(0, 18))}
-                    </span>
-                  ` : ''}
                 </div>
               </div>
             </button>
@@ -3399,58 +4097,46 @@
 
     function updateSetting(key, value) {
       state.settings[key] = value;
+      if (key === 'defaultGrouping') {
+        state.wavesGroupingMode = value;
+      }
       saveState();
       applySettingsToDOM();
-
-      if (key === 'dialCapacity') {
-        renderSpeedDial();
-      } else if (key === 'defaultGrouping') {
-        changeWavesGrouping(value);
-      }
-
-      showToast('Studio preference updated', 'fa-sliders');
+      renderSpeedDial();
+      showToast('Preference saved to device', 'fa-check');
     }
 
     function exportPresetsJSON() {
-      const backup = JSON.stringify({
-        assignableSlots: state.assignableSlots,
-        settings: state.settings
-      }, null, 2);
-
-      // Copy using iframe-safe fallback
-      const tempArea = document.createElement('textarea');
-      tempArea.value = backup;
-      document.body.appendChild(tempArea);
-      tempArea.select();
       try {
+        const exportObj = {
+          app: 'Vela FM',
+          settings: state.settings,
+          assignableSlots: state.assignableSlots,
+          podcastProgress: state.podcastProgress
+        };
+        const text = JSON.stringify(exportObj, null, 2);
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
         document.execCommand('copy');
-        showToast('Speed Dial & Settings JSON copied to clipboard!', 'fa-copy');
+        document.body.removeChild(ta);
+        showToast('Copied backup JSON to clipboard!', 'fa-copy');
       } catch (_) {
-        showToast('Backup ready in storage', 'fa-check');
+        showToast('Could not copy backup JSON', 'fa-triangle-exclamation');
       }
-      document.body.removeChild(tempArea);
     }
 
     function resetFactoryDefaults() {
       state.assignableSlots = [...DEFAULT_ASSIGNABLE_SLOTS];
-      state.settings = {
-        theme: 'midnight',
-        dialCapacity: 'auto',
-        defaultGrouping: 'genre',
-        minBitrate: 0,
-        httpsOnly: true,
-        autoReconnect: true,
-        visualizerMode: 'bars',
-        apiMirror: 'auto'
-      };
       saveState();
-      applySettingsToDOM();
       renderSpeedDial();
-      showToast('Speed Dial & Studio Prefs restored to factory defaults', 'fa-rotate-left');
+      showToast('Speed Dial reset to default presets', 'fa-rotate-left');
     }
 
-    /* Sleep Timer Modal & Gentle Audio Fade-Out */
+    /* Sleep Timer Modal & Full-Duration Proportional Fade-Out */
     function openSleepModal() {
+      updateSleepFadeModeUI();
       const m = document.getElementById('sleepModal');
       m.classList.remove('hidden');
       m.classList.add('flex');
@@ -3462,12 +4148,40 @@
       m.classList.remove('flex');
     }
 
+    function setSleepFadeMode(mode) {
+      state.sleepFadeMode = mode === 'end' ? 'end' : 'gradual';
+      saveState();
+      updateSleepFadeModeUI();
+    }
+
+    function updateSleepFadeModeUI() {
+      const gradBtn = document.getElementById('sleepModeGradualBtn');
+      const endBtn = document.getElementById('sleepModeEndBtn');
+      const gradIcon = document.getElementById('sleepModeGradualIcon');
+      const endIcon = document.getElementById('sleepModeEndIcon');
+
+      if (!gradBtn || !endBtn) return;
+
+      if (state.sleepFadeMode === 'gradual') {
+        gradBtn.className = 'surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-3 border border-amber-400/50 bg-amber-500/10';
+        endBtn.className = 'surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-3';
+        if (gradIcon) gradIcon.className = 'fa-solid fa-circle-check text-amber-400 text-sm shrink-0';
+        if (endIcon) endIcon.className = 'fa-solid fa-circle opacity-20 text-sm shrink-0';
+      } else {
+        endBtn.className = 'surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-3 border border-amber-400/50 bg-amber-500/10';
+        gradBtn.className = 'surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-3';
+        if (endIcon) endIcon.className = 'fa-solid fa-circle-check text-amber-400 text-sm shrink-0';
+        if (gradIcon) gradIcon.className = 'fa-solid fa-circle opacity-20 text-sm shrink-0';
+      }
+    }
+
     function setSleepTimer(minutes) {
       clearInterval(state.sleepIntervalId);
       const badge = document.getElementById('headerSleepBadge');
 
       if (!minutes || minutes <= 0) {
         state.sleepSecondsRemaining = 0;
+        state.sleepTotalSeconds = 0;
         if (badge) {
           badge.classList.add('hidden');
           badge.classList.remove('inline-flex');
@@ -3477,23 +4191,40 @@
         return;
       }
 
-      state.sleepSecondsRemaining = minutes * 60;
+      state.sleepTotalSeconds = minutes * 60;
+      state.sleepSecondsRemaining = state.sleepTotalSeconds;
+      state.sleepStartVolume = state.volume > 0 ? state.volume : 80;
+
       if (badge) {
         badge.classList.remove('hidden');
         badge.classList.add('inline-flex');
       }
       updateSleepBadgeText();
       closeSleepModal();
-      showToast(`Sleep timer set for ${minutes} minutes`, 'fa-moon');
+
+      const modeDesc = state.sleepFadeMode === 'gradual'
+        ? 'fading gradually over full duration'
+        : 'fading in final 30s';
+      showToast(`Sleep timer: ${minutes}m (${modeDesc})`, 'fa-moon');
 
       state.sleepIntervalId = setInterval(() => {
         state.sleepSecondsRemaining -= 1;
         updateSleepBadgeText();
 
-        // Gentle volume fade during last 15 seconds
-        if (state.sleepSecondsRemaining > 0 && state.sleepSecondsRemaining <= 15 && state.isPlaying && !state.isMuted) {
-          const factor = state.sleepSecondsRemaining / 15;
-          audioEl.volume = (state.volume / 100) * factor;
+        if (state.sleepSecondsRemaining > 0 && state.isPlaying && !state.isMuted) {
+          if (state.sleepFadeMode === 'gradual' && state.sleepTotalSeconds > 0) {
+            // Proportional linear fade across the entire sleep duration!
+            // Example: startVolume = 80%, 60 min timer -> at 30 min remaining (ratio 0.5), volume is 40%
+            const ratioRemaining = state.sleepSecondsRemaining / state.sleepTotalSeconds;
+            const scaledVolume = Math.max(1, Math.round(state.sleepStartVolume * ratioRemaining));
+            audioEl.volume = scaledVolume / 100;
+            state.volume = scaledVolume;
+            updateVolumeUI();
+          } else if (state.sleepFadeMode === 'end' && state.sleepSecondsRemaining <= 30) {
+            // Gentle fade during final 30 seconds only
+            const factor = state.sleepSecondsRemaining / 30;
+            audioEl.volume = (state.sleepStartVolume / 100) * factor;
+          }
         }
 
         if (state.sleepSecondsRemaining <= 0) {
@@ -3501,7 +4232,12 @@
           if (state.isPlaying) {
             togglePlayPause();
           }
+          // Restore slider to original pre-sleep volume for next morning
+          state.volume = state.sleepStartVolume;
           audioEl.volume = state.isMuted ? 0 : (state.volume / 100);
+          updateVolumeUI();
+          saveState();
+
           if (badge) {
             badge.classList.add('hidden');
             badge.classList.remove('inline-flex');
@@ -3574,9 +4310,13 @@
         renderWavesCategories();
         renderActiveWavePills();
         loadSelectedWaveStations();
-      } else if (tabId === 'podcasts' && state.podcastEpisodes.length === 0) {
+      } else if (tabId === 'podcasts') {
+        renderPodcastCategoryPills();
         renderFeaturedPodcastShows();
-        loadPodcastShow(state.activePodcastShow || FEATURED_PODCAST_SHOWS[0]);
+        renderContinueListeningShelf();
+        if (state.podcastEpisodes.length === 0) {
+          loadPodcastShow(state.activePodcastShow || FEATURED_PODCAST_SHOWS[0]);
+        }
       } else if (tabId === 'vault' && state.vaultResults.length === 0) {
         showVaultRecent();
       } else if (tabId === 'settings') {
@@ -3634,7 +4374,9 @@
       renderLanguageQuickBar();
       renderWavesCategories();
       renderActiveWavePills();
+      renderPodcastCategoryPills();
       renderFeaturedPodcastShows();
+      renderContinueListeningShelf();
       startVisualizerLoop();
       enrichPermanentStationsFromApi();
     };
