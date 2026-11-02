@@ -160,12 +160,30 @@
     }
 
     .surface-card:active {
-      transform: scale(0.97);
+      transform: scale(0.98);
     }
 
     .speed-dial-active {
       border-color: var(--accent-primary) !important;
-      box-shadow: 0 0 0 1px var(--accent-primary), 0 8px 20px -4px var(--accent-glow);
+      box-shadow: 0 0 0 1px var(--accent-primary), 0 8px 20px -6px var(--accent-glow);
+    }
+
+    /* Slide-out Bottom Sheet / Drawer Animation */
+    .drawer-backdrop {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.24s ease;
+    }
+    .drawer-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer-panel {
+      transform: translateY(100%);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .drawer-backdrop.open .drawer-panel {
+      transform: translateY(0);
     }
 
     /* Animated Equalizer Bars */
@@ -273,107 +291,119 @@
 
   <!-- ==========================================================================
        MAIN CONTENT VIEWPORT
-       Houses the 4 Screens:
-       1. Tuner Deck (Home: Now On Air Focal Point + Speed Dial + Quick Nav Cards)
-       2. Curated Waves (Genre, Language ES/PT Priority, Region, Quality Discovery)
-       3. Station Vault (Type-to-Search Library & Metadata Filter)
-       4. Studio Prefs (Settings & Customization)
+       Houses the 5 Screens:
+       1. Tuner Deck (Clean Home: Now On Air Focal Point + Signature 4 + Speed Dial)
+       2. Curated Waves (Slide-Out Language & Multi-Genre Drawers + Live Results)
+       3. Podcasts (Free Podcast Directory featuring BibleProject + Live Search)
+       4. Station Vault (Type-to-Search Library & Metadata Filter)
+       5. Studio Prefs (Settings & Customization)
        ========================================================================== -->
-  <main class="flex-1 w-full max-w-md mx-auto px-3.5 pt-2.5 pb-24 flex flex-col gap-3.5">
+  <main class="flex-1 w-full max-w-md mx-auto px-4 pt-3 pb-28 flex flex-col gap-5">
 
     <!-- ========================================================================
          HERO FOCAL CONSOLE: "NOW ON AIR"
-         Graphic Design Focal Point: High-contrast dark indigo/slate card, ambient
-         frequency canvas, big tactile transport button, and clear typographic hierarchy.
-         Remains visible at the top of Tuner Deck (and compacts on other views if desired).
+         Clean, high-contrast focal card with generous whitespace, clear typographic
+         scale, subtle equalizer, and automatic Podcast timeline controls when
+         listening to BibleProject or other podcast episodes.
          ======================================================================== -->
-    <section id="nowOnAirSection" aria-label="Now On Air Station Console" class="now-on-air-deck rounded-3xl p-4 text-white transition-all duration-300">
-      <div class="relative z-10 flex flex-col gap-3">
+    <section id="nowOnAirSection" aria-label="Now On Air Station Console" class="now-on-air-deck rounded-3xl p-5 text-white transition-all duration-300">
+      <div class="relative z-10 flex flex-col gap-3.5">
         
-        <!-- Top Row: Signal Status Badge, Frequency Callout, & Pin to Speed Dial -->
-        <div class="flex items-center justify-between">
+        <!-- Top Minimal Status Row -->
+        <div id="nowTopMetaRow" class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-sky-500/20 text-sky-300 border border-sky-400/30">
+            <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-widest bg-white/10 text-sky-300">
               <span id="liveIndicatorDot" class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-              <span id="liveStatusText">READY TO TUNE</span>
+              <span id="liveStatusText">STANDBY</span>
             </span>
-            <span id="nowCodecBadge" class="text-[11px] font-mono text-slate-300/80 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
-              94.5 MHz • AAC
+            <span id="nowCodecBadge" class="text-[11px] font-mono text-slate-300/80">
+              94.5 FM
             </span>
           </div>
 
-          <div class="flex items-center gap-1.5">
-            <!-- Re-resolve / Switch Stream Mirror if a station has multiple streams -->
-            <button id="cycleStreamBtn" onclick="tryAlternateStream()" title="Switch backup stream signal" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-mono text-slate-200 flex items-center gap-1 transition">
-              <i class="fa-solid fa-satellite-dish text-[10px] text-sky-300"></i>
-              <span>Signal</span>
+          <div class="flex items-center gap-1">
+            <!-- Switch Stream Signal -->
+            <button id="cycleStreamBtn" onclick="tryAlternateStream()" title="Switch backup signal" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/15 text-xs text-slate-200 flex items-center justify-center transition">
+              <i class="fa-solid fa-satellite-dish text-[11px] text-sky-300"></i>
             </button>
             <!-- Pin Current Station to Speed Dial Button -->
-            <button onclick="openAssignModalForCurrent()" title="Save to Speed Dial" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/15 flex items-center justify-center text-xs text-sky-300 transition">
-              <i class="fa-solid fa-thumbtack"></i>
+            <button onclick="openAssignModalForCurrent()" title="Pin to Speed Dial" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-xs text-sky-300 transition">
+              <i class="fa-solid fa-thumbtack text-[11px]"></i>
             </button>
           </div>
         </div>
 
-        <!-- Center Focal Row: Station Artwork / Emblem + Primary Title + Tactile Play/Pause -->
-        <div class="flex items-center justify-between gap-3.5 my-0.5">
-          <!-- Station Emblem / Artwork -->
-          <div class="relative w-16 h-16 rounded-2xl bg-slate-800/90 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+        <!-- Center Focal Row: Emblem + Clean Typographic Hierarchy + Sculptural Play Button -->
+        <div class="flex items-center justify-between gap-4">
+          <!-- Station / Podcast Artwork Emblem -->
+          <div id="nowEmblemBox" class="relative w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner transition-all">
             <img id="nowStationLogo" src="" alt="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('nowStationFallbackIcon').classList.remove('hidden');" />
             <div id="nowStationFallbackIcon" class="flex flex-col items-center justify-center text-center">
-              <span id="nowFreqShort" class="font-mono font-extrabold text-base text-sky-300 leading-none">94.5</span>
-              <span class="text-[9px] font-mono uppercase tracking-wider text-slate-400 mt-0.5">FM</span>
+              <span id="nowFreqShort" class="font-mono font-extrabold text-sm text-sky-300 leading-none">94.5</span>
+              <span id="nowFreqUnit" class="text-[9px] font-mono uppercase tracking-wider text-slate-400 mt-0.5">FM</span>
             </div>
           </div>
 
-          <!-- Station Name & Metadata Hierarchy -->
+          <!-- Station Title & Single Calm Subtitle -->
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-1.5">
-              <span class="text-[10px] font-mono uppercase tracking-widest text-sky-400 font-semibold">NOW ON AIR</span>
-            </div>
-            <h2 id="nowStationName" class="text-xl font-extrabold tracking-tight text-white truncate leading-tight">
+            <h2 id="nowStationName" class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-snug truncate">
               K-LOVE 94.5
             </h2>
-            <p id="nowStationSubtitle" class="text-xs text-slate-300 truncate mt-0.5">
+            <p id="nowStationSubtitle" class="text-xs text-slate-300/90 truncate mt-0.5">
               Spartanburg, SC • Positive &amp; Encouraging
             </p>
-            <div class="flex items-center gap-2 mt-1.5">
-              <span id="nowStationLocation" class="inline-flex items-center gap-1 text-[11px] text-slate-400 truncate">
-                <i class="fa-solid fa-location-dot text-[10px] text-sky-400"></i>
-                <span>Spartanburg, SC</span>
-              </span>
+            <div id="nowLocationRow" class="hidden">
+              <span id="nowStationLocation"></span>
             </div>
           </div>
 
           <!-- Primary Tactile Play / Pause Transport Button -->
-          <button id="mainPlayBtn" onclick="togglePlayPause()" aria-label="Play or Pause Current Station" class="relative w-14 h-14 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/30 active:scale-95 transition shrink-0">
-            <i id="mainPlayIcon" class="fa-solid fa-play text-xl ml-0.5"></i>
+          <button id="mainPlayBtn" onclick="togglePlayPause()" aria-label="Play or Pause Current Audio" class="relative w-14 h-14 rounded-full bg-white text-slate-950 hover:bg-sky-50 flex items-center justify-center shadow-lg active:scale-95 transition shrink-0">
+            <i id="mainPlayIcon" class="fa-solid fa-play text-lg ml-0.5"></i>
           </button>
         </div>
 
-        <!-- Live Audio Spectrum Visualizer Canvas & Volume / Quick Step Bar -->
-        <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-3">
+        <!-- Podcast Episode Scrubber Bar (Shown automatically when playing BibleProject or any Podcast) -->
+        <div id="podcastScrubberRow" class="hidden flex-col gap-1.5 pt-2 border-t border-white/10">
+          <div class="flex items-center justify-between gap-2">
+            <button onclick="seekPodcast(-15)" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-mono text-sky-300 flex items-center gap-1">
+              <i class="fa-solid fa-rotate-left text-[10px]"></i> 15s
+            </button>
+            <input id="podcastSeekSlider" type="range" min="0" max="100" value="0" oninput="scrubPodcastTo(this.value)" class="flex-1 accent-sky-400" />
+            <button onclick="seekPodcast(30)" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-mono text-sky-300 flex items-center gap-1">
+              30s <i class="fa-solid fa-rotate-right text-[10px]"></i>
+            </button>
+          </div>
+          <div class="flex items-center justify-between text-[10px] font-mono text-slate-400 px-1">
+            <span id="podcastCurrentTime">0:00</span>
+            <span class="text-sky-300 uppercase tracking-wider">Podcast Episode</span>
+            <span id="podcastDurationTime">--:--</span>
+          </div>
+        </div>
+
+        <!-- Minimal Bottom Transport & Spectrum Row -->
+        <div id="nowBottomVisualizerRow" class="pt-2.5 border-t border-white/10 flex items-center justify-between gap-3">
           <!-- Prev / Next Speed Dial Stepper -->
           <div class="flex items-center gap-1">
-            <button onclick="stepSpeedDial(-1)" aria-label="Previous Speed Dial Station" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+            <button onclick="stepSpeedDial(-1)" aria-label="Previous Preset" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
               <i class="fa-solid fa-backward-step"></i>
             </button>
-            <button onclick="stepSpeedDial(1)" aria-label="Next Speed Dial Station" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+            <button onclick="stepSpeedDial(1)" aria-label="Next Preset" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
               <i class="fa-solid fa-forward-step"></i>
             </button>
           </div>
 
-          <!-- Real-Time Spectrum Canvas -->
-          <div class="flex-1 h-7 bg-black/25 rounded-lg px-2 py-1 flex items-center justify-center overflow-hidden border border-white/5">
+          <!-- Subtle Spectrum Canvas -->
+          <div class="flex-1 h-5 flex items-center justify-center overflow-hidden px-2">
             <canvas id="visualizerCanvas" class="w-full h-full"></canvas>
           </div>
 
-          <!-- Mute & Volume Popover Trigger -->
+          <!-- Clean Volume Control -->
           <div class="flex items-center gap-1.5">
-            <button onclick="toggleMute()" id="muteBtn" aria-label="Mute or Unmute" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+            <button onclick="toggleMute()" id="muteBtn" aria-label="Mute or Unmute" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
               <i id="volumeIcon" class="fa-solid fa-volume-high"></i>
             </button>
-            <input id="volumeSlider" type="range" min="0" max="100" value="85" oninput="handleVolumeChange(this.value)" aria-label="Volume" class="w-16 accent-sky-400" />
+            <input id="volumeSlider" type="range" min="0" max="100" value="85" oninput="handleVolumeChange(this.value)" aria-label="Volume" class="w-14 accent-sky-400" />
           </div>
         </div>
 
@@ -381,155 +411,132 @@
     </section>
 
     <!-- ========================================================================
-         VIEW 1: TUNER DECK (HOME SCREEN)
-         Contains:
-         - Quick Navigation Launchers (Curated Waves, Station Vault, Studio Prefs)
-         - Permanent Core Stations (K-LOVE 94.5, HIS Radio 89.3, HIS Radio Z, K-LOVE en Español)
-         - Assignable Speed Dial Grid (Auto-sized to fit phone viewport comfortably)
+         VIEW 1: TUNER DECK (CLEAN, EDITORIAL HOME SCREEN)
+         Focused strictly on your 4 Permanent Broadcasts and your Speed Dial Grid
+         with generous whitespace and zero visual clutter.
          ======================================================================== -->
-    <div id="view-home" class="flex flex-col gap-3.5">
+    <div id="view-home" class="flex flex-col gap-5">
 
-      <!-- Quick Mode Launchers (Graphic Design Hierarchy: Clear Secondary Entry Points) -->
-      <div class="grid grid-cols-3 gap-2">
-        <button onclick="switchTab('waves')" class="surface-card rounded-2xl p-2.5 flex items-center gap-2.5 text-left">
-          <div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-compass text-sm"></i>
-          </div>
-          <div class="min-w-0">
-            <div class="text-xs font-bold truncate">Curated Waves</div>
-            <div class="text-[10px] truncate" style="color: var(--text-secondary);">Genre • ES / PT</div>
-          </div>
-        </button>
-
-        <button onclick="switchTab('vault')" class="surface-card rounded-2xl p-2.5 flex items-center gap-2.5 text-left">
-          <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-magnifying-glass text-sm"></i>
-          </div>
-          <div class="min-w-0">
-            <div class="text-xs font-bold truncate">Station Vault</div>
-            <div class="text-[10px] truncate" style="color: var(--text-secondary);">Type to Search</div>
-          </div>
-        </button>
-
-        <button onclick="switchTab('settings')" class="surface-card rounded-2xl p-2.5 flex items-center gap-2.5 text-left">
-          <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
-            <i class="fa-solid fa-sliders text-sm"></i>
-          </div>
-          <div class="min-w-0">
-            <div class="text-xs font-bold truncate">Studio Prefs</div>
-            <div class="text-[10px] truncate" style="color: var(--text-secondary);">Customize UI</div>
-          </div>
-        </button>
-      </div>
-
-      <!-- PERMANENT CORE STATIONS: Upstate SC & Español Quartet -->
+      <!-- PERMANENT CORE STATIONS: Upstate SC & Air1 Música de Adoración -->
       <section aria-label="Pinned Signature Stations">
-        <div class="flex items-center justify-between mb-2 px-0.5">
-          <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-lock text-[10px] text-sky-400"></i>
-            <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
-              Signature Broadcasts • Upstate SC
-            </h3>
-          </div>
-          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400">4 Permanent</span>
+        <div class="flex items-center justify-between mb-2.5 px-1">
+          <h3 class="text-[11px] font-bold uppercase tracking-widest" style="color: var(--text-secondary);">
+            Signature Broadcasts
+          </h3>
+          <span class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">Upstate SC &amp; Español</span>
         </div>
 
-        <div id="permanentGrid" class="grid grid-cols-2 gap-2.5">
+        <div id="permanentGrid" class="grid grid-cols-2 gap-3">
           <!-- Populated dynamically by renderSpeedDial() -->
         </div>
       </section>
 
       <!-- ASSIGNABLE SPEED DIAL GRID -->
       <section aria-label="Assignable Speed Dial Presets">
-        <div class="flex items-center justify-between mb-2 px-0.5">
-          <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-bolt text-[11px] text-amber-400"></i>
-            <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
-              Speed Dial Presets
+        <div class="flex items-center justify-between mb-2.5 px-1">
+          <div class="flex items-center gap-2">
+            <h3 class="text-[11px] font-bold uppercase tracking-widest" style="color: var(--text-secondary);">
+              Speed Dial
             </h3>
-            <span id="speedDialCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5" style="color: var(--text-secondary);">8 Slots</span>
+            <span id="speedDialCountBadge" class="text-[10px] font-mono opacity-60" style="color: var(--text-secondary);">8 Slots</span>
           </div>
 
-          <!-- Toggle Edit / Reassign Mode for Speed Dial -->
-          <div class="flex items-center gap-1.5">
-            <button id="editDialBtn" onclick="toggleSpeedDialEditMode()" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold surface-card flex items-center gap-1.5">
-              <i class="fa-solid fa-pen-to-square text-[10px] text-sky-400"></i>
-              <span id="editDialBtnText">Customize Slots</span>
-            </button>
-          </div>
+          <!-- Minimal Edit Mode Toggle -->
+          <button id="editDialBtn" onclick="toggleSpeedDialEditMode()" class="px-2.5 py-1 rounded-lg text-[11px] font-medium surface-card flex items-center gap-1.5">
+            <i class="fa-solid fa-sliders text-[10px] text-sky-400"></i>
+            <span id="editDialBtnText">Edit</span>
+          </button>
         </div>
 
-        <div id="assignableGrid" class="grid grid-cols-2 gap-2.5">
-          <!-- Populated dynamically by renderSpeedDial() based on screen height / density setting -->
+        <div id="assignableGrid" class="grid grid-cols-2 gap-3">
+          <!-- Populated dynamically by renderSpeedDial() -->
         </div>
       </section>
 
     </div>
 
     <!-- ========================================================================
-         VIEW 2: CURATED WAVES (GENRE, LANGUAGE ES/PT PRIORITY, & GROUPING DISCOVERY)
+         VIEW 2: CURATED WAVES (CLEAN SLIDE-OUT DRAWERS + MULTI-GENRE COMBINATION)
+         Features two tactile drawer buttons (Language & Multi-Select Genres) so
+         the screen stays clean and station results are immediately visible.
          ======================================================================== -->
-    <div id="view-waves" class="hidden flex-col gap-3.5">
+    <div id="view-waves" class="hidden flex-col gap-4">
 
-      <!-- Header & Grouping Mode Switcher -->
-      <div class="surface-card rounded-2xl p-3.5 flex flex-col gap-3">
+      <!-- Clean Filter Control Card -->
+      <div class="surface-card rounded-2xl p-4 flex flex-col gap-3.5">
         <div class="flex items-center justify-between">
           <div>
             <h2 class="text-base font-extrabold tracking-tight">Curated Waves</h2>
-            <p class="text-xs" style="color: var(--text-secondary);">Explore stations by language, mood, or region</p>
+            <p class="text-xs" style="color: var(--text-secondary);">Combine languages &amp; multiple genres</p>
           </div>
-          <!-- Grouping Style Dropdown (Synced with Studio Prefs) -->
-          <div class="flex items-center gap-1.5">
-            <label for="wavesGroupingSelect" class="sr-only">Grouping Mode</label>
-            <select id="wavesGroupingSelect" onchange="changeWavesGrouping(this.value)" class="surface-card text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none border border-sky-500/30">
-              <option value="genre">Group: Genre &amp; Vibe</option>
-              <option value="language">Group: Language Spotlight</option>
-              <option value="region">Group: Local &amp; Global</option>
-              <option value="bitrate">Group: Audio Quality</option>
-            </select>
-          </div>
+
+          <!-- Match Mode Toggle when 2+ Genres are selected -->
+          <button
+            id="multiGenreModeBtn"
+            onclick="toggleMultiGenreMatchMode()"
+            class="px-2.5 py-1 rounded-xl text-[11px] font-mono font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/25"
+            title="Switch between matching ALL selected genres together (e.g. Christian + Rock) or ANY selected genre"
+          >
+            Match: Combine (AND)
+          </button>
         </div>
 
-        <!-- Prominent Language Quick-Access Bar (Spanish & Portuguese Priority) -->
-        <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-[10px] font-mono uppercase tracking-wider font-semibold" style="color: var(--text-secondary);">
-              Instant Language Filter
-            </span>
-            <span id="activeLangFilterLabel" class="text-[11px] font-semibold text-sky-400">All Languages</span>
-          </div>
-          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="languageQuickBar">
-            <!-- Rendered by JS with Español & Português highlighted first -->
-          </div>
+        <!-- Primary Two-Button Drawer Launchers: Language Drawer & Multi-Genre Drawer -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <!-- 1. Language Drawer Trigger Button -->
+          <button
+            onclick="openLanguageDrawer()"
+            class="surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-2 border border-white/10 hover:border-sky-400/50 transition"
+          >
+            <div class="min-w-0">
+              <div class="text-[10px] font-mono uppercase tracking-wider" style="color: var(--text-secondary);">Language</div>
+              <div id="wavesLangBtnLabel" class="text-xs sm:text-sm font-extrabold truncate mt-0.5 text-sky-400">
+                🌐 All Languages
+              </div>
+            </div>
+            <div class="w-7 h-7 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-chevron-down text-[11px]" style="color: var(--text-secondary);"></i>
+            </div>
+          </button>
+
+          <!-- 2. Multi-Genre Drawer Trigger Button -->
+          <button
+            onclick="openGenreDrawer()"
+            class="surface-card p-3 rounded-2xl text-left flex items-center justify-between gap-2 border border-white/10 hover:border-sky-400/50 transition"
+          >
+            <div class="min-w-0">
+              <div class="text-[10px] font-mono uppercase tracking-wider" style="color: var(--text-secondary);">Genres &amp; Vibes</div>
+              <div id="wavesGenreBtnLabel" class="text-xs sm:text-sm font-extrabold truncate mt-0.5 text-sky-400">
+                1 Selected
+              </div>
+            </div>
+            <div class="w-7 h-7 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-layer-group text-xs"></i>
+            </div>
+          </button>
+        </div>
+
+        <!-- Active Filter Pills Row (Tap × to remove a genre or language, or + to add more) -->
+        <div class="flex items-center flex-wrap gap-1.5 pt-1" id="activeWaveFilterChips">
+          <!-- Populated dynamically by renderActiveWavePills() -->
         </div>
       </div>
 
-      <!-- Category Matrix (Changes dynamically based on Grouping Mode: Genre, Language, Region, Bitrate) -->
-      <div>
-        <div class="flex items-center justify-between mb-2 px-1">
-          <span id="wavesCategoryHeading" class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
-            Select a Wave Category
-          </span>
-          <span class="text-[11px]" style="color: var(--text-secondary);">Tap to load live stations</span>
-        </div>
-        <div id="wavesCategoryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          <!-- Populated by renderWavesCategories() -->
-        </div>
-      </div>
-
-      <!-- Live Results List for Selected Wave -->
-      <div class="flex flex-col gap-2">
+      <!-- Live Station Results for Selected Wave Combination -->
+      <div id="wavesStationResultsAnchor" class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
-          <div class="flex items-center gap-2">
-            <h3 id="wavesResultsTitle" class="text-sm font-bold">Featured Stations</h3>
+          <div class="flex items-center gap-2 min-w-0">
+            <h3 id="wavesResultsTitle" class="text-xs font-bold uppercase tracking-wider truncate" style="color: var(--text-secondary);">
+              Matching Broadcasts
+            </h3>
             <span id="wavesResultCount" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400">0</span>
           </div>
-          <button onclick="refreshCurrentWave()" class="text-xs text-sky-400 hover:underline flex items-center gap-1">
+          <button onclick="refreshCurrentWave()" class="text-xs text-sky-400 hover:underline flex items-center gap-1 shrink-0">
             <i class="fa-solid fa-rotate text-[10px]"></i> Refresh
           </button>
         </div>
 
-        <div id="wavesStationList" class="flex flex-col gap-2">
+        <div id="wavesStationList" class="flex flex-col gap-2.5">
           <!-- Station rows rendered here -->
         </div>
       </div>
@@ -537,7 +544,83 @@
     </div>
 
     <!-- ========================================================================
-         VIEW 3: STATION VAULT (TYPE-TO-SEARCH & METADATA LIBRARY)
+         VIEW 3: PODCASTS HUB (FEATURING BIBLEPROJECT & FREE PODCAST API)
+         Streams episodes directly from BibleProject's official Simplecast RSS feed
+         and Apple's free Podcast Directory API.
+         ======================================================================== -->
+    <div id="view-podcasts" class="hidden flex-col gap-4">
+
+      <!-- Podcast Header & Search Card -->
+      <div class="surface-card rounded-2xl p-4 flex flex-col gap-3.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold tracking-tight">Podcasts &amp; Teaching</h2>
+            <p class="text-xs" style="color: var(--text-secondary);">Featuring BibleProject &amp; free on-demand episodes</p>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-sky-500/15 text-sky-400">FREE RSS / API</span>
+        </div>
+
+        <!-- Featured Show Selector Pills (BibleProject Spotlight first) -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-0.5" id="featuredPodcastPills">
+          <!-- Rendered by renderFeaturedPodcastShows() -->
+        </div>
+
+        <!-- Search Any Free Podcast Input -->
+        <div class="relative flex items-center">
+          <i class="fa-solid fa-podcast absolute left-3.5 text-xs" style="color: var(--text-secondary);"></i>
+          <input
+            id="podcastSearchInput"
+            type="search"
+            placeholder="Search podcasts (e.g., BibleProject, Tim Mackie, Sermons)..."
+            onkeydown="if(event.key === 'Enter') searchFreePodcasts()"
+            class="w-full pl-9 pr-16 py-2 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
+            style="color: var(--text-primary);"
+          />
+          <button onclick="searchFreePodcasts()" class="absolute right-1.5 px-3 py-1 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition">
+            Find
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Podcast Show Banner -->
+      <div id="activePodcastBanner" class="surface-card rounded-2xl p-3.5 flex items-center gap-3.5 border border-sky-500/30">
+        <img id="activePodcastArt" src="https://placehold.co/120x120/0f172a/38bdf8?text=BP" alt="Podcast Artwork" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-white/10" />
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold">ACTIVE SERIES</span>
+          </div>
+          <h3 id="activePodcastTitle" class="text-sm font-extrabold truncate">BibleProject</h3>
+          <p id="activePodcastAuthor" class="text-xs truncate" style="color: var(--text-secondary);">Tim Mackie &amp; Jon Collins • Biblical Theology</p>
+        </div>
+        <button onclick="reloadActivePodcastShow()" title="Refresh Episodes" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-sky-400 shrink-0">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+      </div>
+
+      <!-- Podcast Search Results (Shows) when user searches -->
+      <div id="podcastShowsSearchContainer" class="hidden flex-col gap-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Matching Podcast Shows</span>
+          <button onclick="hidePodcastShowSearch()" class="text-[11px] text-sky-400">Close</button>
+        </div>
+        <div id="podcastShowsGrid" class="grid grid-cols-1 gap-2"></div>
+      </div>
+
+      <!-- Episode List -->
+      <div class="flex flex-col gap-2.5">
+        <div class="flex items-center justify-between px-1">
+          <span id="podcastEpisodesHeader" class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Latest Episodes</span>
+          <span id="podcastEpisodeCountBadge" class="text-[11px] font-mono text-sky-400"></span>
+        </div>
+        <div id="podcastEpisodesList" class="flex flex-col gap-2.5">
+          <!-- Populated dynamically by loadPodcastShow() -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================
+         VIEW 4: STATION VAULT (TYPE-TO-SEARCH & METADATA LIBRARY)
          ======================================================================== -->
     <div id="view-vault" class="hidden flex-col gap-3.5">
 
@@ -822,39 +905,164 @@
           </div>
         </div>
 
+        <!-- 6. LOCAL DRIVE STORAGE & PHYSICAL FILE BACKUP (.JSON) -->
+        <div class="flex flex-col gap-2.5 pt-3 border-t border-white/10">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
+              <i class="fa-solid fa-hard-drive text-sky-400"></i>
+              <span>6. Local Drive &amp; Device Storage</span>
+            </label>
+            <span id="localStorageStatusBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+              Auto-Saved on Device
+            </span>
+          </div>
+
+          <p class="text-[11px] leading-relaxed" style="color: var(--text-secondary);">
+            All Speed Dial presets and settings are automatically saved to your phone browser's local storage. You can also save or load a physical <code class="font-mono text-sky-400">.json</code> file directly to your phone's local Files / Downloads drive below:
+          </p>
+
+          <div id="storageStatsLine" class="text-[11px] font-mono px-3 py-2 rounded-xl bg-black/25 border border-white/5 text-slate-300">
+            Checking device storage status...
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <button onclick="downloadPresetsToLocalDrive()" class="surface-card py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-emerald-400 border border-emerald-500/30">
+              <i class="fa-solid fa-download"></i>
+              <span>Save File to Phone Drive (.json)</span>
+            </button>
+
+            <label class="surface-card py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 text-sky-400 border border-sky-500/30 cursor-pointer">
+              <i class="fa-solid fa-upload"></i>
+              <span>Load File from Phone Drive</span>
+              <input type="file" accept=".json,application/json" onchange="importPresetsFromLocalDrive(event)" class="hidden" />
+            </label>
+          </div>
+        </div>
+
       </div>
     </div>
 
   </main>
 
   <!-- ==========================================================================
-       BOTTOM MOBILE THUMB NAVIGATION BAR
+       BOTTOM MOBILE THUMB NAVIGATION BAR (5 CLEAN DESTINATIONS)
        Ergonomic reachability for one-handed smartphone operation
        ========================================================================== -->
-  <nav aria-label="Primary Bottom Navigation" class="fixed bottom-0 inset-x-0 z-30 bottom-nav-glass px-4 py-2">
-    <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
-      <button onclick="switchTab('home')" id="nav-home" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-sky-400 transition">
-        <i class="fa-solid fa-sliders text-base mb-0.5 hidden"></i>
-        <i class="fa-solid fa-Broadcast-tower fa-tower-cell text-base mb-0.5"></i>
-        <span class="text-[11px] font-bold">Tuner Deck</span>
+  <nav aria-label="Primary Bottom Navigation" class="fixed bottom-0 inset-x-0 z-30 bottom-nav-glass px-2 py-2">
+    <div class="max-w-md mx-auto grid grid-cols-5 gap-1">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-sky-400 bg-sky-500/10 transition">
+        <i class="fa-solid fa-tower-cell text-sm mb-0.5"></i>
+        <span class="text-[10px] font-bold">Tuner</span>
       </button>
 
       <button onclick="switchTab('waves')" id="nav-waves" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-compass text-base mb-0.5"></i>
-        <span class="text-[11px] font-medium">Curated Waves</span>
+        <i class="fa-solid fa-compass text-sm mb-0.5"></i>
+        <span class="text-[10px] font-medium">Waves</span>
+      </button>
+
+      <button onclick="switchTab('podcasts')" id="nav-podcasts" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-podcast text-sm mb-0.5"></i>
+        <span class="text-[10px] font-medium">Podcasts</span>
       </button>
 
       <button onclick="switchTab('vault')" id="nav-vault" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-magnifying-glass text-base mb-0.5"></i>
-        <span class="text-[11px] font-medium">Station Vault</span>
+        <i class="fa-solid fa-magnifying-glass text-sm mb-0.5"></i>
+        <span class="text-[10px] font-medium">Vault</span>
       </button>
 
       <button onclick="switchTab('settings')" id="nav-settings" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
-        <i class="fa-solid fa-gear text-base mb-0.5"></i>
-        <span class="text-[11px] font-medium">Studio Prefs</span>
+        <i class="fa-solid fa-sliders text-sm mb-0.5"></i>
+        <span class="text-[10px] font-medium">Prefs</span>
       </button>
     </div>
   </nav>
+
+  <!-- ==========================================================================
+       SLIDE-OUT DRAWER 1: LANGUAGE SELECTOR SHEET (FOR CURATED WAVES)
+       ========================================================================== -->
+  <div id="languageDrawerBackdrop" onclick="if(event.target === this) closeLanguageDrawer()" class="drawer-backdrop fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end justify-center p-0 sm:p-4">
+    <div class="drawer-panel surface-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 flex flex-col gap-4 border-t border-white/15 shadow-2xl max-h-[80vh]">
+      <div class="w-10 h-1 rounded-full bg-white/20 mx-auto -mt-1"></div>
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base font-extrabold">Broadcast Language</h3>
+          <p class="text-xs" style="color: var(--text-secondary);">Filter Curated Waves by primary language</p>
+        </div>
+        <button onclick="closeLanguageDrawer()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="languageDrawerList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto pr-1">
+        <!-- Populated dynamically by renderLanguageQuickBar() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       SLIDE-OUT DRAWER 2: MULTI-GENRE & DISCOVERY SELECTOR SHEET
+       Supports selecting multiple genres at once (e.g. Christian + Rock)
+       ========================================================================== -->
+  <div id="genreDrawerBackdrop" onclick="if(event.target === this) closeGenreDrawer()" class="drawer-backdrop fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end justify-center p-0 sm:p-4">
+    <div class="drawer-panel surface-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 flex flex-col gap-3.5 border-t border-white/15 shadow-2xl max-h-[86vh]">
+      <div class="w-10 h-1 rounded-full bg-white/20 mx-auto -mt-1"></div>
+
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div>
+          <h3 class="text-base font-extrabold">Select Genres &amp; Vibes</h3>
+          <p class="text-xs" style="color: var(--text-secondary);">Tap multiple genres to combine (e.g. Christian + Rock)</p>
+        </div>
+        <button onclick="closeGenreDrawer()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Grouping Mode + Search Filter inside Drawer -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <select id="wavesGroupingSelect" onchange="changeWavesGrouping(this.value)" class="surface-card flex-1 text-xs font-bold rounded-xl px-3 py-2 outline-none border border-sky-500/40 text-sky-400">
+            <option value="genre">Category: All Genres (40+)</option>
+            <option value="language">Category: Language Spotlight</option>
+            <option value="region">Category: Local &amp; World Regions</option>
+            <option value="bitrate">Category: Audio Fidelity</option>
+            <option value="liveapi">Category: Live API Directory (80+)</option>
+          </select>
+
+          <button onclick="clearSelectedWaveGenres()" class="px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold shrink-0" style="color: var(--text-secondary);">
+            Reset
+          </button>
+        </div>
+
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs" style="color: var(--text-secondary);"></i>
+          <input
+            id="wavesGenreFilterInput"
+            type="search"
+            placeholder="Filter genres (e.g., Worship, Rock, Salsa, 80s, Bossa)..."
+            oninput="filterWaveCategories(this.value)"
+            class="w-full pl-8 pr-3 py-2 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
+            style="color: var(--text-primary);"
+          />
+        </div>
+      </div>
+
+      <!-- Scrollable Multi-Select Category Matrix -->
+      <div id="wavesCategoryGrid" class="flex-1 overflow-y-auto pr-1 flex flex-col gap-4 py-1">
+        <!-- Populated by renderWavesCategories() -->
+      </div>
+
+      <!-- Drawer Sticky Footer with Apply Button -->
+      <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-3">
+        <div class="text-xs font-semibold truncate" id="drawerSelectedSummary">
+          1 genre selected
+        </div>
+        <button onclick="applyGenreDrawerSelection()" class="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-white text-xs font-extrabold shadow-lg shadow-sky-500/25 transition shrink-0">
+          Show Stations
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ==========================================================================
        MODAL 1: ASSIGN TO SPEED DIAL SLOT (BOTTOM SHEET)
@@ -924,7 +1132,7 @@
        1. PERMANENT SIGNATURE STATIONS & DEFAULT SPEED DIAL CONFIGURATION
        Includes verified multi-CDN fallback streams AND live Radio-Browser API
        lookup queries for K-LOVE (94.5 Spartanburg), HIS Radio (89.3), HIS Radio Z,
-       and K-LOVE en Español so they play reliably on any mobile browser.
+       and Air1 Música de Adoración (by K-LOVE / EMF).
        ========================================================================== */
     const PERMANENT_STATIONS = [
       {
@@ -936,7 +1144,7 @@
         language: 'English',
         codec: 'AAC+',
         bitrate: 128,
-        accent: 'from-sky-500/25 to-blue-600/15 border-sky-400/35',
+        accent: 'border-l-4 border-l-sky-400',
         badgeColor: 'text-sky-400',
         searchQuery: 'K-LOVE',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac',
@@ -951,12 +1159,12 @@
         id: 'perm-his-radio-893',
         name: 'HIS Radio 89.3',
         freq: '89.3 FM',
-        subtitle: 'Upstate SC • WLFJ Encouraging',
+        subtitle: 'Upstate SC • WLFJ',
         location: 'Greenville / Spartanburg, SC',
         language: 'English',
         codec: 'AAC',
         bitrate: 96,
-        accent: 'from-indigo-500/25 to-purple-600/15 border-indigo-400/35',
+        accent: 'border-l-4 border-l-indigo-400',
         badgeColor: 'text-indigo-400',
         searchQuery: 'WLFJ',
         url_resolved: 'https://rtn.cdnstream1.com/2566_96.aac',
@@ -969,42 +1177,87 @@
       {
         id: 'perm-his-radio-z',
         name: 'HIS Radio Z',
-        freq: '104.1 / HD2',
+        freq: '104.1 HD2',
         subtitle: 'Spartanburg WHRZ • Positive Hits',
         location: 'Spartanburg, SC',
         language: 'English',
         codec: 'AAC',
         bitrate: 96,
-        accent: 'from-emerald-500/25 to-teal-600/15 border-emerald-400/35',
+        accent: 'border-l-4 border-l-emerald-400',
         badgeColor: 'text-emerald-400',
         searchQuery: 'HIS Radio',
         url_resolved: 'https://rtn.cdnstream1.com/2567_96.aac',
         fallbackUrls: [
           'https://rtn.cdnstream1.com/2567_96.aac',
           'https://rtn.cdnstream1.com/2568_96.aac',
-          'https://rtn.cdnstream1.com/2566_96.aac',
-          'https://maestro.emfcdn.com/stream_for/air1/radiodns/playlist.m3u8'
+          'https://rtn.cdnstream1.com/2566_96.aac'
         ]
       },
       {
-        id: 'perm-klove-espanol',
-        name: 'K-LOVE en Español',
-        freq: 'ESPAÑOL',
-        subtitle: 'Música Cristiana y Alabanza',
-        location: 'Red Hispana • EE. UU.',
+        id: 'perm-air1-adoracion',
+        name: 'Air1 Música de Adoración',
+        freq: 'ADORACIÓN',
+        subtitle: 'Adoración en Español • By K-LOVE',
+        location: 'Red Air1 / K-LOVE',
         language: 'Spanish',
         codec: 'AAC+',
         bitrate: 128,
-        accent: 'from-amber-500/25 to-orange-600/15 border-amber-400/35',
+        accent: 'border-l-4 border-l-amber-400',
         badgeColor: 'text-amber-400',
-        searchQuery: 'Radio Nueva Vida',
-        url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love-espanol/tunein/aac',
+        searchQuery: 'Air1 Musica de Adoracion',
+        url_resolved: 'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/tunein/aac',
         fallbackUrls: [
+          'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/tunein/aac',
+          'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/iheart/aac',
+          'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/airable/aac',
           'https://maestro.emfcdn.com/stream_for/k-love-espanol/tunein/aac',
-          'https://maestro.emfcdn.com/stream_for/k-love-espanol/airable/aac',
-          'https://ice41.securenetsystems.net/KLNV',
-          'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac'
+          'https://maestro.emfcdn.com/stream_for/air1/tunein/aac'
         ]
+      }
+    ];
+
+    /* Curated Free Podcasts (BibleProject Spotlight + Español + Faith & Teaching) */
+    const FEATURED_PODCAST_SHOWS = [
+      {
+        id: 'pod-bibleproject',
+        title: 'BibleProject',
+        author: 'Tim Mackie & Jon Collins',
+        desc: 'In-depth conversations about the biblical theology behind each BibleProject series.',
+        rssUrl: 'https://feeds.simplecast.com/3NVmUWZO',
+        itunesId: '1050832450',
+        artwork: 'https://placehold.co/200x200/0f172a/38bdf8?text=BibleProject',
+        badge: 'FAVORITE'
+      },
+      {
+        id: 'pod-strangemybible',
+        title: 'Exploring My Strange Bible',
+        author: 'Tim Mackie (BibleProject)',
+        desc: 'Tim Mackie’s personal archive of sermons, lectures, and classroom teachings.',
+        rssUrl: 'https://feeds.simplecast.com/zovPCGLI',
+        itunesId: '1271147429',
+        artwork: 'https://placehold.co/200x200/1e1b4b/818cf8?text=Strange+Bible',
+        badge: 'TIM MACKIE'
+      },
+      {
+        id: 'pod-bibleproject-es',
+        title: 'Proyecto Biblia (Español)',
+        author: 'BibleProject en Español',
+        desc: 'Conversaciones profundas sobre la teología bíblica en español.',
+        rssUrl: '',
+        searchQuery: 'Proyecto Biblia BibleProject',
+        itunesId: '1608565468',
+        artwork: 'https://placehold.co/200x200/2e1505/f59e0b?text=Proyecto+Biblia',
+        badge: 'ESPAÑOL'
+      },
+      {
+        id: 'pod-keller',
+        title: 'Timothy Keller Sermons',
+        author: 'Gospel in Life',
+        desc: 'Classic scripture teaching and sermons by Pastor Timothy Keller.',
+        rssUrl: '',
+        itunesId: '352660924',
+        artwork: 'https://placehold.co/200x200/090d16/34d399?text=Gospel+Life',
+        badge: 'TEACHING'
       }
     ];
 
@@ -1131,16 +1384,25 @@
       stationPendingAssignment: null,
       targetSlotForEmptyTap: null,
 
-      // Curated Waves Discovery State
-      wavesLanguageFilter: 'all', // 'all', 'spanish', 'portuguese', 'english', 'french', 'italian'
-      wavesGroupingMode: 'genre', // 'genre', 'language', 'region', 'bitrate'
-      activeWaveCategoryId: 'christian',
+      // Curated Waves Discovery State (Supports Multi-Genre Selection!)
+      wavesLanguageFilter: 'all',
+      wavesGroupingMode: 'genre',
+      activeWaveCategoryIds: ['christian'], // Array of selected genre/category IDs!
+      multiGenreMatchMode: 'and', // 'and' (Combine tags e.g. Christian + Rock) or 'or' (Any selected genre)
       wavesStations: [],
+      wavesFilterQuery: '',
+      liveApiTags: [],
+
+      // Free Podcasts Hub State
+      activePodcastShow: FEATURED_PODCAST_SHOWS[0],
+      podcastEpisodes: [],
+      podcastSearchShows: [],
 
       // Station Vault Search State
       vaultSearchField: 'name', // 'name', 'tag', 'language', 'country'
       vaultResults: [],
       recentStations: [],
+      lastSavedTimestamp: null,
 
       // Sleep Timer State
       sleepSecondsRemaining: 0,
@@ -1172,58 +1434,104 @@
     ];
 
     /* ==========================================================================
-       3. CURATED WAVES TAXONOMY (GENRE, LANGUAGE, REGION, BITRATE)
+       3. CURATED WAVES TAXONOMY (40+ GENRES, LANGUAGES, REGIONS, BITRATE, & LIVE API)
        ========================================================================== */
     const LANGUAGE_PILLS = [
-      { id: 'all', label: 'All Languages', flag: '🌐' },
-      { id: 'spanish', label: 'Español', flag: '🇪🇸', highlight: true },
-      { id: 'portuguese', label: 'Português', flag: '🇧🇷', highlight: true },
-      { id: 'english', label: 'English', flag: '🇺🇸' },
-      { id: 'french', label: 'Français', flag: '🇫🇷' },
-      { id: 'italian', label: 'Italiano', flag: '🇮🇹' }
+      { id: 'all', label: 'All Languages', sub: 'Global Mix', flag: '🌐', highlight: false },
+      { id: 'english', label: 'English', sub: 'US, UK & Global', flag: '🇺🇸', highlight: true },
+      { id: 'spanish', label: 'Español', sub: 'LatAm & España', flag: '🇪🇸', highlight: true },
+      { id: 'portuguese', label: 'Português', sub: 'Brasil & Portugal', flag: '🇧🇷', highlight: true },
+      { id: 'french', label: 'Français', sub: 'France & Canada', flag: '🇫🇷', highlight: false },
+      { id: 'german', label: 'Deutsch', sub: 'DACH Region', flag: '🇩🇪', highlight: false },
+      { id: 'italian', label: 'Italiano', sub: 'Italia', flag: '🇮🇹', highlight: false },
+      { id: 'korean', label: '한국어 / Asian', sub: 'K-Pop & Asia', flag: '🇰🇷', highlight: false }
     ];
 
     const WAVES_GROUPINGS = {
       genre: [
-        { id: 'christian', name: 'Christian & Worship', icon: 'fa-hands-praying', color: 'text-sky-400', params: { tag: 'christian' } },
-        { id: 'gospel', name: 'Gospel & Praise', icon: 'fa-music', color: 'text-indigo-400', params: { tag: 'gospel' } },
-        { id: 'latin', name: 'Pop Latino & Baladas', icon: 'fa-fire', color: 'text-amber-400', params: { tag: 'latin' } },
-        { id: 'bossanova', name: 'Bossa Nova & MPB', icon: 'fa-umbrella-beach', color: 'text-emerald-400', params: { tag: 'bossa nova' } },
-        { id: 'chill', name: 'Lo-Fi & Study Chill', icon: 'fa-mug-hot', color: 'text-purple-400', params: { tag: 'chillout' } },
-        { id: 'classical', name: 'Classical & Symphony', icon: 'fa-violin', color: 'text-rose-400', params: { tag: 'classical' } },
-        { id: 'jazz', name: 'Smooth Jazz & Lounge', icon: 'fa-compact-disc', color: 'text-cyan-400', params: { tag: 'jazz' } },
-        { id: 'news', name: 'News & Talk Radio', icon: 'fa-microphone-lines', color: 'text-orange-400', params: { tag: 'news' } }
+        // Group A: Faith, Christian & Uplifting
+        { id: 'christian', section: 'Faith & Worship', name: 'Contemporary Christian', desc: 'Positive & Encouraging Hits', icon: 'fa-hands-praying', color: 'text-sky-400', params: { tag: 'christian' } },
+        { id: 'worship', section: 'Faith & Worship', name: 'Praise & Worship', desc: '24/7 Modern Worship Anthems', icon: 'fa-dove', color: 'text-cyan-400', params: { tag: 'worship' } },
+        { id: 'gospel', section: 'Faith & Worship', name: 'Gospel & Choir', desc: 'Traditional & Urban Gospel', icon: 'fa-music', color: 'text-indigo-400', params: { tag: 'gospel' } },
+        { id: 'southerngospel', section: 'Faith & Worship', name: 'Southern Gospel', desc: 'Quartets & Bluegrass Gospel', icon: 'fa-guitar', color: 'text-amber-400', params: { tag: 'southern gospel' } },
+        { id: 'christianrock', section: 'Faith & Worship', name: 'Christian Rock', desc: 'Upbeat Faith Rock & Alternative', icon: 'fa-bolt', color: 'text-emerald-400', params: { tag: 'christian rock' } },
+        { id: 'rock', section: 'Pop, Rock & Country', name: 'Rock', desc: 'Combine with Christian or Pop, or listen solo', icon: 'fa-guitar', color: 'text-rose-400', params: { tag: 'rock' } },
+        { id: 'catholic', section: 'Faith & Worship', name: 'Catholic & Devotional', desc: 'Liturgical, Teaching & Prayer', icon: 'fa-cross', color: 'text-purple-400', params: { tag: 'catholic' } },
+
+        // Group B: Latin, Español & Lusophone Music
+        { id: 'latin', section: 'Latin, Español & Brasil', name: 'Pop Latino & Éxitos', desc: 'Latin Charts & Romantic Hits', icon: 'fa-fire', color: 'text-amber-400', params: { tag: 'latin' } },
+        { id: 'baladas', section: 'Latin, Español & Brasil', name: 'Baladas & Románticas', desc: 'Soft Latin Love Songs', icon: 'fa-heart', color: 'text-rose-400', params: { tag: 'baladas' } },
+        { id: 'salsa', section: 'Latin, Español & Brasil', name: 'Salsa, Merengue & Tropical', desc: 'Caribbean & Tropical Rhythms', icon: 'fa-drum', color: 'text-orange-400', params: { tag: 'salsa' } },
+        { id: 'bachata', section: 'Latin, Español & Brasil', name: 'Bachata & Reggaetón', desc: 'Dominican & Urban Latin Beats', icon: 'fa-compact-disc', color: 'text-pink-400', params: { tag: 'bachata' } },
+        { id: 'regionalmexicano', section: 'Latin, Español & Brasil', name: 'Regional Mexicano & Mariachi', desc: 'Norteño, Banda & Ranchera', icon: 'fa-hat-cowboy', color: 'text-emerald-400', params: { tag: 'regional mexican' } },
+        { id: 'bossanova', section: 'Latin, Español & Brasil', name: 'Bossa Nova & MPB (Brasil)', desc: 'Brazilian Acoustic & Jazz Vocal', icon: 'fa-umbrella-beach', color: 'text-teal-400', params: { tag: 'bossa nova' } },
+        { id: 'sertanejo', section: 'Latin, Español & Brasil', name: 'Sertanejo & Samba (Brasil)', desc: 'Brazilian Country & Pagode', icon: 'fa-leaf', color: 'text-lime-400', params: { tag: 'sertanejo' } },
+        { id: 'fado', section: 'Latin, Español & Brasil', name: 'Fado & Música Portuguesa', desc: 'Traditional Lisbon & Iberian Soul', icon: 'fa-anchor', color: 'text-sky-400', params: { tag: 'fado' } },
+
+        // Group C: Pop, Rock, Country & Roots
+        { id: 'pop', section: 'Pop, Rock & Country', name: 'Top 40 & Mainstream Pop', desc: 'Current Hits & Chart Toppers', icon: 'fa-star', color: 'text-sky-400', params: { tag: 'pop' } },
+        { id: 'adultcontemporary', section: 'Pop, Rock & Country', name: 'Adult Contemporary & Soft Rock', desc: 'Easy Listening Workday Mix', icon: 'fa-feather', color: 'text-indigo-400', params: { tag: 'adult contemporary' } },
+        { id: 'country', section: 'Pop, Rock & Country', name: 'Country & Americana', desc: 'Nashville Hits & Classic Country', icon: 'fa-hat-cowboy-side', color: 'text-amber-400', params: { tag: 'country' } },
+        { id: 'bluegrass', section: 'Pop, Rock & Country', name: 'Bluegrass, Folk & Acoustic', desc: 'Appalachian Strings & Singer-Songwriter', icon: 'fa-guitar', color: 'text-emerald-400', params: { tag: 'bluegrass' } },
+        { id: 'classicrock', section: 'Pop, Rock & Country', name: 'Classic Rock & Arena Legends', desc: 'Guitar Legends of the 60s–80s', icon: 'fa-record-vinyl', color: 'text-rose-400', params: { tag: 'classic rock' } },
+        { id: 'indie', section: 'Pop, Rock & Country', name: 'Indie & Alternative Rock', desc: 'College Radio & Modern Alternative', icon: 'fa-headphones-simple', color: 'text-purple-400', params: { tag: 'indie' } },
+        { id: 'soul', section: 'Pop, Rock & Country', name: 'Soul, Motown & R&B', desc: 'Funk, Groove & Classic Soul', icon: 'fa-microphone', color: 'text-orange-400', params: { tag: 'soul' } },
+
+        // Group D: Decades & Nostalgia
+        { id: 'dec-80s', section: 'Decades & Throwbacks', name: '80s Retro & Synth Pop', desc: '1980s New Wave, Pop & Rock', icon: 'fa-cassette-tape', color: 'text-cyan-400', params: { tag: '80s' } },
+        { id: 'dec-90s', section: 'Decades & Throwbacks', name: '90s Hits & Throwbacks', desc: '1990s Pop, R&B & Alternative', icon: 'fa-compact-disc', color: 'text-indigo-400', params: { tag: '90s' } },
+        { id: 'dec-70s', section: 'Decades & Throwbacks', name: '70s Gold & Disco', desc: '1970s Classic Hits & Funk', icon: 'fa-sun', color: 'text-amber-400', params: { tag: '70s' } },
+        { id: 'dec-60s', section: 'Decades & Throwbacks', name: '50s & 60s Oldies', desc: 'Golden Oldies & Rock n Roll', icon: 'fa-radio', color: 'text-rose-400', params: { tag: 'oldies' } },
+        { id: 'dec-00s', section: 'Decades & Throwbacks', name: '2000s Millennial Hits', desc: 'Early 2000s Pop & Rock Anthems', icon: 'fa-bolt', color: 'text-emerald-400', params: { tag: '2000s' } },
+
+        // Group E: Classical, Jazz, Instrumental & Study
+        { id: 'classical', section: 'Classical, Jazz & Chill', name: 'Classical & Symphony', desc: 'Orchestral, Baroque & Chamber', icon: 'fa-violin', color: 'text-rose-400', params: { tag: 'classical' } },
+        { id: 'piano', section: 'Classical, Jazz & Chill', name: 'Solo Piano & Instrumental', desc: 'Peaceful Piano for Focus & Reading', icon: 'fa-music', color: 'text-sky-400', params: { tag: 'piano' } },
+        { id: 'jazz', section: 'Classical, Jazz & Chill', name: 'Smooth Jazz & Bebop', desc: 'Saxophone, Big Band & Lounge Jazz', icon: 'fa-saxophone', color: 'text-amber-400', params: { tag: 'jazz' } },
+        { id: 'chill', section: 'Classical, Jazz & Chill', name: 'Lo-Fi Beats & Study Chillout', desc: 'Downtempo, Ambient & Chillhop', icon: 'fa-mug-hot', color: 'text-purple-400', params: { tag: 'chillout' } },
+        { id: 'ambient', section: 'Classical, Jazz & Chill', name: 'Ambient, Sleep & Nature', desc: 'Deep Relaxation & Soundscapes', icon: 'fa-cloud-moon', color: 'text-teal-400', params: { tag: 'ambient' } },
+        { id: 'soundtracks', section: 'Classical, Jazz & Chill', name: 'Film Scores & Soundtracks', desc: 'Cinema & Symphonic Game Music', icon: 'fa-film', color: 'text-indigo-400', params: { tag: 'soundtrack' } },
+
+        // Group F: News, Talk, Sports & Family
+        { id: 'news', section: 'Talk, Sports & Family', name: 'Live News & World Report', desc: 'Breaking Headlines & Current Affairs', icon: 'fa-newspaper', color: 'text-orange-400', params: { tag: 'news' } },
+        { id: 'talk', section: 'Talk, Sports & Family', name: 'Talk Radio & Podcasts', desc: 'Culture, Science & Storytelling', icon: 'fa-microphone-lines', color: 'text-sky-400', params: { tag: 'talk' } },
+        { id: 'sports', section: 'Talk, Sports & Family', name: 'Sports Talk & Play-by-Play', desc: 'Live Game Coverage & Analysis', icon: 'fa-football', color: 'text-emerald-400', params: { tag: 'sports' } },
+        { id: 'kids', section: 'Talk, Sports & Family', name: 'Kids & Family Friendly', desc: 'Clean Songs & Stories for Children', icon: 'fa-face-smile', color: 'text-amber-400', params: { tag: 'children' } }
       ],
       language: [
-        { id: 'es-cristiana', name: 'Español • Cristiana', icon: 'fa-cross', color: 'text-amber-400', params: { language: 'spanish', tag: 'christian' } },
-        { id: 'es-top', name: 'Español • Éxitos & Pop', icon: 'fa-star', color: 'text-sky-400', params: { language: 'spanish', tag: 'pop' } },
-        { id: 'es-noticias', name: 'Español • Noticias & Hablada', icon: 'fa-newspaper', color: 'text-indigo-400', params: { language: 'spanish', tag: 'news' } },
-        { id: 'pt-louvor', name: 'Português • Gospel & Louvor', icon: 'fa-hands-praying', color: 'text-emerald-400', params: { language: 'portuguese', tag: 'gospel' } },
-        { id: 'pt-mpb', name: 'Português • MPB & Bossa', icon: 'fa-guitar', color: 'text-teal-400', params: { language: 'portuguese', tag: 'mpb' } },
-        { id: 'pt-portugal', name: 'Português • Rádios de Portugal', icon: 'fa-tower-broadcast', color: 'text-rose-400', params: { countrycode: 'PT' } },
-        { id: 'en-ccm', name: 'English • Contemporary Christian', icon: 'fa-heart', color: 'text-cyan-400', params: { language: 'english', tag: 'contemporary christian' } },
-        { id: 'fr-chanson', name: 'Français • Chanson & Pop', icon: 'fa-record-vinyl', color: 'text-purple-400', params: { language: 'french' } }
+        { id: 'es-cristiana', section: 'Español (Spanish)', name: 'Español • Música Cristiana y Alabanza', desc: 'Adoración, Fe y Esperanza en Español', icon: 'fa-cross', color: 'text-amber-400', params: { language: 'spanish', tag: 'christian' } },
+        { id: 'es-top', section: 'Español (Spanish)', name: 'Español • Pop Latino y Éxitos', desc: 'Las canciones más escuchadas en español', icon: 'fa-star', color: 'text-sky-400', params: { language: 'spanish', tag: 'pop' } },
+        { id: 'es-romantica', section: 'Español (Spanish)', name: 'Español • Baladas y Románticas', desc: 'Clásicos románticos en tu idioma', icon: 'fa-heart', color: 'text-rose-400', params: { language: 'spanish', tag: 'romantica' } },
+        { id: 'es-noticias', section: 'Español (Spanish)', name: 'Español • Noticias y Radio Hablada', desc: 'Información en vivo de Hispanoamérica y España', icon: 'fa-newspaper', color: 'text-indigo-400', params: { language: 'spanish', tag: 'news' } },
+        { id: 'pt-louvor', section: 'Português (Portuguese)', name: 'Português • Gospel, Louvor e Adoração', desc: 'Música Cristã no Brasil e Portugal', icon: 'fa-hands-praying', color: 'text-emerald-400', params: { language: 'portuguese', tag: 'gospel' } },
+        { id: 'pt-mpb', section: 'Português (Portuguese)', name: 'Português • MPB, Bossa Nova e Samba', desc: 'Clássicos e novidades da música brasileira', icon: 'fa-guitar', color: 'text-teal-400', params: { language: 'portuguese', tag: 'mpb' } },
+        { id: 'pt-portugal', section: 'Português (Portuguese)', name: 'Português • Rádios de Portugal', desc: 'Emissoras de Lisboa, Porto e Fado', icon: 'fa-tower-broadcast', color: 'text-rose-400', params: { countrycode: 'PT' } },
+        { id: 'en-ccm', section: 'English & International', name: 'English • Contemporary Christian (CCM)', desc: 'Upbeat American & Global Christian Radio', icon: 'fa-dove', color: 'text-cyan-400', params: { language: 'english', tag: 'christian' } },
+        { id: 'en-top', section: 'English & International', name: 'English • US & UK Hit Music', desc: 'Pop, Rock, Country & Adult Contemporary', icon: 'fa-radio', color: 'text-sky-400', params: { language: 'english', tag: 'pop' } },
+        { id: 'fr-chanson', section: 'English & International', name: 'Français • Chanson, Jazz & Pop', desc: 'Paris, Montréal & Francophone Broadcasts', icon: 'fa-record-vinyl', color: 'text-purple-400', params: { language: 'french' } }
       ],
       region: [
-        { id: 'reg-sc', name: 'South Carolina Local', icon: 'fa-location-dot', color: 'text-sky-400', params: { state: 'South Carolina' } },
-        { id: 'reg-us', name: 'United States Top 40', icon: 'fa-flag-usa', color: 'text-indigo-400', params: { countrycode: 'US' } },
-        { id: 'reg-mx', name: 'México & Centroamérica', icon: 'fa-earth-americas', color: 'text-amber-400', params: { countrycode: 'MX' } },
-        { id: 'reg-es', name: 'España (Madrid & Barcelona)', icon: 'fa-sun', color: 'text-orange-400', params: { countrycode: 'ES' } },
-        { id: 'reg-br', name: 'Brasil (São Paulo & Rio)', icon: 'fa-leaf', color: 'text-emerald-400', params: { countrycode: 'BR' } },
-        { id: 'reg-pt', name: 'Portugal (Lisboa & Porto)', icon: 'fa-anchor', color: 'text-rose-400', params: { countrycode: 'PT' } },
-        { id: 'reg-co', name: 'Colombia & Caribe', icon: 'fa-water', color: 'text-cyan-400', params: { countrycode: 'CO' } },
-        { id: 'reg-ar', name: 'Argentina & Cono Sur', icon: 'fa-mountain-sun', color: 'text-purple-400', params: { countrycode: 'AR' } }
+        { id: 'reg-sc', section: 'United States', name: 'South Carolina Local Broadcasts', desc: 'Spartanburg, Greenville, Columbia & Charleston', icon: 'fa-location-dot', color: 'text-sky-400', params: { state: 'South Carolina' } },
+        { id: 'reg-nc', section: 'United States', name: 'North Carolina & Blue Ridge', desc: 'Charlotte, Asheville & Raleigh Stations', icon: 'fa-mountain', color: 'text-teal-400', params: { state: 'North Carolina' } },
+        { id: 'reg-us', section: 'United States', name: 'United States National Top Stations', desc: 'Coast-to-Coast Most Tuned US Radio', icon: 'fa-flag-usa', color: 'text-indigo-400', params: { countrycode: 'US' } },
+        { id: 'reg-mx', section: 'Latin America & Iberia', name: 'México & Centroamérica', desc: 'Ciudad de México, Monterrey & Guadalajara', icon: 'fa-earth-americas', color: 'text-amber-400', params: { countrycode: 'MX' } },
+        { id: 'reg-co', section: 'Latin America & Iberia', name: 'Colombia, Caribe & Venezuela', desc: 'Bogotá, Medellín & Santo Domingo', icon: 'fa-sun', color: 'text-orange-400', params: { countrycode: 'CO' } },
+        { id: 'reg-ar', section: 'Latin America & Iberia', name: 'Argentina, Chile & Cono Sur', desc: 'Buenos Aires & Santiago Broadcasts', icon: 'fa-mountain-sun', color: 'text-cyan-400', params: { countrycode: 'AR' } },
+        { id: 'reg-br', section: 'Latin America & Iberia', name: 'Brasil (São Paulo, Rio & Sul)', desc: 'Principais emissoras brasileiras ao vivo', icon: 'fa-leaf', color: 'text-emerald-400', params: { countrycode: 'BR' } },
+        { id: 'reg-es', section: 'Latin America & Iberia', name: 'España (Madrid, Barcelona & Sevilla)', desc: 'Emisoras nacionales de España', icon: 'fa-tower-cell', color: 'text-rose-400', params: { countrycode: 'ES' } },
+        { id: 'reg-pt', section: 'Latin America & Iberia', name: 'Portugal (Lisboa, Porto & Coimbra)', desc: 'Rádios portuguesas em direto', icon: 'fa-anchor', color: 'text-purple-400', params: { countrycode: 'PT' } }
       ],
       bitrate: [
-        { id: 'bit-320', name: 'Audiophile 320 kbps', icon: 'fa-headphones', color: 'text-emerald-400', params: { bitrateMin: 256, order: 'bitrate' } },
-        { id: 'bit-192', name: 'High Definition 192+ kbps', icon: 'fa-wave-square', color: 'text-sky-400', params: { bitrateMin: 192, order: 'votes' } },
-        { id: 'bit-128', name: 'Studio Standard 128 kbps', icon: 'fa-Sliders', color: 'text-indigo-400', params: { bitrateMin: 128, order: 'clickcount' } },
-        { id: 'bit-aac', name: 'Mobile Data Saver (AAC+)', icon: 'fa-mobile-screen', color: 'text-amber-400', params: { codec: 'AAC', order: 'clickcount' } }
-      ]
+        { id: 'bit-320', section: 'By Stream Quality', name: 'Audiophile Lossless / 256–320 kbps', desc: 'Highest clarity studio streams for Wi-Fi', icon: 'fa-headphones', color: 'text-emerald-400', params: { bitrateMin: 256, order: 'bitrate' } },
+        { id: 'bit-192', section: 'By Stream Quality', name: 'High Definition 192+ kbps', desc: 'Rich stereo sound with balanced bandwidth', icon: 'fa-wave-square', color: 'text-sky-400', params: { bitrateMin: 192, order: 'votes' } },
+        { id: 'bit-128', section: 'By Stream Quality', name: 'Standard Broadcast 128 kbps', desc: 'Reliable everyday quality for mobile driving', icon: 'fa-sliders', color: 'text-indigo-400', params: { bitrateMin: 128, order: 'clickcount' } },
+        { id: 'bit-aac', section: 'By Stream Quality', name: 'Cellular Data Saver (AAC+ High Efficiency)', desc: 'Low data usage with crisp vocal reproduction', icon: 'fa-mobile-screen', color: 'text-amber-400', params: { codec: 'AAC', order: 'clickcount' } }
+      ],
+      liveapi: [] // Populated dynamically from Radio-Browser /json/tags endpoint
     };
 
     /* ==========================================================================
-       4. PERSISTENCE & INITIALIZATION
+       4. PERSISTENCE, LOCAL DRIVE FILE BACKUP & INITIALIZATION
        ========================================================================== */
     function loadSavedState() {
       try {
@@ -1243,7 +1551,18 @@
           state.volume = parsed.volume;
         }
         if (parsed.lastStation && parsed.lastStation.url_resolved) {
-          state.currentStation = parsed.lastStation;
+          // Migrate old K-LOVE en Español ID to Air1 Música de Adoración automatically
+          if (parsed.lastStation.id === 'perm-klove-espanol') {
+            state.currentStation = PERMANENT_STATIONS[3];
+          } else {
+            state.currentStation = parsed.lastStation;
+          }
+        }
+        if (Array.isArray(parsed.activeWaveCategoryIds) && parsed.activeWaveCategoryIds.length > 0) {
+          state.activeWaveCategoryIds = parsed.activeWaveCategoryIds;
+        }
+        if (parsed.lastSavedTimestamp) {
+          state.lastSavedTimestamp = parsed.lastSavedTimestamp;
         }
       } catch (err) {
         console.warn('Could not parse saved radio state:', err);
@@ -1252,17 +1571,100 @@
 
     function saveState() {
       try {
+        state.lastSavedTimestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const payload = {
           settings: state.settings,
           assignableSlots: state.assignableSlots,
           recentStations: state.recentStations.slice(0, 20),
           volume: state.volume,
-          lastStation: state.currentStation
+          lastStation: state.currentStation,
+          activeWaveCategoryIds: state.activeWaveCategoryIds,
+          lastSavedTimestamp: state.lastSavedTimestamp
         };
         localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        updateStorageStatusUI();
       } catch (err) {
         console.warn('Could not save radio state:', err);
       }
+    }
+
+    /* Request durable browser storage on mobile so OS doesn't clear presets */
+    async function initPersistentStorage() {
+      if (navigator.storage && navigator.storage.persist) {
+        try {
+          await navigator.storage.persist();
+        } catch (_) {}
+      }
+      updateStorageStatusUI();
+    }
+
+    function updateStorageStatusUI() {
+      const statsEl = document.getElementById('storageStatsLine');
+      if (!statsEl) return;
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY) || '';
+        const kb = (new Blob([raw]).size / 1024).toFixed(1);
+        const customCount = state.assignableSlots.filter(Boolean).length;
+        const timeStr = state.lastSavedTimestamp || 'Just now';
+        statsEl.textContent = `Local Drive Cache: ${kb} KB used • ${customCount} Custom Presets Saved • Last Sync: ${timeStr}`;
+      } catch (_) {
+        statsEl.textContent = 'Local Browser Storage Active';
+      }
+    }
+
+    /* Download a physical .json file to the user's phone Downloads / Files drive */
+    function downloadPresetsToLocalDrive() {
+      try {
+        const exportData = {
+          app: 'Vela FM Mobile Radio',
+          exportedAt: new Date().toISOString(),
+          settings: state.settings,
+          assignableSlots: state.assignableSlots,
+          recentStations: state.recentStations
+        };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dateTag = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `vela-fm-presets-${dateTag}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Saved vela-fm-presets.json to your device drive!', 'fa-download');
+      } catch (err) {
+        showToast('Could not download file — try Copy Backup JSON', 'fa-triangle-exclamation');
+      }
+    }
+
+    /* Import a .json backup file from the user's phone local drive */
+    function importPresetsFromLocalDrive(event) {
+      const file = event.target?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(String(e.target?.result || '{}'));
+          if (Array.isArray(parsed.assignableSlots)) {
+            state.assignableSlots = parsed.assignableSlots.concat(Array(12).fill(null)).slice(0, 12);
+          }
+          if (parsed.settings) {
+            state.settings = { ...state.settings, ...parsed.settings };
+          }
+          if (Array.isArray(parsed.recentStations)) {
+            state.recentStations = parsed.recentStations.slice(0, 20);
+          }
+          saveState();
+          applySettingsToDOM();
+          renderSpeedDial();
+          showToast('Restored presets & settings from phone drive!', 'fa-circle-check');
+        } catch (_) {
+          showToast('Invalid JSON backup file selected', 'fa-triangle-exclamation');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
     }
 
     /* ==========================================================================
@@ -1279,6 +1681,7 @@
 
       if (params.name) searchParams.set('name', params.name);
       if (params.tag) searchParams.set('tag', params.tag);
+      if (params.tagList) searchParams.set('tagList', params.tagList);
       if (params.language) searchParams.set('language', params.language);
       if (params.country) searchParams.set('country', params.country);
       if (params.countrycode) searchParams.set('countrycode', params.countrycode);
@@ -1560,6 +1963,18 @@
       renderNowOnAir();
     });
 
+    audioEl.addEventListener('timeupdate', () => {
+      if (state.currentStation && state.currentStation.isPodcast) {
+        updatePodcastScrubberUI();
+      }
+    });
+
+    audioEl.addEventListener('loadedmetadata', () => {
+      if (state.currentStation && state.currentStation.isPodcast) {
+        updatePodcastScrubberUI();
+      }
+    });
+
     audioEl.addEventListener('error', (e) => {
       if (state.isPlaying || state.isLoading) {
         handleStreamError(e);
@@ -1573,24 +1988,40 @@
       const st = state.currentStation || PERMANENT_STATIONS[0];
       const nameEl = document.getElementById('nowStationName');
       const subEl = document.getElementById('nowStationSubtitle');
-      const locEl = document.getElementById('nowStationLocation');
       const codecEl = document.getElementById('nowCodecBadge');
       const freqShortEl = document.getElementById('nowFreqShort');
+      const freqUnitEl = document.getElementById('nowFreqUnit');
       const logoImg = document.getElementById('nowStationLogo');
       const fallbackIcon = document.getElementById('nowStationFallbackIcon');
       const playBtn = document.getElementById('mainPlayBtn');
       const playIcon = document.getElementById('mainPlayIcon');
       const liveStatusText = document.getElementById('liveStatusText');
       const liveDot = document.getElementById('liveIndicatorDot');
+      const podcastRow = document.getElementById('podcastScrubberRow');
 
       if (nameEl) nameEl.textContent = st.name;
-      if (subEl) subEl.textContent = st.subtitle || 'Live Radio Stream';
-      if (locEl) locEl.innerHTML = `<i class="fa-solid fa-location-dot text-[10px] text-sky-400"></i><span>${escapeHtml(st.location || 'Global')}</span>`;
-      if (codecEl) codecEl.textContent = `${st.freq || 'FM'} • ${st.codec || 'AAC'} ${st.bitrate ? st.bitrate + 'k' : ''}`.trim();
+      if (subEl) subEl.textContent = st.subtitle || st.location || 'Live Broadcast';
+      if (codecEl) {
+        codecEl.textContent = st.isPodcast
+          ? (st.freq || 'PODCAST')
+          : `${st.freq || 'FM'}${st.bitrate ? ' • ' + st.bitrate + 'k' : ''}`.trim();
+      }
+
+      // Show or hide Podcast timeline scrubber (-15s / +30s / progress bar)
+      if (podcastRow) {
+        if (st.isPodcast) {
+          podcastRow.classList.remove('hidden');
+          podcastRow.classList.add('flex');
+        } else {
+          podcastRow.classList.add('hidden');
+          podcastRow.classList.remove('flex');
+        }
+      }
 
       // Short frequency badge inside emblem
-      const shortText = (st.freq || 'LIVE').replace('FM', '').trim().slice(0, 6);
+      const shortText = st.isPodcast ? 'POD' : (st.freq || 'LIVE').replace('FM', '').trim().slice(0, 5);
       if (freqShortEl) freqShortEl.textContent = shortText || 'LIVE';
+      if (freqUnitEl) freqUnitEl.textContent = st.isPodcast ? 'EP' : 'FM';
 
       if (st.favicon && st.favicon.startsWith('https://')) {
         logoImg.src = st.favicon;
@@ -1603,21 +2034,60 @@
 
       // Play/Pause/Loading button state
       if (state.isLoading) {
-        playIcon.className = 'fa-solid fa-circle-notch fa-spin text-xl';
+        playIcon.className = 'fa-solid fa-circle-notch fa-spin text-lg';
         playBtn.classList.remove('play-ring-active');
-        liveStatusText.textContent = 'TUNING SIGNAL...';
+        liveStatusText.textContent = 'TUNING...';
         liveDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
       } else if (state.isPlaying) {
-        playIcon.className = 'fa-solid fa-pause text-xl';
+        playIcon.className = 'fa-solid fa-pause text-lg';
         playBtn.classList.add('play-ring-active');
-        liveStatusText.textContent = 'LIVE ON AIR';
+        liveStatusText.textContent = st.isPodcast ? 'PLAYING EPISODE' : 'ON AIR';
         liveDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
       } else {
-        playIcon.className = 'fa-solid fa-play text-xl ml-0.5';
+        playIcon.className = 'fa-solid fa-play text-lg ml-0.5';
         playBtn.classList.remove('play-ring-active');
         liveStatusText.textContent = 'STANDBY';
         liveDot.className = 'w-1.5 h-1.5 rounded-full bg-sky-400';
       }
+    }
+
+    function seekPodcast(deltaSeconds) {
+      if (!audioEl || !audioEl.duration) return;
+      audioEl.currentTime = Math.max(0, Math.min(audioEl.duration, (audioEl.currentTime || 0) + deltaSeconds));
+      updatePodcastScrubberUI();
+    }
+
+    function scrubPodcastTo(percentVal) {
+      if (!audioEl || !audioEl.duration) return;
+      audioEl.currentTime = (Number(percentVal) / 100) * audioEl.duration;
+      updatePodcastScrubberUI();
+    }
+
+    function updatePodcastScrubberUI() {
+      const curEl = document.getElementById('podcastCurrentTime');
+      const durEl = document.getElementById('podcastDurationTime');
+      const slider = document.getElementById('podcastSeekSlider');
+      if (!curEl || !durEl || !slider) return;
+
+      const cur = audioEl.currentTime || 0;
+      const dur = audioEl.duration || 0;
+      curEl.textContent = formatAudioSeconds(cur);
+      durEl.textContent = dur > 0 && isFinite(dur) ? formatAudioSeconds(dur) : '--:--';
+      if (dur > 0 && isFinite(dur)) {
+        slider.value = String(Math.round((cur / dur) * 100));
+      }
+    }
+
+    function formatAudioSeconds(sec) {
+      if (!sec || !isFinite(sec)) return '0:00';
+      const total = Math.floor(sec);
+      const hrs = Math.floor(total / 3600);
+      const mins = Math.floor((total % 3600) / 60);
+      const secs = total % 60;
+      if (hrs > 0) {
+        return `${hrs}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+      return `${mins}:${String(secs).padStart(2, '0')}`;
     }
 
     /* Smooth Canvas Frequency Visualizer for the Hero Now On Air Console */
@@ -1720,17 +2190,17 @@
 
       if (!permGrid || !assignGrid) return;
 
-      // 1. Render 4 Permanent Signature Stations
+      // 1. Render 4 Permanent Signature Stations (Clean, Minimalist Editorial Tiles)
       permGrid.innerHTML = PERMANENT_STATIONS.map((st) => {
         const isCurrent = state.currentStation && state.currentStation.id === st.id;
         const isActivePlay = isCurrent && state.isPlaying;
         return `
           <button
             onclick="playPermanentStation('${st.id}')"
-            class="surface-card bg-gradient-to-br ${st.accent} ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3 text-left flex flex-col justify-between min-h-[82px] relative overflow-hidden group"
+            class="surface-card ${st.accent} ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 text-left flex flex-col justify-between min-h-[78px] relative overflow-hidden"
           >
             <div class="flex items-center justify-between w-full gap-1">
-              <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/30 ${st.badgeColor}">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider ${st.badgeColor}">
                 ${escapeHtml(st.freq)}
               </span>
               ${isActivePlay ? `
@@ -1739,14 +2209,12 @@
                   <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
                   <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
                 </div>
-              ` : `
-                <i class="fa-solid ${isCurrent ? 'fa-circle-play text-sky-400' : 'fa-lock text-[10px] opacity-40'}"></i>
-              `}
+              ` : ''}
             </div>
 
             <div class="mt-2">
-              <div class="font-extrabold text-sm leading-tight truncate">${escapeHtml(st.name)}</div>
-              <div class="text-[11px] truncate mt-0.5 opacity-80" style="color: var(--text-secondary);">
+              <div class="font-bold text-sm leading-snug truncate">${escapeHtml(st.name)}</div>
+              <div class="text-[11px] truncate mt-0.5" style="color: var(--text-secondary);">
                 ${escapeHtml(st.subtitle)}
               </div>
             </div>
@@ -1754,27 +2222,27 @@
         `;
       }).join('');
 
-      // 2. Render Assignable Speed Dial Slots
+      // 2. Render Assignable Speed Dial Slots (Clean & Uncluttered; Edit actions appear only in Edit Mode)
       const count = getTargetAssignableCount();
       if (countBadge) countBadge.textContent = `${count} Slots`;
 
-      // Adjust grid columns if user picked 12-slot compact mode
-      assignGrid.className = count === 12 ? 'grid grid-cols-3 gap-2' : 'grid grid-cols-2 gap-2.5';
+      assignGrid.className = count === 12 ? 'grid grid-cols-3 gap-2.5' : 'grid grid-cols-2 gap-3';
 
       const visibleSlots = state.assignableSlots.slice(0, count);
       assignGrid.innerHTML = visibleSlots.map((slot, idx) => {
         if (!slot) {
-          // Empty Assignable Slot
           return `
             <button
               onclick="handleEmptySlotTap(${idx})"
-              class="surface-card rounded-2xl p-3 border-dashed border-2 border-slate-500/30 flex flex-col items-center justify-center min-h-[76px] text-center hover:border-sky-400/60 transition"
+              class="surface-card rounded-2xl p-3.5 border-dashed border border-slate-500/25 flex items-center gap-2.5 min-h-[70px] text-left hover:border-sky-400/50 transition"
             >
-              <div class="w-7 h-7 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center mb-1">
+              <div class="w-7 h-7 rounded-xl bg-white/5 text-sky-400 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-plus text-xs"></i>
               </div>
-              <span class="text-xs font-semibold">Slot #${idx + 1} Empty</span>
-              <span class="text-[10px]" style="color: var(--text-secondary);">Tap to assign station</span>
+              <div class="min-w-0">
+                <div class="text-xs font-semibold truncate">Preset ${idx + 1}</div>
+                <div class="text-[10px] truncate" style="color: var(--text-secondary);">Tap to assign</div>
+              </div>
             </button>
           `;
         }
@@ -1783,39 +2251,34 @@
         const isActivePlay = isCurrent && state.isPlaying;
 
         return `
-          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-2.5 flex flex-col justify-between min-h-[76px] relative">
+          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 flex flex-col justify-between min-h-[70px] relative">
             <div class="flex items-center justify-between gap-1">
-              <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-white/5 text-sky-400 truncate max-w-[90px]">
-                #${idx + 1} • ${escapeHtml(slot.freq || 'LIVE')}
+              <span class="text-[10px] font-mono font-medium truncate" style="color: var(--text-secondary);">
+                ${escapeHtml(slot.freq || 'PRESET ' + (idx + 1))}
               </span>
 
-              <div class="flex items-center gap-1">
-                ${state.editSpeedDialMode ? `
+              ${state.editSpeedDialMode ? `
+                <div class="flex items-center gap-1">
                   <button onclick="clearSpeedDialSlot(${idx})" title="Clear Slot" class="w-6 h-6 rounded-md bg-rose-500/20 text-rose-400 flex items-center justify-center text-[10px]">
                     <i class="fa-solid fa-trash-can"></i>
                   </button>
                   <button onclick="handleEmptySlotTap(${idx})" title="Replace Station" class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-[10px]">
                     <i class="fa-solid fa-rotate"></i>
                   </button>
-                ` : `
-                  ${isActivePlay ? `
-                    <div class="flex items-end gap-0.5 h-3 mr-1">
-                      <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
-                      <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
-                      <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
-                    </div>
-                  ` : ''}
-                  <button onclick="openSlotOptions(${idx})" title="Reassign Slot #${idx + 1}" class="w-6 h-6 rounded-md hover:bg-white/10 flex items-center justify-center text-[10px]" style="color: var(--text-secondary);">
-                    <i class="fa-solid fa-ellipsis-vertical"></i>
-                  </button>
-                `}
-              </div>
+                </div>
+              ` : (isActivePlay ? `
+                <div class="flex items-end gap-0.5 h-3">
+                  <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                  <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                  <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                </div>
+              ` : '')}
             </div>
 
             <button onclick="playAssignableSlot(${idx})" class="text-left mt-1.5 w-full">
-              <div class="font-bold text-xs sm:text-sm leading-tight truncate">${escapeHtml(slot.name)}</div>
-              <div class="text-[10px] truncate mt-0.5" style="color: var(--text-secondary);">
-                ${escapeHtml(slot.subtitle || slot.location || 'Custom Preset')}
+              <div class="font-bold text-xs sm:text-sm leading-snug truncate">${escapeHtml(slot.name)}</div>
+              <div class="text-[11px] truncate mt-0.5" style="color: var(--text-secondary);">
+                ${escapeHtml(slot.subtitle || slot.location || 'Saved Station')}
               </div>
             </button>
           </div>
@@ -1842,11 +2305,11 @@
       const btnText = document.getElementById('editDialBtnText');
       const btn = document.getElementById('editDialBtn');
       if (state.editSpeedDialMode) {
-        btnText.textContent = 'Done Editing';
+        btnText.textContent = 'Done';
         btn.classList.add('border-sky-400', 'text-sky-400');
-        showToast('Edit Mode: Tap any preset slot to replace or clear it', 'fa-pen-to-square');
+        showToast('Edit Mode: Tap any preset slot to replace or clear it', 'fa-sliders');
       } else {
-        btnText.textContent = 'Customize Slots';
+        btnText.textContent = 'Edit';
         btn.classList.remove('border-sky-400', 'text-sky-400');
       }
       renderSpeedDial();
@@ -1872,8 +2335,762 @@
     }
 
     /* ==========================================================================
-       9. ASSIGN TO SPEED DIAL MODAL
+       10. CURATED WAVES SCREEN (SLIDE-OUT DRAWERS + MULTI-GENRE COMBINATION)
+       Allows selecting a Language via a clean slide-out drawer AND selecting
+       one or multiple Genres (e.g. Christian + Rock) to combine or union!
        ========================================================================== */
+    function openLanguageDrawer() {
+      renderLanguageQuickBar();
+      const backdrop = document.getElementById('languageDrawerBackdrop');
+      if (backdrop) backdrop.classList.add('open');
+    }
+
+    function closeLanguageDrawer() {
+      const backdrop = document.getElementById('languageDrawerBackdrop');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+
+    function openGenreDrawer() {
+      renderWavesCategories();
+      const backdrop = document.getElementById('genreDrawerBackdrop');
+      if (backdrop) backdrop.classList.add('open');
+    }
+
+    function closeGenreDrawer() {
+      const backdrop = document.getElementById('genreDrawerBackdrop');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+
+    function applyGenreDrawerSelection() {
+      closeGenreDrawer();
+      loadSelectedWaveStations();
+    }
+
+    function renderLanguageQuickBar() {
+      const list = document.getElementById('languageDrawerList');
+      const btnLabel = document.getElementById('wavesLangBtnLabel');
+
+      const activeObj = LANGUAGE_PILLS.find(l => l.id === state.wavesLanguageFilter) || LANGUAGE_PILLS[0];
+      if (btnLabel) btnLabel.textContent = `${activeObj.flag} ${activeObj.label}`;
+
+      if (!list) return;
+      list.innerHTML = LANGUAGE_PILLS.map(lang => {
+        const isActive = state.wavesLanguageFilter === lang.id;
+        return `
+          <button
+            onclick="selectWavesLanguage('${lang.id}')"
+            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3.5 rounded-2xl text-left flex items-center justify-between gap-3"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="text-xl shrink-0">${lang.flag}</span>
+              <div class="min-w-0">
+                <div class="text-sm font-bold">${escapeHtml(lang.label)}</div>
+                <div class="text-xs" style="color: var(--text-secondary);">${escapeHtml(lang.sub || '')}</div>
+              </div>
+            </div>
+            <i class="fa-solid ${isActive ? 'fa-circle-check text-sky-400' : 'fa-circle opacity-15'} text-sm"></i>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectWavesLanguage(langId) {
+      state.wavesLanguageFilter = langId;
+      renderLanguageQuickBar();
+      renderActiveWavePills();
+      closeLanguageDrawer();
+      loadSelectedWaveStations();
+    }
+
+    function toggleMultiGenreMatchMode() {
+      state.multiGenreMatchMode = state.multiGenreMatchMode === 'and' ? 'or' : 'and';
+      const btn = document.getElementById('multiGenreModeBtn');
+      if (btn) {
+        btn.textContent = state.multiGenreMatchMode === 'and'
+          ? 'Match: Combine (AND)'
+          : 'Match: Any (OR)';
+      }
+      loadSelectedWaveStations();
+    }
+
+    async function changeWavesGrouping(groupingMode) {
+      state.wavesGroupingMode = groupingMode;
+      if (groupingMode === 'liveapi' && state.liveApiTags.length === 0) {
+        await fetchLiveApiGenres();
+      }
+
+      const categories = getActiveGroupingCategories();
+      if (categories.length > 0) {
+        state.activeWaveCategoryIds = [categories[0].id];
+      }
+      renderWavesCategories();
+      renderActiveWavePills();
+    }
+
+    function getActiveGroupingCategories() {
+      if (state.wavesGroupingMode === 'liveapi') {
+        return state.liveApiTags;
+      }
+      return WAVES_GROUPINGS[state.wavesGroupingMode] || WAVES_GROUPINGS.genre;
+    }
+
+    function getAllKnownCategories() {
+      return [
+        ...WAVES_GROUPINGS.genre,
+        ...WAVES_GROUPINGS.language,
+        ...WAVES_GROUPINGS.region,
+        ...WAVES_GROUPINGS.bitrate,
+        ...state.liveApiTags
+      ];
+    }
+
+    /* Fetch top 80 live genres/tags directly from Radio-Browser API */
+    async function fetchLiveApiGenres() {
+      const grid = document.getElementById('wavesCategoryGrid');
+      if (grid) {
+        grid.innerHTML = `
+          <div class="surface-card rounded-2xl p-5 text-center flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400"></i>
+            <span class="text-xs font-semibold">Loading 80+ live genres from Radio-Browser API...</span>
+          </div>
+        `;
+      }
+
+      const tagMirrors = [
+        'https://de1.api.radio-browser.info/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=80',
+        'https://fi1.api.radio-browser.info/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=80',
+        'https://all.api.radio-browser.info/json/tags?order=stationcount&reverse=true&hidebroken=true&limit=80'
+      ];
+
+      for (const url of tagMirrors) {
+        try {
+          const res = await fetch(url);
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            const seen = new Set();
+            state.liveApiTags = data
+              .filter(t => t.name && t.name.length > 1 && t.stationcount > 25)
+              .filter(t => {
+                const key = t.name.toLowerCase().trim();
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+              })
+              .slice(0, 72)
+              .map((t, idx) => ({
+                id: `api-tag-${idx}`,
+                section: 'Live Radio-Browser Tag Directory',
+                name: t.name.charAt(0).toUpperCase() + t.name.slice(1),
+                desc: `${t.stationcount.toLocaleString()} live stations`,
+                icon: 'fa-hashtag',
+                color: 'text-sky-400',
+                params: { tag: t.name }
+              }));
+            break;
+          }
+        } catch (_) {}
+      }
+
+      if (state.liveApiTags.length === 0) {
+        state.liveApiTags = WAVES_GROUPINGS.genre;
+      }
+    }
+
+    function filterWaveCategories(query) {
+      state.wavesFilterQuery = (query || '').trim().toLowerCase();
+      renderWavesCategories();
+    }
+
+    function clearSelectedWaveGenres() {
+      const categories = getActiveGroupingCategories();
+      state.activeWaveCategoryIds = categories.length > 0 ? [categories[0].id] : ['christian'];
+      renderWavesCategories();
+      renderActiveWavePills();
+    }
+
+    /* Toggle a genre on/off in the multi-select drawer */
+    function toggleWaveCategorySelection(catId) {
+      const exists = state.activeWaveCategoryIds.includes(catId);
+      if (exists) {
+        if (state.activeWaveCategoryIds.length > 1) {
+          state.activeWaveCategoryIds = state.activeWaveCategoryIds.filter(id => id !== catId);
+        } else {
+          showToast('At least one genre or category remains active', 'fa-layer-group');
+        }
+      } else {
+        if (state.activeWaveCategoryIds.length >= 4) {
+          showToast('Up to 4 genres can be combined at once', 'fa-layer-group');
+          return;
+        }
+        state.activeWaveCategoryIds = [...state.activeWaveCategoryIds, catId];
+      }
+      saveState();
+      renderWavesCategories();
+      renderActiveWavePills();
+    }
+
+    function removeWaveCategoryChip(catId) {
+      if (state.activeWaveCategoryIds.length <= 1) {
+        openGenreDrawer();
+        return;
+      }
+      state.activeWaveCategoryIds = state.activeWaveCategoryIds.filter(id => id !== catId);
+      saveState();
+      renderWavesCategories();
+      renderActiveWavePills();
+      loadSelectedWaveStations();
+    }
+
+    function renderActiveWavePills() {
+      const container = document.getElementById('activeWaveFilterChips');
+      const genreBtnLabel = document.getElementById('wavesGenreBtnLabel');
+      const summaryEl = document.getElementById('drawerSelectedSummary');
+      const allCats = getAllKnownCategories();
+
+      const selectedObjs = state.activeWaveCategoryIds
+        .map(id => allCats.find(c => c.id === id))
+        .filter(Boolean);
+
+      if (selectedObjs.length === 0) {
+        selectedObjs.push(WAVES_GROUPINGS.genre[0]);
+      }
+
+      if (genreBtnLabel) {
+        genreBtnLabel.textContent = selectedObjs.length === 1
+          ? selectedObjs[0].name
+          : `${selectedObjs.length} Genres Combined`;
+      }
+
+      if (summaryEl) {
+        summaryEl.textContent = selectedObjs.map(s => s.name).join(' + ');
+      }
+
+      if (!container) return;
+
+      const langObj = LANGUAGE_PILLS.find(l => l.id === state.wavesLanguageFilter) || LANGUAGE_PILLS[0];
+      let chipsHtml = '';
+
+      if (state.wavesLanguageFilter !== 'all') {
+        chipsHtml += `
+          <button onclick="selectWavesLanguage('all')" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-sky-500/20 text-sky-300 border border-sky-400/30 flex items-center gap-1.5">
+            <span>${langObj.flag} ${escapeHtml(langObj.label)}</span>
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+          </button>
+        `;
+      }
+
+      chipsHtml += selectedObjs.map(cat => `
+        <button onclick="removeWaveCategoryChip('${cat.id}')" class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/15 text-white border border-white/15 flex items-center gap-1.5">
+          <i class="fa-solid ${cat.icon} text-[10px] ${cat.color}"></i>
+          <span>${escapeHtml(cat.name)}</span>
+          ${selectedObjs.length > 1 ? '<i class="fa-solid fa-xmark text-[10px] opacity-70"></i>' : ''}
+        </button>
+      `).join('');
+
+      chipsHtml += `
+        <button onclick="openGenreDrawer()" class="px-2.5 py-1 rounded-full text-xs font-semibold text-sky-400 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/25 flex items-center gap-1">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>Add Genre</span>
+        </button>
+      `;
+
+      container.innerHTML = chipsHtml;
+    }
+
+    function renderWavesCategories() {
+      const grid = document.getElementById('wavesCategoryGrid');
+      const select = document.getElementById('wavesGroupingSelect');
+      if (!grid) return;
+      if (select) select.value = state.wavesGroupingMode;
+
+      const allCategories = getActiveGroupingCategories();
+      const filtered = state.wavesFilterQuery
+        ? allCategories.filter(c =>
+            c.name.toLowerCase().includes(state.wavesFilterQuery) ||
+            (c.desc && c.desc.toLowerCase().includes(state.wavesFilterQuery)) ||
+            (c.section && c.section.toLowerCase().includes(state.wavesFilterQuery))
+          )
+        : allCategories;
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="surface-card rounded-2xl p-4 text-center text-xs" style="color: var(--text-secondary);">
+            No genre matched "${escapeHtml(state.wavesFilterQuery)}".
+          </div>
+        `;
+        return;
+      }
+
+      const sectionsMap = new Map();
+      for (const cat of filtered) {
+        const secTitle = cat.section || 'Categories';
+        if (!sectionsMap.has(secTitle)) sectionsMap.set(secTitle, []);
+        sectionsMap.get(secTitle).push(cat);
+      }
+
+      let html = '';
+      for (const [secName, items] of sectionsMap.entries()) {
+        html += `
+          <div class="flex flex-col gap-2">
+            <div class="flex items-center justify-between px-1">
+              <span class="text-[11px] font-mono uppercase tracking-wider font-bold text-sky-400">${escapeHtml(secName)}</span>
+              <span class="text-[10px] font-mono" style="color: var(--text-secondary);">${items.length}</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        `;
+
+        html += items.map(cat => {
+          const isSelected = state.activeWaveCategoryIds.includes(cat.id);
+          return `
+            <button
+              onclick="toggleWaveCategorySelection('${cat.id}')"
+              class="surface-card ${isSelected ? 'speed-dial-active bg-sky-500/15' : ''} p-3 rounded-2xl text-left flex items-start gap-3"
+            >
+              <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0 mt-0.5 ${cat.color}">
+                <i class="fa-solid ${cat.icon} text-xs"></i>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs sm:text-sm font-bold leading-snug break-words">${escapeHtml(cat.name)}</div>
+                <div class="text-[11px] leading-snug mt-0.5 break-words" style="color: var(--text-secondary);">
+                  ${escapeHtml(cat.desc || '')}
+                </div>
+              </div>
+              <i class="fa-solid ${isSelected ? 'fa-square-check text-sky-400' : 'fa-square opacity-20'} text-sm mt-1 shrink-0"></i>
+            </button>
+          `;
+        }).join('');
+
+        html += `</div></div>`;
+      }
+
+      grid.innerHTML = html;
+      renderActiveWavePills();
+    }
+
+    async function loadSelectedWaveStations() {
+      const allCats = getAllKnownCategories();
+      const selectedCats = state.activeWaveCategoryIds
+        .map(id => allCats.find(c => c.id === id))
+        .filter(Boolean);
+
+      if (selectedCats.length === 0) {
+        selectedCats.push(WAVES_GROUPINGS.genre[0]);
+      }
+
+      const titleEl = document.getElementById('wavesResultsTitle');
+      const countEl = document.getElementById('wavesResultCount');
+      const listEl = document.getElementById('wavesStationList');
+
+      const joiner = state.multiGenreMatchMode === 'and' ? ' + ' : ' / ';
+      const combinedNames = selectedCats.map(c => c.name).join(joiner);
+      const langSuffix = state.wavesLanguageFilter !== 'all'
+        ? ` (${state.wavesLanguageFilter.toUpperCase()})`
+        : '';
+
+      if (titleEl) titleEl.textContent = `${combinedNames}${langSuffix}`;
+
+      if (listEl) {
+        listEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Tuning matching broadcasts...</span>
+          </div>
+        `;
+      }
+
+      let stations = [];
+
+      if (selectedCats.length === 1) {
+        const queryParams = { ...selectedCats[0].params, limit: 30 };
+        if (state.wavesLanguageFilter !== 'all' && !queryParams.language) {
+          queryParams.language = state.wavesLanguageFilter;
+        }
+        stations = await queryRadioBrowser(queryParams);
+      } else {
+        // Multi-Genre Selection! (e.g. Christian + Rock)
+        const tags = selectedCats.map(c => c.params?.tag).filter(Boolean);
+
+        if (state.multiGenreMatchMode === 'and' && tags.length >= 2) {
+          // 1. Try Radio-Browser native comma-separated tagList intersection first
+          const andParams = { tagList: tags.join(','), limit: 30 };
+          if (state.wavesLanguageFilter !== 'all') andParams.language = state.wavesLanguageFilter;
+          stations = await queryRadioBrowser(andParams);
+
+          // 2. If strict tagList returned few results, also search combined name/tag phrase (e.g. "christian rock")
+          if (stations.length < 6) {
+            const phraseParams = { tag: tags.join(' '), limit: 24 };
+            if (state.wavesLanguageFilter !== 'all') phraseParams.language = state.wavesLanguageFilter;
+            const phraseMatches = await queryRadioBrowser(phraseParams);
+            const seenIds = new Set(stations.map(s => s.id));
+            for (const m of phraseMatches) {
+              if (!seenIds.has(m.id)) {
+                stations.push(m);
+                seenIds.add(m.id);
+              }
+            }
+          }
+        }
+
+        // 3. If OR mode or fallback needed, fetch parallel & merge
+        if (state.multiGenreMatchMode === 'or' || stations.length === 0) {
+          const promises = selectedCats.map(cat => {
+            const p = { ...cat.params, limit: 18 };
+            if (state.wavesLanguageFilter !== 'all' && !p.language) p.language = state.wavesLanguageFilter;
+            return queryRadioBrowser(p);
+          });
+          const resultsArrays = await Promise.all(promises);
+          const seen = new Set();
+          for (const arr of resultsArrays) {
+            for (const st of arr) {
+              if (!seen.has(st.id)) {
+                seen.add(st.id);
+                stations.push(st);
+              }
+            }
+          }
+        }
+      }
+
+      state.wavesStations = stations;
+      if (countEl) countEl.textContent = String(stations.length);
+      renderStationCardsList(stations, listEl, 'waves');
+    }
+
+    function refreshCurrentWave() {
+      loadSelectedWaveStations();
+    }
+
+    /* ==========================================================================
+       10B. FREE PODCASTS ENGINE (BIBLEPROJECT RSS + APPLE PODCASTS API)
+       ========================================================================== */
+    function renderFeaturedPodcastShows() {
+      const container = document.getElementById('featuredPodcastPills');
+      if (!container) return;
+
+      container.innerHTML = FEATURED_PODCAST_SHOWS.map(show => {
+        const isActive = state.activePodcastShow && state.activePodcastShow.id === show.id;
+        return `
+          <button
+            onclick="selectFeaturedPodcastShow('${show.id}')"
+            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} px-3 py-2 rounded-xl flex items-center gap-2 shrink-0 text-left"
+          >
+            <i class="fa-solid fa-podcast text-xs text-sky-400"></i>
+            <div>
+              <div class="text-xs font-bold leading-none">${escapeHtml(show.title)}</div>
+              <div class="text-[9px] font-mono text-sky-400 mt-0.5">${escapeHtml(show.badge || 'PODCAST')}</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectFeaturedPodcastShow(showId) {
+      const found = FEATURED_PODCAST_SHOWS.find(s => s.id === showId);
+      if (!found) return;
+      hidePodcastShowSearch();
+      loadPodcastShow(found);
+    }
+
+    function reloadActivePodcastShow() {
+      if (state.activePodcastShow) {
+        loadPodcastShow(state.activePodcastShow);
+      }
+    }
+
+    async function loadPodcastShow(show) {
+      state.activePodcastShow = show;
+      renderFeaturedPodcastShows();
+
+      const titleEl = document.getElementById('activePodcastTitle');
+      const authorEl = document.getElementById('activePodcastAuthor');
+      const artEl = document.getElementById('activePodcastArt');
+      const listEl = document.getElementById('podcastEpisodesList');
+      const countBadge = document.getElementById('podcastEpisodeCountBadge');
+
+      if (titleEl) titleEl.textContent = show.title;
+      if (authorEl) authorEl.textContent = show.author || show.desc || 'Podcast Series';
+      if (artEl && show.artwork) artEl.src = show.artwork;
+
+      if (listEl) {
+        listEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Loading episodes for ${escapeHtml(show.title)}...</span>
+          </div>
+        `;
+      }
+
+      let episodes = [];
+
+      // Strategy 1: Direct RSS XML Parse (Works great for Simplecast feeds like BibleProject!)
+      if (show.rssUrl) {
+        episodes = await fetchEpisodesFromRssXml(show.rssUrl, show);
+      }
+
+      // Strategy 2: Apple iTunes Podcast Lookup / Search API (CORS-enabled JSON fallback)
+      if (episodes.length === 0 && show.itunesId) {
+        episodes = await fetchEpisodesFromItunesLookup(show.itunesId, show);
+      }
+
+      // Strategy 3: Search by query term via iTunes Podcast Episode API
+      if (episodes.length === 0 && (show.searchQuery || show.title)) {
+        episodes = await fetchEpisodesFromItunesSearch(show.searchQuery || show.title, show);
+      }
+
+      state.podcastEpisodes = episodes;
+      if (countBadge) countBadge.textContent = `${episodes.length} episodes`;
+      renderPodcastEpisodesList(episodes);
+    }
+
+    async function fetchEpisodesFromRssXml(rssUrl, show) {
+      try {
+        const res = await fetch(rssUrl);
+        if (!res.ok) return [];
+        const xmlText = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(xmlText, 'text/xml');
+
+        const channelImg = doc.querySelector('channel > image > url')?.textContent ||
+                           doc.getElementsByTagName('itunes:image')[0]?.getAttribute('href') ||
+                           show.artwork;
+        if (channelImg) {
+          show.artwork = channelImg;
+          const artEl = document.getElementById('activePodcastArt');
+          if (artEl) artEl.src = channelImg;
+        }
+
+        const items = Array.from(doc.querySelectorAll('item')).slice(0, 30);
+        return items.map((item, idx) => {
+          const title = item.querySelector('title')?.textContent?.trim() || `Episode ${idx + 1}`;
+          const enclosure = item.querySelector('enclosure');
+          const audioUrl = enclosure?.getAttribute('url') || '';
+          const pubDateRaw = item.querySelector('pubDate')?.textContent || '';
+          const pubDate = pubDateRaw ? new Date(pubDateRaw).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+          const duration = item.getElementsByTagName('itunes:duration')[0]?.textContent || '';
+          const rawDesc = item.querySelector('description')?.textContent || '';
+          const cleanDesc = rawDesc.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim().slice(0, 140);
+
+          return {
+            id: `pod-ep-${show.id}-${idx}`,
+            name: title,
+            freq: duration ? `${duration}` : 'PODCAST',
+            subtitle: `${show.title}${pubDate ? ' • ' + pubDate : ''}`,
+            description: cleanDesc,
+            location: show.author || 'Podcast',
+            codec: 'MP3',
+            bitrate: 128,
+            favicon: channelImg || show.artwork,
+            isPodcast: true,
+            url_resolved: audioUrl,
+            fallbackUrls: [audioUrl]
+          };
+        }).filter(ep => Boolean(ep.url_resolved));
+      } catch (err) {
+        return [];
+      }
+    }
+
+    async function fetchEpisodesFromItunesLookup(itunesId, show) {
+      try {
+        const url = `https://itunes.apple.com/lookup?id=${encodeURIComponent(itunesId)}&entity=podcastEpisode&limit=25`;
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (!data || !Array.isArray(data.results)) return [];
+
+        const collection = data.results.find(r => r.wrapperType === 'track' && r.kind === 'podcast');
+        if (collection && collection.artworkUrl600) {
+          show.artwork = collection.artworkUrl600;
+          const artEl = document.getElementById('activePodcastArt');
+          if (artEl) artEl.src = collection.artworkUrl600;
+        }
+
+        return data.results
+          .filter(r => r.wrapperType === 'podcastEpisode' && r.episodeUrl)
+          .map((ep, idx) => {
+            const mins = ep.trackTimeMillis ? `${Math.round(ep.trackTimeMillis / 60000)} min` : 'EPISODE';
+            const dateStr = ep.releaseDate ? new Date(ep.releaseDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+            return {
+              id: `itunes-ep-${ep.trackId || idx}`,
+              name: ep.trackName || 'Podcast Episode',
+              freq: mins,
+              subtitle: `${show.title}${dateStr ? ' • ' + dateStr : ''}`,
+              description: (ep.shortDescription || ep.description || '').replace(/\s+/g, ' ').trim().slice(0, 140),
+              location: show.author || ep.collectionName || 'Podcast',
+              codec: 'MP3',
+              bitrate: 128,
+              favicon: ep.artworkUrl600 || show.artwork,
+              isPodcast: true,
+              url_resolved: ep.episodeUrl,
+              fallbackUrls: [ep.episodeUrl]
+            };
+          });
+      } catch (_) {
+        return [];
+      }
+    }
+
+    async function fetchEpisodesFromItunesSearch(term, show) {
+      try {
+        const url = `https://itunes.apple.com/search?media=podcast&entity=podcastEpisode&term=${encodeURIComponent(term)}&limit=25`;
+        const res = await fetch(url);
+        if (!res.ok) return [];
+        const data = await res.json();
+        if (!data || !Array.isArray(data.results)) return [];
+        return data.results
+          .filter(ep => ep.episodeUrl)
+          .map((ep, idx) => {
+            const mins = ep.trackTimeMillis ? `${Math.round(ep.trackTimeMillis / 60000)} min` : 'EPISODE';
+            return {
+              id: `itunes-search-ep-${ep.trackId || idx}`,
+              name: ep.trackName || 'Podcast Episode',
+              freq: mins,
+              subtitle: ep.collectionName || show.title,
+              description: (ep.shortDescription || ep.description || '').replace(/\s+/g, ' ').trim().slice(0, 140),
+              location: ep.collectionName || 'Podcast',
+              codec: 'MP3',
+              bitrate: 128,
+              favicon: ep.artworkUrl600 || show.artwork,
+              isPodcast: true,
+              url_resolved: ep.episodeUrl,
+              fallbackUrls: [ep.episodeUrl]
+            };
+          });
+      } catch (_) {
+        return [];
+      }
+    }
+
+    async function searchFreePodcasts() {
+      const input = document.getElementById('podcastSearchInput');
+      const query = (input ? input.value : '').trim();
+      if (!query) return;
+
+      const container = document.getElementById('podcastShowsSearchContainer');
+      const grid = document.getElementById('podcastShowsGrid');
+      if (container) {
+        container.classList.remove('hidden');
+        container.classList.add('flex');
+      }
+      if (grid) {
+        grid.innerHTML = `
+          <div class="surface-card rounded-2xl p-4 text-center text-xs">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 mr-1.5"></i> Searching podcasts for "${escapeHtml(query)}"...
+          </div>
+        `;
+      }
+
+      try {
+        const res = await fetch(`https://itunes.apple.com/search?media=podcast&entity=podcast&term=${encodeURIComponent(query)}&limit=8`);
+        const data = await res.json();
+        const shows = (data.results || []).map(item => ({
+          id: `pod-show-${item.collectionId}`,
+          title: item.collectionName,
+          author: item.artistName,
+          desc: item.primaryGenreName || 'Podcast',
+          rssUrl: item.feedUrl || '',
+          itunesId: String(item.collectionId),
+          artwork: item.artworkUrl600 || item.artworkUrl100 || ''
+        }));
+
+        state.podcastSearchShows = shows;
+        if (shows.length === 0) {
+          grid.innerHTML = `<div class="surface-card rounded-2xl p-3 text-xs text-center" style="color: var(--text-secondary);">No podcast shows found.</div>`;
+          return;
+        }
+
+        grid.innerHTML = shows.map((s, i) => `
+          <button onclick="pickSearchedPodcastShow(${i})" class="surface-card p-2.5 rounded-2xl flex items-center gap-3 text-left">
+            <img src="${escapeHtml(s.artwork)}" alt="" class="w-11 h-11 rounded-xl object-cover shrink-0 bg-slate-800" />
+            <div class="min-w-0 flex-1">
+              <div class="text-xs font-bold truncate">${escapeHtml(s.title)}</div>
+              <div class="text-[11px] truncate" style="color: var(--text-secondary);">${escapeHtml(s.author)}</div>
+            </div>
+            <span class="text-[10px] font-mono text-sky-400 px-2 py-1 rounded-lg bg-sky-500/10">Episodes</span>
+          </button>
+        `).join('');
+      } catch (_) {
+        if (grid) grid.innerHTML = `<div class="surface-card rounded-2xl p-3 text-xs text-center">Could not reach podcast directory.</div>`;
+      }
+    }
+
+    function pickSearchedPodcastShow(idx) {
+      const show = state.podcastSearchShows[idx];
+      if (!show) return;
+      hidePodcastShowSearch();
+      loadPodcastShow(show);
+    }
+
+    function hidePodcastShowSearch() {
+      const container = document.getElementById('podcastShowsSearchContainer');
+      if (container) {
+        container.classList.add('hidden');
+        container.classList.remove('flex');
+      }
+    }
+
+    function renderPodcastEpisodesList(episodes) {
+      const listEl = document.getElementById('podcastEpisodesList');
+      if (!listEl) return;
+
+      if (!episodes || episodes.length === 0) {
+        listEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center text-xs" style="color: var(--text-secondary);">
+            No episodes found for this show right now.
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = episodes.map((ep, idx) => {
+        const isCurrent = state.currentStation && state.currentStation.id === ep.id;
+        const isPlayingThis = isCurrent && state.isPlaying;
+        return `
+          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3.5 flex items-start justify-between gap-3">
+            <button onclick="playPodcastEpisode(${idx})" class="flex-1 min-w-0 flex items-start gap-3 text-left">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/25 flex items-center justify-center shrink-0 text-sky-400 mt-0.5">
+                ${isPlayingThis
+                  ? '<i class="fa-solid fa-volume-high animate-pulse text-sm"></i>'
+                  : '<i class="fa-solid fa-play text-xs ml-0.5"></i>'}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs sm:text-sm font-bold leading-snug break-words">${escapeHtml(ep.name)}</div>
+                <div class="text-[11px] mt-0.5 text-sky-400 font-mono">
+                  ${escapeHtml(ep.subtitle)} • ${escapeHtml(ep.freq || '')}
+                </div>
+                ${ep.description ? `
+                  <p class="text-[11px] leading-relaxed mt-1 line-clamp-2" style="color: var(--text-secondary);">
+                    ${escapeHtml(ep.description)}
+                  </p>
+                ` : ''}
+              </div>
+            </button>
+
+            <button
+              onclick="pinPodcastEpisode(${idx})"
+              title="Pin Episode to Speed Dial"
+              class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-sky-400 flex items-center justify-center shrink-0 mt-0.5"
+            >
+              <i class="fa-solid fa-thumbtack text-xs"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function playPodcastEpisode(idx) {
+      const ep = state.podcastEpisodes[idx];
+      if (!ep) return;
+      playStation(ep, 0);
+    }
+
+    function pinPodcastEpisode(idx) {
+      const ep = state.podcastEpisodes[idx];
+      if (!ep) return;
+      openAssignModal(ep);
+    }
+
     function openAssignModalForCurrent() {
       if (!state.currentStation) return;
       openAssignModal(state.currentStation);
@@ -1938,124 +3155,6 @@
       renderSpeedDial();
       closeAssignModal();
       showToast(`Pinned "${st.name}" to Speed Dial #${slotIdx + 1}`, 'fa-thumbtack');
-    }
-
-    /* ==========================================================================
-       10. CURATED WAVES SCREEN (GENRE, LANGUAGE ES/PT PRIORITY, & GROUPING)
-       ========================================================================== */
-    function renderLanguageQuickBar() {
-      const bar = document.getElementById('languageQuickBar');
-      const label = document.getElementById('activeLangFilterLabel');
-      if (!bar) return;
-
-      const activeObj = LANGUAGE_PILLS.find(l => l.id === state.wavesLanguageFilter) || LANGUAGE_PILLS[0];
-      if (label) label.textContent = `${activeObj.flag} ${activeObj.label}`;
-
-      bar.innerHTML = LANGUAGE_PILLS.map(lang => {
-        const isActive = state.wavesLanguageFilter === lang.id;
-        const baseClasses = isActive
-          ? 'bg-sky-500 text-white border-sky-400 shadow-md shadow-sky-500/20'
-          : (lang.highlight
-              ? 'surface-card border-amber-400/40 text-amber-300'
-              : 'surface-card');
-
-        return `
-          <button
-            onclick="selectWavesLanguage('${lang.id}')"
-            class="${baseClasses} px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 border transition"
-          >
-            <span>${lang.flag}</span>
-            <span>${escapeHtml(lang.label)}</span>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function selectWavesLanguage(langId) {
-      state.wavesLanguageFilter = langId;
-      renderLanguageQuickBar();
-      loadSelectedWaveStations();
-    }
-
-    function changeWavesGrouping(groupingMode) {
-      state.wavesGroupingMode = groupingMode;
-      const categories = WAVES_GROUPINGS[groupingMode] || WAVES_GROUPINGS.genre;
-      state.activeWaveCategoryId = categories[0].id;
-      renderWavesCategories();
-      loadSelectedWaveStations();
-    }
-
-    function renderWavesCategories() {
-      const grid = document.getElementById('wavesCategoryGrid');
-      const select = document.getElementById('wavesGroupingSelect');
-      if (!grid) return;
-      if (select) select.value = state.wavesGroupingMode;
-
-      const categories = WAVES_GROUPINGS[state.wavesGroupingMode] || WAVES_GROUPINGS.genre;
-
-      grid.innerHTML = categories.map(cat => {
-        const isSelected = state.activeWaveCategoryId === cat.id;
-        return `
-          <button
-            onclick="selectWaveCategory('${cat.id}')"
-            class="surface-card ${isSelected ? 'speed-dial-active' : ''} p-3 rounded-2xl text-left flex items-center gap-2.5"
-          >
-            <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0 ${cat.color}">
-              <i class="fa-solid ${cat.icon} text-sm"></i>
-            </div>
-            <div class="min-w-0">
-              <div class="text-xs font-bold truncate">${escapeHtml(cat.name)}</div>
-              <div class="text-[10px] truncate" style="color: var(--text-secondary);">Tap to tune</div>
-            </div>
-          </button>
-        `;
-      }).join('');
-    }
-
-    function selectWaveCategory(catId) {
-      state.activeWaveCategoryId = catId;
-      renderWavesCategories();
-      loadSelectedWaveStations();
-    }
-
-    async function loadSelectedWaveStations() {
-      const categories = WAVES_GROUPINGS[state.wavesGroupingMode] || WAVES_GROUPINGS.genre;
-      const activeCat = categories.find(c => c.id === state.activeWaveCategoryId) || categories[0];
-
-      const titleEl = document.getElementById('wavesResultsTitle');
-      const countEl = document.getElementById('wavesResultCount');
-      const listEl = document.getElementById('wavesStationList');
-
-      if (titleEl) {
-        const langSuffix = state.wavesLanguageFilter !== 'all'
-          ? ` (${state.wavesLanguageFilter.toUpperCase()})`
-          : '';
-        titleEl.textContent = `${activeCat.name}${langSuffix}`;
-      }
-
-      if (listEl) {
-        listEl.innerHTML = `
-          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
-            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
-            <span class="text-xs font-medium" style="color: var(--text-secondary);">Scanning global broadcast waves...</span>
-          </div>
-        `;
-      }
-
-      // Combine category params with language quick-bar filter
-      const queryParams = { ...activeCat.params, limit: 25 };
-      if (state.wavesLanguageFilter !== 'all' && !queryParams.language) {
-        queryParams.language = state.wavesLanguageFilter;
-      }
-
-      const stations = await queryRadioBrowser(queryParams);
-      state.wavesStations = stations;
-      if (countEl) countEl.textContent = String(stations.length);
-      renderStationCardsList(stations, listEl, 'waves');
-    }
-
-    function refreshCurrentWave() {
-      loadSelectedWaveStations();
     }
 
     /* ==========================================================================
@@ -2425,7 +3524,7 @@
        ========================================================================== */
     function switchTab(tabId) {
       state.activeTab = tabId;
-      const views = ['home', 'waves', 'vault', 'settings'];
+      const views = ['home', 'waves', 'podcasts', 'vault', 'settings'];
       views.forEach(v => {
         const el = document.getElementById(`view-${v}`);
         const navBtn = document.getElementById(`nav-${v}`);
@@ -2449,12 +3548,39 @@
         }
       });
 
+      // Automatically compact the Hero "Now On Air" deck on secondary views
+      // unless a podcast is currently playing (so podcast timeline stays accessible)
+      const heroDeck = document.getElementById('nowOnAirSection');
+      const topMetaRow = document.getElementById('nowTopMetaRow');
+      const bottomVisRow = document.getElementById('nowBottomVisualizerRow');
+      const emblemBox = document.getElementById('nowEmblemBox');
+
+      if (heroDeck) {
+        if (tabId === 'home') {
+          heroDeck.classList.replace('p-3.5', 'p-5');
+          if (topMetaRow) topMetaRow.classList.remove('hidden');
+          if (bottomVisRow) bottomVisRow.classList.remove('hidden');
+          if (emblemBox) emblemBox.className = 'relative w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner transition-all';
+        } else {
+          heroDeck.classList.replace('p-5', 'p-3.5');
+          if (topMetaRow) topMetaRow.classList.add('hidden');
+          if (bottomVisRow) bottomVisRow.classList.add('hidden');
+          if (emblemBox) emblemBox.className = 'relative w-11 h-11 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner transition-all';
+        }
+      }
+
       if (tabId === 'waves' && state.wavesStations.length === 0) {
         renderLanguageQuickBar();
         renderWavesCategories();
+        renderActiveWavePills();
         loadSelectedWaveStations();
+      } else if (tabId === 'podcasts' && state.podcastEpisodes.length === 0) {
+        renderFeaturedPodcastShows();
+        loadPodcastShow(state.activePodcastShow || FEATURED_PODCAST_SHOWS[0]);
       } else if (tabId === 'vault' && state.vaultResults.length === 0) {
         showVaultRecent();
+      } else if (tabId === 'settings') {
+        updateStorageStatusUI();
       }
     }
 
@@ -2499,6 +3625,7 @@
        ========================================================================== */
     window.onload = function () {
       loadSavedState();
+      initPersistentStorage();
       state.wavesGroupingMode = state.settings.defaultGrouping || 'genre';
       applySettingsToDOM();
       updateVolumeUI();
@@ -2506,6 +3633,8 @@
       renderSpeedDial();
       renderLanguageQuickBar();
       renderWavesCategories();
+      renderActiveWavePills();
+      renderFeaturedPodcastShows();
       startVisualizerLoop();
       enrichPermanentStationsFromApi();
     };
