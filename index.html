@@ -1,0 +1,2514 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d16" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Vela FM — Personal Broadcast & Global Tuner</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Inter & JetBrains Mono for broadcast frequency readouts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ==========================================================================
+       DESIGN TOKENS & ADAPTIVE THEME VARIABLES
+       Supports Midnight Studio (default), True OLED Black, Daylight Paper, & Amber Night
+       ========================================================================== */
+    :root,
+    [data-theme="midnight"] {
+      --bg-primary: #090d16;
+      --bg-secondary: #111827;
+      --bg-card: rgba(23, 32, 51, 0.82);
+      --bg-card-hover: rgba(32, 44, 68, 0.95);
+      --bg-glass: rgba(15, 23, 42, 0.88);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-primary: #38bdf8;
+      --accent-secondary: #818cf8;
+      --accent-glow: rgba(56, 189, 248, 0.28);
+      --border-subtle: rgba(148, 163, 184, 0.14);
+      --hero-grad-start: #0f172a;
+      --hero-grad-end: #1e1b4b;
+    }
+
+    [data-theme="oled"] {
+      --bg-primary: #000000;
+      --bg-secondary: #08080a;
+      --bg-card: rgba(16, 16, 20, 0.92);
+      --bg-card-hover: rgba(28, 28, 34, 0.98);
+      --bg-glass: rgba(8, 8, 10, 0.92);
+      --text-primary: #ffffff;
+      --text-secondary: #a1a1aa;
+      --text-muted: #52525b;
+      --accent-primary: #22d3ee;
+      --accent-secondary: #a855f7;
+      --accent-glow: rgba(34, 211, 238, 0.25);
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --hero-grad-start: #050507;
+      --hero-grad-end: #130d26;
+    }
+
+    [data-theme="daylight"] {
+      --bg-primary: #f1f5f9;
+      --bg-secondary: #e2e8f0;
+      --bg-card: rgba(255, 255, 255, 0.92);
+      --bg-card-hover: rgba(255, 255, 255, 1);
+      --bg-glass: rgba(248, 250, 252, 0.92);
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --accent-primary: #0284c7;
+      --accent-secondary: #4f46e5;
+      --accent-glow: rgba(2, 132, 199, 0.18);
+      --border-subtle: rgba(15, 23, 42, 0.1);
+      --hero-grad-start: #0f172a;
+      --hero-grad-end: #1e293b;
+    }
+
+    [data-theme="amber"] {
+      --bg-primary: #120c07;
+      --bg-secondary: #1c130b;
+      --bg-card: rgba(36, 24, 14, 0.85);
+      --bg-card-hover: rgba(50, 33, 19, 0.95);
+      --bg-glass: rgba(24, 16, 9, 0.92);
+      --text-primary: #fef3c7;
+      --text-secondary: #d97706;
+      --text-muted: #92400e;
+      --accent-primary: #f59e0b;
+      --accent-secondary: #ea580c;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      --border-subtle: rgba(245, 158, 11, 0.16);
+      --hero-grad-start: #1f1209;
+      --hero-grad-end: #2e1505;
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      overscroll-behavior-y: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Custom Scrollbar Removal for Clean Mobile Look */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Focal Point Hero Card ("Now On Air") with Ambient Aura */
+    .now-on-air-deck {
+      background: linear-gradient(135deg, var(--hero-grad-start) 0%, var(--hero-grad-end) 100%);
+      box-shadow: 0 14px 36px -8px var(--accent-glow), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .now-on-air-deck::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -30%;
+      width: 240px;
+      height: 240px;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Glass Cards & Speed Dial Buttons */
+    .surface-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .surface-card:active {
+      transform: scale(0.97);
+    }
+
+    .speed-dial-active {
+      border-color: var(--accent-primary) !important;
+      box-shadow: 0 0 0 1px var(--accent-primary), 0 8px 20px -4px var(--accent-glow);
+    }
+
+    /* Animated Equalizer Bars */
+    @keyframes eqPulse {
+      0%, 100% { transform: scaleY(0.25); }
+      50% { transform: scaleY(1); }
+    }
+    .eq-bar {
+      transform-origin: bottom;
+      animation: eqPulse 0.85s ease-in-out infinite;
+    }
+    .eq-bar:nth-child(2) { animation-delay: 0.18s; animation-duration: 0.65s; }
+    .eq-bar:nth-child(3) { animation-delay: 0.32s; animation-duration: 0.95s; }
+    .eq-bar:nth-child(4) { animation-delay: 0.12s; animation-duration: 0.75s; }
+
+    /* Play Button Pulse Ring when active */
+    @keyframes ringPulse {
+      0% { transform: scale(1); opacity: 0.65; }
+      100% { transform: scale(1.45); opacity: 0; }
+    }
+    .play-ring-active::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 9999px;
+      border: 2px solid var(--accent-primary);
+      animation: ringPulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      pointer-events: none;
+    }
+
+    /* Bottom Navigation Glass Bar */
+    .bottom-nav-glass {
+      background: var(--bg-glass);
+      border-top: 1px solid var(--border-subtle);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    /* Range Slider Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.25);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      margin-top: -6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden selection:bg-sky-500 selection:text-white">
+
+  <!-- ==========================================================================
+       TOP STUDIO HEADER BAR
+       Displays Brand Identity, Live Signal Status, Sleep Timer Pill, & Studio Prefs Button
+       ========================================================================== -->
+  <header class="sticky top-0 z-30 px-4 pt-3 pb-2.5 flex items-center justify-between bottom-nav-glass">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+        <i class="fa-solid fa-tower-broadcast text-white text-sm"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-extrabold text-base tracking-tight leading-none">VELA <span class="text-sky-400 font-mono text-xs font-semibold">FM</span></h1>
+          <span id="apiStatusDot" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>ONLINE
+          </span>
+        </div>
+        <p class="text-[11px] leading-tight mt-0.5" style="color: var(--text-secondary);">Spartanburg &amp; Global Broadcast</p>
+      </div>
+    </div>
+
+    <!-- Right Header Controls: Sleep Timer Indicator + Edit Mode + Studio Prefs -->
+    <div class="flex items-center gap-2">
+      <!-- Active Sleep Timer Pill (Hidden when Off) -->
+      <button id="headerSleepBadge" onclick="openSleepModal()" class="hidden items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-mono font-medium bg-amber-500/15 text-amber-400 border border-amber-500/30">
+        <i class="fa-solid fa-moon text-[11px]"></i>
+        <span id="headerSleepCountdown">30:00</span>
+      </button>
+
+      <!-- Sleep Timer Quick Button -->
+      <button onclick="openSleepModal()" aria-label="Sleep Timer" class="w-9 h-9 rounded-xl surface-card flex items-center justify-center text-sm" style="color: var(--text-secondary);">
+        <i class="fa-regular fa-clock"></i>
+      </button>
+
+      <!-- Studio Prefs (Settings) Trigger -->
+      <button onclick="switchTab('settings')" aria-label="Studio Preferences" id="headerSettingsBtn" class="w-9 h-9 rounded-xl surface-card flex items-center justify-center text-sm" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-sliders"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN CONTENT VIEWPORT
+       Houses the 4 Screens:
+       1. Tuner Deck (Home: Now On Air Focal Point + Speed Dial + Quick Nav Cards)
+       2. Curated Waves (Genre, Language ES/PT Priority, Region, Quality Discovery)
+       3. Station Vault (Type-to-Search Library & Metadata Filter)
+       4. Studio Prefs (Settings & Customization)
+       ========================================================================== -->
+  <main class="flex-1 w-full max-w-md mx-auto px-3.5 pt-2.5 pb-24 flex flex-col gap-3.5">
+
+    <!-- ========================================================================
+         HERO FOCAL CONSOLE: "NOW ON AIR"
+         Graphic Design Focal Point: High-contrast dark indigo/slate card, ambient
+         frequency canvas, big tactile transport button, and clear typographic hierarchy.
+         Remains visible at the top of Tuner Deck (and compacts on other views if desired).
+         ======================================================================== -->
+    <section id="nowOnAirSection" aria-label="Now On Air Station Console" class="now-on-air-deck rounded-3xl p-4 text-white transition-all duration-300">
+      <div class="relative z-10 flex flex-col gap-3">
+        
+        <!-- Top Row: Signal Status Badge, Frequency Callout, & Pin to Speed Dial -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-sky-500/20 text-sky-300 border border-sky-400/30">
+              <span id="liveIndicatorDot" class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+              <span id="liveStatusText">READY TO TUNE</span>
+            </span>
+            <span id="nowCodecBadge" class="text-[11px] font-mono text-slate-300/80 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
+              94.5 MHz • AAC
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <!-- Re-resolve / Switch Stream Mirror if a station has multiple streams -->
+            <button id="cycleStreamBtn" onclick="tryAlternateStream()" title="Switch backup stream signal" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/15 text-[11px] font-mono text-slate-200 flex items-center gap-1 transition">
+              <i class="fa-solid fa-satellite-dish text-[10px] text-sky-300"></i>
+              <span>Signal</span>
+            </button>
+            <!-- Pin Current Station to Speed Dial Button -->
+            <button onclick="openAssignModalForCurrent()" title="Save to Speed Dial" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/15 flex items-center justify-center text-xs text-sky-300 transition">
+              <i class="fa-solid fa-thumbtack"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Center Focal Row: Station Artwork / Emblem + Primary Title + Tactile Play/Pause -->
+        <div class="flex items-center justify-between gap-3.5 my-0.5">
+          <!-- Station Emblem / Artwork -->
+          <div class="relative w-16 h-16 rounded-2xl bg-slate-800/90 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+            <img id="nowStationLogo" src="" alt="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('nowStationFallbackIcon').classList.remove('hidden');" />
+            <div id="nowStationFallbackIcon" class="flex flex-col items-center justify-center text-center">
+              <span id="nowFreqShort" class="font-mono font-extrabold text-base text-sky-300 leading-none">94.5</span>
+              <span class="text-[9px] font-mono uppercase tracking-wider text-slate-400 mt-0.5">FM</span>
+            </div>
+          </div>
+
+          <!-- Station Name & Metadata Hierarchy -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] font-mono uppercase tracking-widest text-sky-400 font-semibold">NOW ON AIR</span>
+            </div>
+            <h2 id="nowStationName" class="text-xl font-extrabold tracking-tight text-white truncate leading-tight">
+              K-LOVE 94.5
+            </h2>
+            <p id="nowStationSubtitle" class="text-xs text-slate-300 truncate mt-0.5">
+              Spartanburg, SC • Positive &amp; Encouraging
+            </p>
+            <div class="flex items-center gap-2 mt-1.5">
+              <span id="nowStationLocation" class="inline-flex items-center gap-1 text-[11px] text-slate-400 truncate">
+                <i class="fa-solid fa-location-dot text-[10px] text-sky-400"></i>
+                <span>Spartanburg, SC</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Primary Tactile Play / Pause Transport Button -->
+          <button id="mainPlayBtn" onclick="togglePlayPause()" aria-label="Play or Pause Current Station" class="relative w-14 h-14 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 text-white flex items-center justify-center shadow-lg shadow-sky-500/30 active:scale-95 transition shrink-0">
+            <i id="mainPlayIcon" class="fa-solid fa-play text-xl ml-0.5"></i>
+          </button>
+        </div>
+
+        <!-- Live Audio Spectrum Visualizer Canvas & Volume / Quick Step Bar -->
+        <div class="pt-2 border-t border-white/10 flex items-center justify-between gap-3">
+          <!-- Prev / Next Speed Dial Stepper -->
+          <div class="flex items-center gap-1">
+            <button onclick="stepSpeedDial(-1)" aria-label="Previous Speed Dial Station" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+              <i class="fa-solid fa-backward-step"></i>
+            </button>
+            <button onclick="stepSpeedDial(1)" aria-label="Next Speed Dial Station" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+              <i class="fa-solid fa-forward-step"></i>
+            </button>
+          </div>
+
+          <!-- Real-Time Spectrum Canvas -->
+          <div class="flex-1 h-7 bg-black/25 rounded-lg px-2 py-1 flex items-center justify-center overflow-hidden border border-white/5">
+            <canvas id="visualizerCanvas" class="w-full h-full"></canvas>
+          </div>
+
+          <!-- Mute & Volume Popover Trigger -->
+          <div class="flex items-center gap-1.5">
+            <button onclick="toggleMute()" id="muteBtn" aria-label="Mute or Unmute" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+              <i id="volumeIcon" class="fa-solid fa-volume-high"></i>
+            </button>
+            <input id="volumeSlider" type="range" min="0" max="100" value="85" oninput="handleVolumeChange(this.value)" aria-label="Volume" class="w-16 accent-sky-400" />
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         VIEW 1: TUNER DECK (HOME SCREEN)
+         Contains:
+         - Quick Navigation Launchers (Curated Waves, Station Vault, Studio Prefs)
+         - Permanent Core Stations (K-LOVE 94.5, HIS Radio 89.3, HIS Radio Z, K-LOVE en Español)
+         - Assignable Speed Dial Grid (Auto-sized to fit phone viewport comfortably)
+         ======================================================================== -->
+    <div id="view-home" class="flex flex-col gap-3.5">
+
+      <!-- Quick Mode Launchers (Graphic Design Hierarchy: Clear Secondary Entry Points) -->
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="switchTab('waves')" class="surface-card rounded-2xl p-2.5 flex items-center gap-2.5 text-left">
+          <div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-compass text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold truncate">Curated Waves</div>
+            <div class="text-[10px] truncate" style="color: var(--text-secondary);">Genre • ES / PT</div>
+          </div>
+        </button>
+
+        <button onclick="switchTab('vault')" class="surface-card rounded-2xl p-2.5 flex items-center gap-2.5 text-left">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold truncate">Station Vault</div>
+            <div class="text-[10px] truncate" style="color: var(--text-secondary);">Type to Search</div>
+          </div>
+        </button>
+
+        <button onclick="switchTab('settings')" class="surface-card rounded-2xl p-2.5 flex items-center gap-2.5 text-left">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-sliders text-sm"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-xs font-bold truncate">Studio Prefs</div>
+            <div class="text-[10px] truncate" style="color: var(--text-secondary);">Customize UI</div>
+          </div>
+        </button>
+      </div>
+
+      <!-- PERMANENT CORE STATIONS: Upstate SC & Español Quartet -->
+      <section aria-label="Pinned Signature Stations">
+        <div class="flex items-center justify-between mb-2 px-0.5">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-lock text-[10px] text-sky-400"></i>
+            <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
+              Signature Broadcasts • Upstate SC
+            </h3>
+          </div>
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400">4 Permanent</span>
+        </div>
+
+        <div id="permanentGrid" class="grid grid-cols-2 gap-2.5">
+          <!-- Populated dynamically by renderSpeedDial() -->
+        </div>
+      </section>
+
+      <!-- ASSIGNABLE SPEED DIAL GRID -->
+      <section aria-label="Assignable Speed Dial Presets">
+        <div class="flex items-center justify-between mb-2 px-0.5">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-[11px] text-amber-400"></i>
+            <h3 class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
+              Speed Dial Presets
+            </h3>
+            <span id="speedDialCountBadge" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5" style="color: var(--text-secondary);">8 Slots</span>
+          </div>
+
+          <!-- Toggle Edit / Reassign Mode for Speed Dial -->
+          <div class="flex items-center gap-1.5">
+            <button id="editDialBtn" onclick="toggleSpeedDialEditMode()" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold surface-card flex items-center gap-1.5">
+              <i class="fa-solid fa-pen-to-square text-[10px] text-sky-400"></i>
+              <span id="editDialBtnText">Customize Slots</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="assignableGrid" class="grid grid-cols-2 gap-2.5">
+          <!-- Populated dynamically by renderSpeedDial() based on screen height / density setting -->
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ========================================================================
+         VIEW 2: CURATED WAVES (GENRE, LANGUAGE ES/PT PRIORITY, & GROUPING DISCOVERY)
+         ======================================================================== -->
+    <div id="view-waves" class="hidden flex-col gap-3.5">
+
+      <!-- Header & Grouping Mode Switcher -->
+      <div class="surface-card rounded-2xl p-3.5 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold tracking-tight">Curated Waves</h2>
+            <p class="text-xs" style="color: var(--text-secondary);">Explore stations by language, mood, or region</p>
+          </div>
+          <!-- Grouping Style Dropdown (Synced with Studio Prefs) -->
+          <div class="flex items-center gap-1.5">
+            <label for="wavesGroupingSelect" class="sr-only">Grouping Mode</label>
+            <select id="wavesGroupingSelect" onchange="changeWavesGrouping(this.value)" class="surface-card text-xs font-semibold rounded-xl px-2.5 py-1.5 outline-none border border-sky-500/30">
+              <option value="genre">Group: Genre &amp; Vibe</option>
+              <option value="language">Group: Language Spotlight</option>
+              <option value="region">Group: Local &amp; Global</option>
+              <option value="bitrate">Group: Audio Quality</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Prominent Language Quick-Access Bar (Spanish & Portuguese Priority) -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10px] font-mono uppercase tracking-wider font-semibold" style="color: var(--text-secondary);">
+              Instant Language Filter
+            </span>
+            <span id="activeLangFilterLabel" class="text-[11px] font-semibold text-sky-400">All Languages</span>
+          </div>
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="languageQuickBar">
+            <!-- Rendered by JS with Español & Português highlighted first -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Matrix (Changes dynamically based on Grouping Mode: Genre, Language, Region, Bitrate) -->
+      <div>
+        <div class="flex items-center justify-between mb-2 px-1">
+          <span id="wavesCategoryHeading" class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
+            Select a Wave Category
+          </span>
+          <span class="text-[11px]" style="color: var(--text-secondary);">Tap to load live stations</span>
+        </div>
+        <div id="wavesCategoryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- Populated by renderWavesCategories() -->
+        </div>
+      </div>
+
+      <!-- Live Results List for Selected Wave -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between px-1">
+          <div class="flex items-center gap-2">
+            <h3 id="wavesResultsTitle" class="text-sm font-bold">Featured Stations</h3>
+            <span id="wavesResultCount" class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400">0</span>
+          </div>
+          <button onclick="refreshCurrentWave()" class="text-xs text-sky-400 hover:underline flex items-center gap-1">
+            <i class="fa-solid fa-rotate text-[10px]"></i> Refresh
+          </button>
+        </div>
+
+        <div id="wavesStationList" class="flex flex-col gap-2">
+          <!-- Station rows rendered here -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================
+         VIEW 3: STATION VAULT (TYPE-TO-SEARCH & METADATA LIBRARY)
+         ======================================================================== -->
+    <div id="view-vault" class="hidden flex-col gap-3.5">
+
+      <!-- Search Console Card -->
+      <div class="surface-card rounded-2xl p-3.5 flex flex-col gap-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base font-extrabold tracking-tight">Station Vault</h2>
+            <p class="text-xs" style="color: var(--text-secondary);">Search 30,000+ live stations by name, genre, or metadata</p>
+          </div>
+          <button onclick="showVaultRecent()" id="vaultHistoryBtn" class="px-2.5 py-1 rounded-xl text-xs font-semibold bg-sky-500/15 text-sky-400 border border-sky-500/25 flex items-center gap-1.5">
+            <i class="fa-solid fa-clock-rotate-left text-[11px]"></i>
+            <span>History</span>
+          </button>
+        </div>
+
+        <!-- Search Input with Instant Clear & Submit -->
+        <div class="relative flex items-center">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-sm" style="color: var(--text-secondary);"></i>
+          <input
+            id="vaultSearchInput"
+            type="search"
+            placeholder="Type station, genre, city, or callsign (e.g., Worship, Bossa, WLFJ)..."
+            oninput="handleVaultSearchInput(this.value)"
+            onkeydown="if(event.key === 'Enter') executeVaultSearch()"
+            class="w-full pl-10 pr-20 py-2.5 rounded-xl text-sm bg-black/25 border border-white/10 focus:border-sky-400 outline-none transition"
+            style="color: var(--text-primary);"
+          />
+          <button onclick="clearVaultSearch()" id="clearSearchBtn" class="hidden absolute right-14 text-xs px-1.5 py-1 rounded text-slate-400 hover:text-white">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <button onclick="executeVaultSearch()" class="absolute right-1.5 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-400 text-white text-xs font-bold transition">
+            Go
+          </button>
+        </div>
+
+        <!-- Metadata Search Field Selector (Name, Tag/Genre, Language, Country/State) -->
+        <div class="grid grid-cols-4 gap-1.5">
+          <button onclick="setVaultSearchField('name')" data-field="name" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-sky-500 text-white transition">
+            <i class="fa-solid fa-radio mr-1"></i>Name
+          </button>
+          <button onclick="setVaultSearchField('tag')" data-field="tag" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-guitar mr-1"></i>Genre
+          </button>
+          <button onclick="setVaultSearchField('language')" data-field="language" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-language mr-1"></i>Language
+          </button>
+          <button onclick="setVaultSearchField('country')" data-field="country" class="vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-earth-americas mr-1"></i>Country
+          </button>
+        </div>
+
+        <!-- Secondary Metadata Refiners (Language Lock + Sort Order) -->
+        <div class="grid grid-cols-2 gap-2 pt-1 border-t border-white/10">
+          <div>
+            <label for="vaultLangSelect" class="block text-[10px] font-mono uppercase mb-1" style="color: var(--text-secondary);">Filter Language</label>
+            <select id="vaultLangSelect" onchange="executeVaultSearch()" class="w-full surface-card rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <option value="">Any Language</option>
+              <option value="spanish">Español (Spanish)</option>
+              <option value="portuguese">Português (Portuguese)</option>
+              <option value="english">English</option>
+              <option value="french">Français (French)</option>
+              <option value="german">Deutsch (German)</option>
+              <option value="italian">Italiano (Italian)</option>
+            </select>
+          </div>
+          <div>
+            <label for="vaultOrderSelect" class="block text-[10px] font-mono uppercase mb-1" style="color: var(--text-secondary);">Sort Results By</label>
+            <select id="vaultOrderSelect" onchange="executeVaultSearch()" class="w-full surface-card rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <option value="clickcount">Popularity (Most Tuned)</option>
+              <option value="votes">Listener Rating (Top Votes)</option>
+              <option value="bitrate">Audio Quality (Bitrate)</option>
+              <option value="name">Alphabetical (A–Z)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Quick Search Suggestion Chips -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-0.5">
+          <span class="text-[10px] font-mono shrink-0" style="color: var(--text-secondary);">Try:</span>
+          <button onclick="quickVaultChip('Christian', 'tag', '')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Christian</button>
+          <button onclick="quickVaultChip('Cristiana', 'tag', 'spanish')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Cristiana ES</button>
+          <button onclick="quickVaultChip('Gospel', 'tag', 'portuguese')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Gospel PT</button>
+          <button onclick="quickVaultChip('Bossa Nova', 'tag', 'portuguese')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Bossa Nova</button>
+          <button onclick="quickVaultChip('Spartanburg', 'name', '')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">Spartanburg</button>
+          <button onclick="quickVaultChip('South Carolina', 'name', '')" class="px-2 py-0.5 rounded-md text-[11px] bg-white/5 hover:bg-white/10 shrink-0">South Carolina</button>
+        </div>
+      </div>
+
+      <!-- Vault Search Results Container -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between px-1">
+          <span id="vaultResultsLabel" class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-secondary);">
+            Search Results
+          </span>
+          <span id="vaultResultsCount" class="text-[11px] font-mono text-sky-400"></span>
+        </div>
+
+        <div id="vaultResultsList" class="flex flex-col gap-2">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================
+         VIEW 4: STUDIO PREFS (SETTINGS MENU)
+         Thoughtful mobile radio UX settings:
+         1. Display Theme (Midnight, True OLED Black, Daylight Paper, Warm Amber)
+         2. Speed Dial Layout & Button Capacity (Auto-Fit Phone Screen, 6, 8, 12 Slots)
+         3. Default Curated Waves Grouping Style
+         4. Audio & Mobile Stream Guards (Min Bitrate, HTTPS-Only for GitHub Pages, Auto-Reconnect, Visualizer)
+         5. API Server Mirror Selection & Preset Backup/Restore
+         ======================================================================== -->
+    <div id="view-settings" class="hidden flex-col gap-3.5">
+
+      <div class="surface-card rounded-2xl p-4 flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+          <div>
+            <h2 class="text-base font-extrabold tracking-tight">Studio Preferences</h2>
+            <p class="text-xs" style="color: var(--text-secondary);">Tailor ergonomics, audio resilience, and layout</p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-[10px] font-mono bg-sky-500/15 text-sky-400 border border-sky-500/30">
+            v2.4 • GitHub Ready
+          </span>
+        </div>
+
+        <!-- 1. VISUAL THEME & DISPLAY ERGONOMICS -->
+        <div class="flex flex-col gap-2">
+          <label class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-palette text-sky-400"></i>
+            <span>1. Visual Theme &amp; Lighting</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="updateSetting('theme', 'midnight')" data-theme-btn="midnight" class="theme-choice-btn surface-card p-2.5 rounded-xl flex items-center gap-2.5 text-left">
+              <span class="w-5 h-5 rounded-full bg-slate-900 border-2 border-sky-400 shrink-0"></span>
+              <div>
+                <div class="text-xs font-bold">Midnight Studio</div>
+                <div class="text-[10px]" style="color: var(--text-secondary);">High-contrast slate</div>
+              </div>
+            </button>
+
+            <button onclick="updateSetting('theme', 'oled')" data-theme-btn="oled" class="theme-choice-btn surface-card p-2.5 rounded-xl flex items-center gap-2.5 text-left">
+              <span class="w-5 h-5 rounded-full bg-black border-2 border-cyan-400 shrink-0"></span>
+              <div>
+                <div class="text-xs font-bold">True OLED Black</div>
+                <div class="text-[10px]" style="color: var(--text-secondary);">Saves phone battery</div>
+              </div>
+            </button>
+
+            <button onclick="updateSetting('theme', 'daylight')" data-theme-btn="daylight" class="theme-choice-btn surface-card p-2.5 rounded-xl flex items-center gap-2.5 text-left">
+              <span class="w-5 h-5 rounded-full bg-slate-100 border-2 border-sky-600 shrink-0"></span>
+              <div>
+                <div class="text-xs font-bold">Daylight Paper</div>
+                <div class="text-[10px]" style="color: var(--text-secondary);">Outdoor driving glare</div>
+              </div>
+            </button>
+
+            <button onclick="updateSetting('theme', 'amber')" data-theme-btn="amber" class="theme-choice-btn surface-card p-2.5 rounded-xl flex items-center gap-2.5 text-left">
+              <span class="w-5 h-5 rounded-full bg-amber-950 border-2 border-amber-500 shrink-0"></span>
+              <div>
+                <div class="text-xs font-bold">Warm Amber</div>
+                <div class="text-[10px]" style="color: var(--text-secondary);">Bedside low blue-light</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. SPEED DIAL CAPACITY & SCREEN FIT -->
+        <div class="flex flex-col gap-2 pt-2 border-t border-white/10">
+          <div class="flex items-center justify-between">
+            <label for="settingDialCapacity" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
+              <i class="fa-solid fa-table-cells-large text-amber-400"></i>
+              <span>2. Assignable Speed Dial Capacity</span>
+            </label>
+          </div>
+          <p class="text-[11px]" style="color: var(--text-secondary);">
+            Controls how many custom buttons appear below your 4 permanent Spartanburg &amp; Español stations.
+          </p>
+          <select id="settingDialCapacity" onchange="updateSetting('dialCapacity', this.value)" class="surface-card rounded-xl px-3 py-2 text-xs font-semibold outline-none">
+            <option value="auto">Auto-Fit Phone Screen (Recommended)</option>
+            <option value="6">6 Assignable Buttons (2×3 Spacious)</option>
+            <option value="8">8 Assignable Buttons (2×4 Balanced)</option>
+            <option value="12">12 Assignable Buttons (3×4 Compact Grid)</option>
+          </select>
+        </div>
+
+        <!-- 3. DEFAULT CURATED WAVES GROUPING -->
+        <div class="flex flex-col gap-2 pt-2 border-t border-white/10">
+          <label for="settingDefaultGrouping" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-layer-group text-indigo-400"></i>
+            <span>3. Default Discovery Grouping</span>
+          </label>
+          <p class="text-[11px]" style="color: var(--text-secondary);">
+            Choose how the Curated Waves screen organizes stations when you open it.
+          </p>
+          <select id="settingDefaultGrouping" onchange="updateSetting('defaultGrouping', this.value)" class="surface-card rounded-xl px-3 py-2 text-xs font-semibold outline-none">
+            <option value="genre">By Genre &amp; Musical Vibe</option>
+            <option value="language">By Language Spotlight (Español &amp; Português First)</option>
+            <option value="region">By Region (South Carolina, US, LatAm, Iberia)</option>
+            <option value="bitrate">By Audio Fidelity (High Bitrate First)</option>
+          </select>
+        </div>
+
+        <!-- 4. STREAM QUALITY & MOBILE CELLULAR RESILIENCE -->
+        <div class="flex flex-col gap-3 pt-2 border-t border-white/10">
+          <label class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-signal text-emerald-400"></i>
+            <span>4. Mobile Audio &amp; Stream Resilience</span>
+          </label>
+
+          <!-- Minimum Bitrate Filter -->
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold">Minimum Audio Bitrate</div>
+              <div class="text-[11px]" style="color: var(--text-secondary);">Filter out low-quality streams in searches</div>
+            </div>
+            <select id="settingMinBitrate" onchange="updateSetting('minBitrate', parseInt(this.value, 10))" class="surface-card rounded-xl px-2.5 py-1.5 text-xs font-semibold outline-none">
+              <option value="0">Any Quality (Data Saver)</option>
+              <option value="64">64+ kbps (Standard)</option>
+              <option value="128">128+ kbps (HD Audio)</option>
+            </select>
+          </div>
+
+          <!-- HTTPS Stream Guard (Crucial for GitHub Pages) -->
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold">Enforce HTTPS Streams Only</div>
+              <div class="text-[11px]" style="color: var(--text-secondary);">Prevents browser mixed-content blocks on GitHub Pages</div>
+            </div>
+            <input id="settingHttpsOnly" type="checkbox" onchange="updateSetting('httpsOnly', this.checked)" class="w-5 h-5 accent-sky-400 rounded cursor-pointer" />
+          </div>
+
+          <!-- Auto-Reconnect on Cell Drop -->
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold">Auto-Heal Dropped Streams</div>
+              <div class="text-[11px]" style="color: var(--text-secondary);">Automatically switches to backup mirror if signal drops</div>
+            </div>
+            <input id="settingAutoReconnect" type="checkbox" onchange="updateSetting('autoReconnect', this.checked)" class="w-5 h-5 accent-sky-400 rounded cursor-pointer" />
+          </div>
+
+          <!-- Spectrum Visualizer Toggle -->
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-xs font-semibold">Now On Air Spectrum Visualizer</div>
+              <div class="text-[11px]" style="color: var(--text-secondary);">Disable to conserve battery on older phones</div>
+            </div>
+            <select id="settingVisualizer" onchange="updateSetting('visualizerMode', this.value)" class="surface-card rounded-xl px-2.5 py-1.5 text-xs font-semibold outline-none">
+              <option value="bars">Studio Frequency Bars</option>
+              <option value="wave">Smooth Oscilloscope Wave</option>
+              <option value="off">Off (Battery Saver)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 5. RADIO-BROWSER API ENDPOINT & BACKUP -->
+        <div class="flex flex-col gap-2.5 pt-2 border-t border-white/10">
+          <label for="settingApiMirror" class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
+            <i class="fa-solid fa-server text-purple-400"></i>
+            <span>5. Radio-Browser API Endpoint</span>
+          </label>
+          <p class="text-[11px]" style="color: var(--text-secondary);">
+            Uses <code class="font-mono text-sky-400">all.api.radio-browser.info/json/stations/search</code> with automatic HTTPS mirror failover so GitHub Pages never blocks requests.
+          </p>
+          <select id="settingApiMirror" onchange="updateSetting('apiMirror', this.value)" class="surface-card rounded-xl px-3 py-2 text-xs font-mono outline-none">
+            <option value="auto">Auto-Failover (all.api + HTTPS Mirrors)</option>
+            <option value="https://de1.api.radio-browser.info/json/stations/search">https://de1.api.radio-browser.info</option>
+            <option value="https://fi1.api.radio-browser.info/json/stations/search">https://fi1.api.radio-browser.info</option>
+            <option value="https://at1.api.radio-browser.info/json/stations/search">https://at1.api.radio-browser.info</option>
+            <option value="https://all.api.radio-browser.info/json/stations/search">https://all.api.radio-browser.info</option>
+          </select>
+
+          <!-- Preset Export / Reset Actions -->
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button onclick="exportPresetsJSON()" class="surface-card py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-sky-400">
+              <i class="fa-solid fa-copy"></i> Copy Backup JSON
+            </button>
+            <button onclick="resetFactoryDefaults()" class="surface-card py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 text-rose-400">
+              <i class="fa-solid fa-rotate-left"></i> Reset Speed Dial
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==========================================================================
+       BOTTOM MOBILE THUMB NAVIGATION BAR
+       Ergonomic reachability for one-handed smartphone operation
+       ========================================================================== -->
+  <nav aria-label="Primary Bottom Navigation" class="fixed bottom-0 inset-x-0 z-30 bottom-nav-glass px-4 py-2">
+    <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-sky-400 transition">
+        <i class="fa-solid fa-sliders text-base mb-0.5 hidden"></i>
+        <i class="fa-solid fa-Broadcast-tower fa-tower-cell text-base mb-0.5"></i>
+        <span class="text-[11px] font-bold">Tuner Deck</span>
+      </button>
+
+      <button onclick="switchTab('waves')" id="nav-waves" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-compass text-base mb-0.5"></i>
+        <span class="text-[11px] font-medium">Curated Waves</span>
+      </button>
+
+      <button onclick="switchTab('vault')" id="nav-vault" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-magnifying-glass text-base mb-0.5"></i>
+        <span class="text-[11px] font-medium">Station Vault</span>
+      </button>
+
+      <button onclick="switchTab('settings')" id="nav-settings" class="nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition" style="color: var(--text-secondary);">
+        <i class="fa-solid fa-gear text-base mb-0.5"></i>
+        <span class="text-[11px] font-medium">Studio Prefs</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       MODAL 1: ASSIGN TO SPEED DIAL SLOT (BOTTOM SHEET)
+       Allows pinning any station from Search or Curated Waves to an assignable button,
+       or picking a station when tapping an empty Speed Dial button.
+       ========================================================================== -->
+  <div id="assignModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
+    <div class="surface-card w-full max-w-md rounded-3xl p-4 flex flex-col gap-3 border border-white/15 shadow-2xl max-h-[82vh]">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+        <div>
+          <h3 id="assignModalTitle" class="text-sm font-extrabold">Assign to Speed Dial</h3>
+          <p id="assignModalSubtitle" class="text-xs truncate" style="color: var(--text-secondary);">Choose a preset slot to overwrite</p>
+        </div>
+        <button onclick="closeAssignModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="assignModalSlotList" class="grid grid-cols-2 gap-2 overflow-y-auto pr-1">
+        <!-- Populated dynamically with assignable slots -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: SLEEP TIMER & BEDTIME FADE MODAL
+       ========================================================================== -->
+  <div id="sleepModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
+    <div class="surface-card w-full max-w-md rounded-3xl p-4 flex flex-col gap-3 border border-white/15 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-moon text-amber-400"></i>
+          <div>
+            <h3 class="text-sm font-extrabold">Sleep Timer</h3>
+            <p class="text-xs" style="color: var(--text-secondary);">Gently fades audio out when timer completes</p>
+          </div>
+        </div>
+        <button onclick="closeSleepModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button onclick="setSleepTimer(15)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">15 Min</button>
+        <button onclick="setSleepTimer(30)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">30 Min</button>
+        <button onclick="setSleepTimer(45)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">45 Min</button>
+        <button onclick="setSleepTimer(60)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">60 Min</button>
+        <button onclick="setSleepTimer(90)" class="surface-card py-2.5 rounded-xl text-xs font-bold hover:border-amber-400">90 Min</button>
+        <button onclick="setSleepTimer(0)" class="surface-card py-2.5 rounded-xl text-xs font-bold text-rose-400">Turn Off</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       NON-INTRUSIVE TOAST NOTIFICATION BANNER (No alert() or confirm() used)
+       ========================================================================== -->
+  <div id="toastBanner" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-2xl bg-slate-900/95 text-white text-xs font-semibold border border-sky-400/40 shadow-xl flex items-center gap-2 pointer-events-none opacity-0 transition-opacity duration-300">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-sky-400"></i>
+    <span id="toastText">Station tuned</span>
+  </div>
+
+  <!-- Hidden HTML5 Audio Engine -->
+  <audio id="radioAudio" preload="none" crossorigin="anonymous"></audio>
+
+  <script>
+    /* ==========================================================================
+       1. PERMANENT SIGNATURE STATIONS & DEFAULT SPEED DIAL CONFIGURATION
+       Includes verified multi-CDN fallback streams AND live Radio-Browser API
+       lookup queries for K-LOVE (94.5 Spartanburg), HIS Radio (89.3), HIS Radio Z,
+       and K-LOVE en Español so they play reliably on any mobile browser.
+       ========================================================================== */
+    const PERMANENT_STATIONS = [
+      {
+        id: 'perm-klove-945',
+        name: 'K-LOVE 94.5',
+        freq: '94.5 FM',
+        subtitle: 'Spartanburg, SC • WKVG',
+        location: 'Spartanburg, SC',
+        language: 'English',
+        codec: 'AAC+',
+        bitrate: 128,
+        accent: 'from-sky-500/25 to-blue-600/15 border-sky-400/35',
+        badgeColor: 'text-sky-400',
+        searchQuery: 'K-LOVE',
+        url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac',
+        fallbackUrls: [
+          'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac',
+          'https://maestro.emfcdn.com/stream_for/k-love/iheart/aac',
+          'https://maestro.emfcdn.com/stream_for/k-love/airable/aac',
+          'https://emf.streamguys1.com/sk001_mp3_high_web'
+        ]
+      },
+      {
+        id: 'perm-his-radio-893',
+        name: 'HIS Radio 89.3',
+        freq: '89.3 FM',
+        subtitle: 'Upstate SC • WLFJ Encouraging',
+        location: 'Greenville / Spartanburg, SC',
+        language: 'English',
+        codec: 'AAC',
+        bitrate: 96,
+        accent: 'from-indigo-500/25 to-purple-600/15 border-indigo-400/35',
+        badgeColor: 'text-indigo-400',
+        searchQuery: 'WLFJ',
+        url_resolved: 'https://rtn.cdnstream1.com/2566_96.aac',
+        fallbackUrls: [
+          'https://rtn.cdnstream1.com/2566_96.aac',
+          'https://www.rtndev.com/streams/hisradio.aac',
+          'https://rtn.cdnstream1.com/2568_96.aac'
+        ]
+      },
+      {
+        id: 'perm-his-radio-z',
+        name: 'HIS Radio Z',
+        freq: '104.1 / HD2',
+        subtitle: 'Spartanburg WHRZ • Positive Hits',
+        location: 'Spartanburg, SC',
+        language: 'English',
+        codec: 'AAC',
+        bitrate: 96,
+        accent: 'from-emerald-500/25 to-teal-600/15 border-emerald-400/35',
+        badgeColor: 'text-emerald-400',
+        searchQuery: 'HIS Radio',
+        url_resolved: 'https://rtn.cdnstream1.com/2567_96.aac',
+        fallbackUrls: [
+          'https://rtn.cdnstream1.com/2567_96.aac',
+          'https://rtn.cdnstream1.com/2568_96.aac',
+          'https://rtn.cdnstream1.com/2566_96.aac',
+          'https://maestro.emfcdn.com/stream_for/air1/radiodns/playlist.m3u8'
+        ]
+      },
+      {
+        id: 'perm-klove-espanol',
+        name: 'K-LOVE en Español',
+        freq: 'ESPAÑOL',
+        subtitle: 'Música Cristiana y Alabanza',
+        location: 'Red Hispana • EE. UU.',
+        language: 'Spanish',
+        codec: 'AAC+',
+        bitrate: 128,
+        accent: 'from-amber-500/25 to-orange-600/15 border-amber-400/35',
+        badgeColor: 'text-amber-400',
+        searchQuery: 'Radio Nueva Vida',
+        url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love-espanol/tunein/aac',
+        fallbackUrls: [
+          'https://maestro.emfcdn.com/stream_for/k-love-espanol/tunein/aac',
+          'https://maestro.emfcdn.com/stream_for/k-love-espanol/airable/aac',
+          'https://ice41.securenetsystems.net/KLNV',
+          'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac'
+        ]
+      }
+    ];
+
+    /* Default Assignable Speed Dial Slots (Pre-populated with Spanish, Portuguese, Christian & SC presets, all 100% replaceable) */
+    const DEFAULT_ASSIGNABLE_SLOTS = [
+      {
+        id: 'slot-1',
+        name: 'Air1 Worship Now',
+        freq: 'WORSHIP',
+        subtitle: '24/7 Contemporary Worship',
+        location: 'United States',
+        language: 'English',
+        codec: 'AAC',
+        bitrate: 128,
+        url_resolved: 'https://maestro.emfcdn.com/stream_for/air1/tunein/aac',
+        fallbackUrls: ['https://maestro.emfcdn.com/stream_for/air1/tunein/aac']
+      },
+      {
+        id: 'slot-2',
+        name: 'HIS Radio Praise',
+        freq: '89.3 HD3',
+        subtitle: 'Upstate SC Praise & Worship',
+        location: 'Greenville / Spartanburg, SC',
+        language: 'English',
+        codec: 'AAC',
+        bitrate: 96,
+        url_resolved: 'https://rtn.cdnstream1.com/2568_96.aac',
+        fallbackUrls: ['https://rtn.cdnstream1.com/2568_96.aac']
+      },
+      {
+        id: 'slot-3',
+        name: 'The Light FM',
+        freq: '106.9 FM',
+        subtitle: 'Billy Graham Evangelistic Assoc.',
+        location: 'Asheville / Upstate SC',
+        language: 'English',
+        codec: 'AAC',
+        bitrate: 96,
+        url_resolved: 'https://ais-sa8.cdnstream1.com/2815_96.aac',
+        fallbackUrls: ['https://ais-sa8.cdnstream1.com/2815_96.aac']
+      },
+      {
+        id: 'slot-4',
+        name: 'The Life FM',
+        freq: '103.1 FM',
+        subtitle: 'South Carolina Southern Gospel',
+        location: 'Greenville / Belton, SC',
+        language: 'English',
+        codec: 'AAC',
+        bitrate: 64,
+        url_resolved: 'https://ice41.securenetsystems.net/WHQA',
+        fallbackUrls: ['https://ice41.securenetsystems.net/WHQA']
+      },
+      {
+        id: 'slot-5',
+        name: 'CVC La Voz',
+        freq: 'ESPAÑOL',
+        subtitle: 'Música Cristiana Latina',
+        location: 'Miami / América Latina',
+        language: 'Spanish',
+        codec: 'MP3',
+        bitrate: 128,
+        searchQuery: 'CVC La Voz',
+        url_resolved: 'https://ic.streann.com/cvclavoz',
+        fallbackUrls: ['https://ic.streann.com/cvclavoz']
+      },
+      {
+        id: 'slot-6',
+        name: 'Bossa Jazz Brasil',
+        freq: 'PORTUGUÊS',
+        subtitle: 'MPB, Bossa Nova & Brazilian Jazz',
+        location: 'Santos, Brasil',
+        language: 'Portuguese',
+        codec: 'MP3',
+        bitrate: 128,
+        searchQuery: 'Bossa Jazz Brasil',
+        url_resolved: 'https://centova.svdns.com.br:20019/stream',
+        fallbackUrls: ['https://centova.svdns.com.br:20019/stream']
+      },
+      {
+        id: 'slot-7',
+        name: 'SomaFM Groove Salad',
+        freq: 'CHILL HD',
+        subtitle: 'Ambient Beats & Downtempo',
+        location: 'San Francisco, CA',
+        language: 'English',
+        codec: 'MP3',
+        bitrate: 128,
+        url_resolved: 'https://ice2.somafm.com/groovesalad-128-mp3',
+        fallbackUrls: ['https://ice2.somafm.com/groovesalad-128-mp3']
+      },
+      {
+        id: 'slot-8',
+        name: 'Classical WCRB',
+        freq: '99.5 FM',
+        subtitle: '24/7 Symphony & Chamber Music',
+        location: 'Boston, MA',
+        language: 'English',
+        codec: 'MP3',
+        bitrate: 128,
+        url_resolved: 'https://wgbh-live.streamguys1.com/wcrb-96k.mp3',
+        fallbackUrls: ['https://wgbh-live.streamguys1.com/wcrb-96k.mp3']
+      },
+      null,
+      null,
+      null,
+      null
+    ];
+
+    /* ==========================================================================
+       2. APPLICATION STATE & STORAGE MANAGEMENT
+       ========================================================================== */
+    const STORAGE_KEY = 'vela_fm_state_v2';
+
+    const state = {
+      activeTab: 'home',
+      currentStation: PERMANENT_STATIONS[0],
+      currentStreamAttemptIndex: 0,
+      isPlaying: false,
+      isLoading: false,
+      isMuted: false,
+      volume: 85,
+      editSpeedDialMode: false,
+      stationPendingAssignment: null,
+      targetSlotForEmptyTap: null,
+
+      // Curated Waves Discovery State
+      wavesLanguageFilter: 'all', // 'all', 'spanish', 'portuguese', 'english', 'french', 'italian'
+      wavesGroupingMode: 'genre', // 'genre', 'language', 'region', 'bitrate'
+      activeWaveCategoryId: 'christian',
+      wavesStations: [],
+
+      // Station Vault Search State
+      vaultSearchField: 'name', // 'name', 'tag', 'language', 'country'
+      vaultResults: [],
+      recentStations: [],
+
+      // Sleep Timer State
+      sleepSecondsRemaining: 0,
+      sleepIntervalId: null,
+
+      // User Settings (Studio Prefs)
+      settings: {
+        theme: 'midnight',
+        dialCapacity: 'auto', // 'auto', '6', '8', '12'
+        defaultGrouping: 'genre',
+        minBitrate: 0,
+        httpsOnly: true,
+        autoReconnect: true,
+        visualizerMode: 'bars',
+        apiMirror: 'auto'
+      },
+
+      // Assignable Speed Dial Array (Up to 12 slots)
+      assignableSlots: [...DEFAULT_ASSIGNABLE_SLOTS]
+    };
+
+    /* Radio Browser API Endpoints (Includes user's requested endpoint + HTTPS mirrors for GitHub Pages) */
+    const RADIO_BROWSER_MIRRORS = [
+      'https://de1.api.radio-browser.info/json/stations/search',
+      'https://fi1.api.radio-browser.info/json/stations/search',
+      'https://at1.api.radio-browser.info/json/stations/search',
+      'https://all.api.radio-browser.info/json/stations/search',
+      'http://all.api.radio-browser.info/json/stations/search'
+    ];
+
+    /* ==========================================================================
+       3. CURATED WAVES TAXONOMY (GENRE, LANGUAGE, REGION, BITRATE)
+       ========================================================================== */
+    const LANGUAGE_PILLS = [
+      { id: 'all', label: 'All Languages', flag: '🌐' },
+      { id: 'spanish', label: 'Español', flag: '🇪🇸', highlight: true },
+      { id: 'portuguese', label: 'Português', flag: '🇧🇷', highlight: true },
+      { id: 'english', label: 'English', flag: '🇺🇸' },
+      { id: 'french', label: 'Français', flag: '🇫🇷' },
+      { id: 'italian', label: 'Italiano', flag: '🇮🇹' }
+    ];
+
+    const WAVES_GROUPINGS = {
+      genre: [
+        { id: 'christian', name: 'Christian & Worship', icon: 'fa-hands-praying', color: 'text-sky-400', params: { tag: 'christian' } },
+        { id: 'gospel', name: 'Gospel & Praise', icon: 'fa-music', color: 'text-indigo-400', params: { tag: 'gospel' } },
+        { id: 'latin', name: 'Pop Latino & Baladas', icon: 'fa-fire', color: 'text-amber-400', params: { tag: 'latin' } },
+        { id: 'bossanova', name: 'Bossa Nova & MPB', icon: 'fa-umbrella-beach', color: 'text-emerald-400', params: { tag: 'bossa nova' } },
+        { id: 'chill', name: 'Lo-Fi & Study Chill', icon: 'fa-mug-hot', color: 'text-purple-400', params: { tag: 'chillout' } },
+        { id: 'classical', name: 'Classical & Symphony', icon: 'fa-violin', color: 'text-rose-400', params: { tag: 'classical' } },
+        { id: 'jazz', name: 'Smooth Jazz & Lounge', icon: 'fa-compact-disc', color: 'text-cyan-400', params: { tag: 'jazz' } },
+        { id: 'news', name: 'News & Talk Radio', icon: 'fa-microphone-lines', color: 'text-orange-400', params: { tag: 'news' } }
+      ],
+      language: [
+        { id: 'es-cristiana', name: 'Español • Cristiana', icon: 'fa-cross', color: 'text-amber-400', params: { language: 'spanish', tag: 'christian' } },
+        { id: 'es-top', name: 'Español • Éxitos & Pop', icon: 'fa-star', color: 'text-sky-400', params: { language: 'spanish', tag: 'pop' } },
+        { id: 'es-noticias', name: 'Español • Noticias & Hablada', icon: 'fa-newspaper', color: 'text-indigo-400', params: { language: 'spanish', tag: 'news' } },
+        { id: 'pt-louvor', name: 'Português • Gospel & Louvor', icon: 'fa-hands-praying', color: 'text-emerald-400', params: { language: 'portuguese', tag: 'gospel' } },
+        { id: 'pt-mpb', name: 'Português • MPB & Bossa', icon: 'fa-guitar', color: 'text-teal-400', params: { language: 'portuguese', tag: 'mpb' } },
+        { id: 'pt-portugal', name: 'Português • Rádios de Portugal', icon: 'fa-tower-broadcast', color: 'text-rose-400', params: { countrycode: 'PT' } },
+        { id: 'en-ccm', name: 'English • Contemporary Christian', icon: 'fa-heart', color: 'text-cyan-400', params: { language: 'english', tag: 'contemporary christian' } },
+        { id: 'fr-chanson', name: 'Français • Chanson & Pop', icon: 'fa-record-vinyl', color: 'text-purple-400', params: { language: 'french' } }
+      ],
+      region: [
+        { id: 'reg-sc', name: 'South Carolina Local', icon: 'fa-location-dot', color: 'text-sky-400', params: { state: 'South Carolina' } },
+        { id: 'reg-us', name: 'United States Top 40', icon: 'fa-flag-usa', color: 'text-indigo-400', params: { countrycode: 'US' } },
+        { id: 'reg-mx', name: 'México & Centroamérica', icon: 'fa-earth-americas', color: 'text-amber-400', params: { countrycode: 'MX' } },
+        { id: 'reg-es', name: 'España (Madrid & Barcelona)', icon: 'fa-sun', color: 'text-orange-400', params: { countrycode: 'ES' } },
+        { id: 'reg-br', name: 'Brasil (São Paulo & Rio)', icon: 'fa-leaf', color: 'text-emerald-400', params: { countrycode: 'BR' } },
+        { id: 'reg-pt', name: 'Portugal (Lisboa & Porto)', icon: 'fa-anchor', color: 'text-rose-400', params: { countrycode: 'PT' } },
+        { id: 'reg-co', name: 'Colombia & Caribe', icon: 'fa-water', color: 'text-cyan-400', params: { countrycode: 'CO' } },
+        { id: 'reg-ar', name: 'Argentina & Cono Sur', icon: 'fa-mountain-sun', color: 'text-purple-400', params: { countrycode: 'AR' } }
+      ],
+      bitrate: [
+        { id: 'bit-320', name: 'Audiophile 320 kbps', icon: 'fa-headphones', color: 'text-emerald-400', params: { bitrateMin: 256, order: 'bitrate' } },
+        { id: 'bit-192', name: 'High Definition 192+ kbps', icon: 'fa-wave-square', color: 'text-sky-400', params: { bitrateMin: 192, order: 'votes' } },
+        { id: 'bit-128', name: 'Studio Standard 128 kbps', icon: 'fa-Sliders', color: 'text-indigo-400', params: { bitrateMin: 128, order: 'clickcount' } },
+        { id: 'bit-aac', name: 'Mobile Data Saver (AAC+)', icon: 'fa-mobile-screen', color: 'text-amber-400', params: { codec: 'AAC', order: 'clickcount' } }
+      ]
+    };
+
+    /* ==========================================================================
+       4. PERSISTENCE & INITIALIZATION
+       ========================================================================== */
+    function loadSavedState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed.settings) {
+          state.settings = { ...state.settings, ...parsed.settings };
+        }
+        if (Array.isArray(parsed.assignableSlots) && parsed.assignableSlots.length === 12) {
+          state.assignableSlots = parsed.assignableSlots;
+        }
+        if (Array.isArray(parsed.recentStations)) {
+          state.recentStations = parsed.recentStations.slice(0, 20);
+        }
+        if (typeof parsed.volume === 'number') {
+          state.volume = parsed.volume;
+        }
+        if (parsed.lastStation && parsed.lastStation.url_resolved) {
+          state.currentStation = parsed.lastStation;
+        }
+      } catch (err) {
+        console.warn('Could not parse saved radio state:', err);
+      }
+    }
+
+    function saveState() {
+      try {
+        const payload = {
+          settings: state.settings,
+          assignableSlots: state.assignableSlots,
+          recentStations: state.recentStations.slice(0, 20),
+          volume: state.volume,
+          lastStation: state.currentStation
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      } catch (err) {
+        console.warn('Could not save radio state:', err);
+      }
+    }
+
+    /* ==========================================================================
+       5. RADIO-BROWSER API ENGINE WITH MULTI-MIRROR FAILOVER
+       Queries the user's requested endpoint / HTTPS mirrors cleanly.
+       ========================================================================== */
+    async function queryRadioBrowser(params = {}) {
+      const searchParams = new URLSearchParams({
+        limit: params.limit || '28',
+        hidebroken: 'true',
+        order: params.order || 'clickcount',
+        reverse: 'true'
+      });
+
+      if (params.name) searchParams.set('name', params.name);
+      if (params.tag) searchParams.set('tag', params.tag);
+      if (params.language) searchParams.set('language', params.language);
+      if (params.country) searchParams.set('country', params.country);
+      if (params.countrycode) searchParams.set('countrycode', params.countrycode);
+      if (params.state) searchParams.set('state', params.state);
+      if (params.codec) searchParams.set('codec', params.codec);
+
+      const minBit = params.bitrateMin !== undefined ? params.bitrateMin : state.settings.minBitrate;
+      if (minBit > 0) {
+        searchParams.set('bitrateMin', String(minBit));
+      }
+      if (state.settings.httpsOnly) {
+        searchParams.set('is_https', 'true');
+      }
+
+      // Build ordered mirror list based on user setting
+      let mirrors = [...RADIO_BROWSER_MIRRORS];
+      if (state.settings.apiMirror && state.settings.apiMirror !== 'auto') {
+        mirrors = [state.settings.apiMirror, ...RADIO_BROWSER_MIRRORS.filter(m => m !== state.settings.apiMirror)];
+      }
+
+      for (const baseUrl of mirrors) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5500);
+
+          const response = await fetch(`${baseUrl}?${searchParams.toString()}`, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (!response.ok) continue;
+          const data = await response.json();
+          if (Array.isArray(data)) {
+            updateApiStatusBadge(true);
+            return data.map(normalizeApiStation);
+          }
+        } catch (err) {
+          // Try next mirror silently
+        }
+      }
+
+      updateApiStatusBadge(false);
+      return [];
+    }
+
+    function normalizeApiStation(raw) {
+      const streamUrl = raw.url_resolved || raw.url || '';
+      return {
+        id: raw.stationuuid || ('st-' + Math.random().toString(36).slice(2, 9)),
+        name: (raw.name || 'Live Broadcast').trim(),
+        freq: raw.codec ? `${raw.codec.toUpperCase()} ${raw.bitrate || ''}`.trim() : 'LIVE',
+        subtitle: [raw.tags ? raw.tags.split(',').slice(0, 2).join(' • ') : '', raw.state || raw.country || ''].filter(Boolean).join(' • ') || 'Global Radio Stream',
+        location: [raw.state, raw.country].filter(Boolean).join(', ') || 'International',
+        language: raw.language || '',
+        codec: (raw.codec || 'MP3').toUpperCase(),
+        bitrate: raw.bitrate || 128,
+        favicon: raw.favicon || '',
+        votes: raw.votes || 0,
+        url_resolved: streamUrl,
+        fallbackUrls: [streamUrl, raw.url].filter(Boolean)
+      };
+    }
+
+    function updateApiStatusBadge(isOnline) {
+      const badge = document.getElementById('apiStatusDot');
+      if (!badge) return;
+      if (isOnline) {
+        badge.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/25';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>ONLINE';
+      } else {
+        badge.className = 'inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/25';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>LOCAL CACHE';
+      }
+    }
+
+    /* Enrich permanent stations with live Radio-Browser fallback streams in the background */
+    async function enrichPermanentStationsFromApi() {
+      for (const perm of PERMANENT_STATIONS) {
+        if (!perm.searchQuery) continue;
+        try {
+          const matches = await queryRadioBrowser({ name: perm.searchQuery, limit: 4 });
+          for (const m of matches) {
+            if (m.url_resolved && !perm.fallbackUrls.includes(m.url_resolved)) {
+              perm.fallbackUrls.push(m.url_resolved);
+            }
+          }
+        } catch (_) {}
+      }
+    }
+
+    /* ==========================================================================
+       6. AUDIO PLAYER ENGINE & STREAM FAILOVER
+       Handles mobile HTML5 Audio playback, automatic backup URL cycling,
+       and lock-screen MediaSession integration.
+       ========================================================================== */
+    const audioEl = document.getElementById('radioAudio');
+
+    function playStation(station, attemptIndex = 0) {
+      if (!station) return;
+
+      // If user clicked the station that's already loaded and playing, toggle pause
+      if (attemptIndex === 0 && state.currentStation && state.currentStation.id === station.id && state.isPlaying) {
+        renderNowOnAir();
+        renderSpeedDial();
+        return;
+      }
+
+      state.currentStation = station;
+      state.currentStreamAttemptIndex = attemptIndex;
+      state.isLoading = true;
+      state.isPlaying = false;
+
+      // Record in Recent History
+      addToRecentStations(station);
+      saveState();
+
+      // Determine candidate stream URL
+      const candidates = (station.fallbackUrls && station.fallbackUrls.length > 0)
+        ? station.fallbackUrls
+        : [station.url_resolved];
+      const streamUrl = candidates[attemptIndex % candidates.length] || station.url_resolved;
+
+      renderNowOnAir();
+      renderSpeedDial();
+
+      try {
+        audioEl.pause();
+        // Remove crossorigin attribute during stream load as many Icecast/Shoutcast servers lack CORS headers for raw audio tags
+        audioEl.removeAttribute('crossorigin');
+        audioEl.src = streamUrl;
+        audioEl.volume = state.isMuted ? 0 : (state.volume / 100);
+        const playPromise = audioEl.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              state.isLoading = false;
+              state.isPlaying = true;
+              renderNowOnAir();
+              renderSpeedDial();
+              updateMediaSessionMetadata();
+              showToast(`Now On Air: ${station.name}`, 'fa-tower-broadcast');
+            })
+            .catch((err) => {
+              handleStreamError(err);
+            });
+        }
+      } catch (err) {
+        handleStreamError(err);
+      }
+    }
+
+    async function handleStreamError(err) {
+      const station = state.currentStation;
+      if (!station) return;
+
+      const candidates = station.fallbackUrls || [station.url_resolved];
+      const nextIndex = state.currentStreamAttemptIndex + 1;
+
+      if (state.settings.autoReconnect && nextIndex < candidates.length) {
+        showToast(`Switching to backup transmitter (${nextIndex + 1}/${candidates.length})...`, 'fa-satellite-dish');
+        playStation(station, nextIndex);
+        return;
+      }
+
+      // If station has a searchQuery or name, try live lookup from Radio Browser API once
+      if (!station._apiResolvedOnce) {
+        station._apiResolvedOnce = true;
+        showToast(`Resolving live stream for ${station.name}...`, 'fa-rotate');
+        const liveMatches = await queryRadioBrowser({ name: station.searchQuery || station.name, limit: 3 });
+        if (liveMatches.length > 0 && liveMatches[0].url_resolved) {
+          station.fallbackUrls = [...new Set([...(station.fallbackUrls || []), ...liveMatches.map(m => m.url_resolved)])];
+          playStation(station, nextIndex);
+          return;
+        }
+      }
+
+      state.isLoading = false;
+      state.isPlaying = false;
+      renderNowOnAir();
+      renderSpeedDial();
+      showToast('Stream temporarily busy — tap Signal or Play to retry', 'fa-triangle-exclamation');
+    }
+
+    function tryAlternateStream() {
+      const station = state.currentStation;
+      if (!station) return;
+      const candidates = station.fallbackUrls || [station.url_resolved];
+      const nextIndex = (state.currentStreamAttemptIndex + 1) % Math.max(1, candidates.length);
+      showToast(`Tuning alternate signal #${nextIndex + 1}...`, 'fa-satellite-dish');
+      playStation(station, nextIndex);
+    }
+
+    function togglePlayPause() {
+      if (!state.currentStation) {
+        playStation(PERMANENT_STATIONS[0], 0);
+        return;
+      }
+      if (state.isPlaying || state.isLoading) {
+        audioEl.pause();
+        audioEl.src = '';
+        state.isPlaying = false;
+        state.isLoading = false;
+        renderNowOnAir();
+        renderSpeedDial();
+        showToast('Broadcast paused', 'fa-pause');
+      } else {
+        playStation(state.currentStation, state.currentStreamAttemptIndex);
+      }
+    }
+
+    function handleVolumeChange(val) {
+      state.volume = Number(val);
+      state.isMuted = state.volume === 0;
+      audioEl.volume = state.volume / 100;
+      updateVolumeUI();
+      saveState();
+    }
+
+    function toggleMute() {
+      state.isMuted = !state.isMuted;
+      audioEl.volume = state.isMuted ? 0 : (state.volume / 100);
+      updateVolumeUI();
+    }
+
+    function updateVolumeUI() {
+      const icon = document.getElementById('volumeIcon');
+      const slider = document.getElementById('volumeSlider');
+      if (slider) slider.value = state.isMuted ? 0 : state.volume;
+      if (!icon) return;
+      if (state.isMuted || state.volume === 0) {
+        icon.className = 'fa-solid fa-volume-xmark text-rose-400';
+      } else if (state.volume < 45) {
+        icon.className = 'fa-solid fa-volume-low';
+      } else {
+        icon.className = 'fa-solid fa-volume-high';
+      }
+    }
+
+    /* Step forward/backward through all active Speed Dial stations */
+    function stepSpeedDial(direction) {
+      const allActive = [
+        ...PERMANENT_STATIONS,
+        ...getVisibleAssignableSlots().filter(Boolean)
+      ];
+      if (allActive.length === 0) return;
+      const currentIdx = allActive.findIndex(s => s.id === state.currentStation?.id);
+      const nextIdx = (currentIdx + direction + allActive.length) % allActive.length;
+      playStation(allActive[nextIdx], 0);
+    }
+
+    /* Smartphone Lock-Screen Controls via MediaSession API */
+    function updateMediaSessionMetadata() {
+      if (!('mediaSession' in navigator) || !state.currentStation) return;
+      const st = state.currentStation;
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: st.name,
+          artist: st.subtitle || 'Live Broadcast',
+          album: `Vela FM • ${st.freq || 'LIVE'}`
+        });
+        navigator.mediaSession.setActionHandler('play', () => togglePlayPause());
+        navigator.mediaSession.setActionHandler('pause', () => togglePlayPause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => stepSpeedDial(-1));
+        navigator.mediaSession.setActionHandler('nexttrack', () => stepSpeedDial(1));
+      } catch (_) {}
+    }
+
+    audioEl.addEventListener('playing', () => {
+      state.isLoading = false;
+      state.isPlaying = true;
+      renderNowOnAir();
+      renderSpeedDial();
+    });
+
+    audioEl.addEventListener('waiting', () => {
+      state.isLoading = true;
+      renderNowOnAir();
+    });
+
+    audioEl.addEventListener('error', (e) => {
+      if (state.isPlaying || state.isLoading) {
+        handleStreamError(e);
+      }
+    });
+
+    /* ==========================================================================
+       7. HERO FOCAL POINT ("NOW ON AIR") & SPECTRUM VISUALIZER RENDERING
+       ========================================================================== */
+    function renderNowOnAir() {
+      const st = state.currentStation || PERMANENT_STATIONS[0];
+      const nameEl = document.getElementById('nowStationName');
+      const subEl = document.getElementById('nowStationSubtitle');
+      const locEl = document.getElementById('nowStationLocation');
+      const codecEl = document.getElementById('nowCodecBadge');
+      const freqShortEl = document.getElementById('nowFreqShort');
+      const logoImg = document.getElementById('nowStationLogo');
+      const fallbackIcon = document.getElementById('nowStationFallbackIcon');
+      const playBtn = document.getElementById('mainPlayBtn');
+      const playIcon = document.getElementById('mainPlayIcon');
+      const liveStatusText = document.getElementById('liveStatusText');
+      const liveDot = document.getElementById('liveIndicatorDot');
+
+      if (nameEl) nameEl.textContent = st.name;
+      if (subEl) subEl.textContent = st.subtitle || 'Live Radio Stream';
+      if (locEl) locEl.innerHTML = `<i class="fa-solid fa-location-dot text-[10px] text-sky-400"></i><span>${escapeHtml(st.location || 'Global')}</span>`;
+      if (codecEl) codecEl.textContent = `${st.freq || 'FM'} • ${st.codec || 'AAC'} ${st.bitrate ? st.bitrate + 'k' : ''}`.trim();
+
+      // Short frequency badge inside emblem
+      const shortText = (st.freq || 'LIVE').replace('FM', '').trim().slice(0, 6);
+      if (freqShortEl) freqShortEl.textContent = shortText || 'LIVE';
+
+      if (st.favicon && st.favicon.startsWith('https://')) {
+        logoImg.src = st.favicon;
+        logoImg.classList.remove('hidden');
+        fallbackIcon.classList.add('hidden');
+      } else {
+        logoImg.classList.add('hidden');
+        fallbackIcon.classList.remove('hidden');
+      }
+
+      // Play/Pause/Loading button state
+      if (state.isLoading) {
+        playIcon.className = 'fa-solid fa-circle-notch fa-spin text-xl';
+        playBtn.classList.remove('play-ring-active');
+        liveStatusText.textContent = 'TUNING SIGNAL...';
+        liveDot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping';
+      } else if (state.isPlaying) {
+        playIcon.className = 'fa-solid fa-pause text-xl';
+        playBtn.classList.add('play-ring-active');
+        liveStatusText.textContent = 'LIVE ON AIR';
+        liveDot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse';
+      } else {
+        playIcon.className = 'fa-solid fa-play text-xl ml-0.5';
+        playBtn.classList.remove('play-ring-active');
+        liveStatusText.textContent = 'STANDBY';
+        liveDot.className = 'w-1.5 h-1.5 rounded-full bg-sky-400';
+      }
+    }
+
+    /* Smooth Canvas Frequency Visualizer for the Hero Now On Air Console */
+    function startVisualizerLoop() {
+      const canvas = document.getElementById('visualizerCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let phase = 0;
+
+      function draw() {
+        const rect = canvas.getBoundingClientRect();
+        if (canvas.width !== rect.width || canvas.height !== rect.height) {
+          canvas.width = rect.width || 180;
+          canvas.height = rect.height || 24;
+        }
+
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        const mode = state.settings.visualizerMode;
+        if (mode === 'off') {
+          ctx.fillStyle = 'rgba(148, 163, 184, 0.25)';
+          ctx.fillRect(0, h / 2 - 1, w, 2);
+          requestAnimationFrame(draw);
+          return;
+        }
+
+        phase += state.isPlaying ? 0.14 : 0.03;
+
+        if (mode === 'wave') {
+          ctx.beginPath();
+          ctx.strokeStyle = state.isPlaying ? '#38bdf8' : 'rgba(148, 163, 184, 0.35)';
+          ctx.lineWidth = 2;
+          for (let x = 0; x < w; x += 3) {
+            const amp = state.isPlaying ? (Math.sin(x * 0.06 + phase) * Math.cos(x * 0.03 - phase * 0.7) * (h * 0.38)) : 1.5;
+            const y = h / 2 + amp;
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        } else {
+          // Default Studio Frequency Bars
+          const barCount = 24;
+          const gap = 3;
+          const barWidth = Math.max(2, (w - (barCount - 1) * gap) / barCount);
+
+          for (let i = 0; i < barCount; i++) {
+            let ratio = 0.15;
+            if (state.isPlaying) {
+              const wave1 = Math.abs(Math.sin(i * 0.45 + phase));
+              const wave2 = Math.abs(Math.cos(i * 0.25 - phase * 1.3));
+              ratio = Math.min(0.95, Math.max(0.18, (wave1 * 0.6 + wave2 * 0.4)));
+            }
+            const barHeight = Math.max(3, ratio * h);
+            const x = i * (barWidth + gap);
+            const y = h - barHeight;
+
+            ctx.fillStyle = state.isPlaying
+              ? (i % 3 === 0 ? '#38bdf8' : '#818cf8')
+              : 'rgba(148, 163, 184, 0.28)';
+            ctx.beginPath();
+            ctx.roundRect(x, y, barWidth, barHeight, 2);
+            ctx.fill();
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    /* ==========================================================================
+       8. SPEED DIAL RENDERING (4 PERMANENT + RESPONSIVE ASSIGNABLE SLOTS)
+       Calculates comfortable slot count based on phone screen height or user setting.
+       ========================================================================== */
+    function getTargetAssignableCount() {
+      const cap = state.settings.dialCapacity;
+      if (cap === '6') return 6;
+      if (cap === '8') return 8;
+      if (cap === '12') return 12;
+
+      // 'auto': Calculate how many assignable buttons comfortably fit the phone screen
+      const vh = window.innerHeight || 780;
+      if (vh < 690) return 6;
+      if (vh < 860) return 8;
+      return 10;
+    }
+
+    function getVisibleAssignableSlots() {
+      const count = getTargetAssignableCount();
+      return state.assignableSlots.slice(0, count);
+    }
+
+    function renderSpeedDial() {
+      const permGrid = document.getElementById('permanentGrid');
+      const assignGrid = document.getElementById('assignableGrid');
+      const countBadge = document.getElementById('speedDialCountBadge');
+
+      if (!permGrid || !assignGrid) return;
+
+      // 1. Render 4 Permanent Signature Stations
+      permGrid.innerHTML = PERMANENT_STATIONS.map((st) => {
+        const isCurrent = state.currentStation && state.currentStation.id === st.id;
+        const isActivePlay = isCurrent && state.isPlaying;
+        return `
+          <button
+            onclick="playPermanentStation('${st.id}')"
+            class="surface-card bg-gradient-to-br ${st.accent} ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3 text-left flex flex-col justify-between min-h-[82px] relative overflow-hidden group"
+          >
+            <div class="flex items-center justify-between w-full gap-1">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-black/30 ${st.badgeColor}">
+                ${escapeHtml(st.freq)}
+              </span>
+              ${isActivePlay ? `
+                <div class="flex items-end gap-0.5 h-3">
+                  <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                  <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                  <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                </div>
+              ` : `
+                <i class="fa-solid ${isCurrent ? 'fa-circle-play text-sky-400' : 'fa-lock text-[10px] opacity-40'}"></i>
+              `}
+            </div>
+
+            <div class="mt-2">
+              <div class="font-extrabold text-sm leading-tight truncate">${escapeHtml(st.name)}</div>
+              <div class="text-[11px] truncate mt-0.5 opacity-80" style="color: var(--text-secondary);">
+                ${escapeHtml(st.subtitle)}
+              </div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // 2. Render Assignable Speed Dial Slots
+      const count = getTargetAssignableCount();
+      if (countBadge) countBadge.textContent = `${count} Slots`;
+
+      // Adjust grid columns if user picked 12-slot compact mode
+      assignGrid.className = count === 12 ? 'grid grid-cols-3 gap-2' : 'grid grid-cols-2 gap-2.5';
+
+      const visibleSlots = state.assignableSlots.slice(0, count);
+      assignGrid.innerHTML = visibleSlots.map((slot, idx) => {
+        if (!slot) {
+          // Empty Assignable Slot
+          return `
+            <button
+              onclick="handleEmptySlotTap(${idx})"
+              class="surface-card rounded-2xl p-3 border-dashed border-2 border-slate-500/30 flex flex-col items-center justify-center min-h-[76px] text-center hover:border-sky-400/60 transition"
+            >
+              <div class="w-7 h-7 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center mb-1">
+                <i class="fa-solid fa-plus text-xs"></i>
+              </div>
+              <span class="text-xs font-semibold">Slot #${idx + 1} Empty</span>
+              <span class="text-[10px]" style="color: var(--text-secondary);">Tap to assign station</span>
+            </button>
+          `;
+        }
+
+        const isCurrent = state.currentStation && state.currentStation.id === slot.id;
+        const isActivePlay = isCurrent && state.isPlaying;
+
+        return `
+          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-2.5 flex flex-col justify-between min-h-[76px] relative">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-white/5 text-sky-400 truncate max-w-[90px]">
+                #${idx + 1} • ${escapeHtml(slot.freq || 'LIVE')}
+              </span>
+
+              <div class="flex items-center gap-1">
+                ${state.editSpeedDialMode ? `
+                  <button onclick="clearSpeedDialSlot(${idx})" title="Clear Slot" class="w-6 h-6 rounded-md bg-rose-500/20 text-rose-400 flex items-center justify-center text-[10px]">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                  <button onclick="handleEmptySlotTap(${idx})" title="Replace Station" class="w-6 h-6 rounded-md bg-sky-500/20 text-sky-400 flex items-center justify-center text-[10px]">
+                    <i class="fa-solid fa-rotate"></i>
+                  </button>
+                ` : `
+                  ${isActivePlay ? `
+                    <div class="flex items-end gap-0.5 h-3 mr-1">
+                      <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                      <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                      <span class="w-0.5 h-3 bg-sky-400 eq-bar"></span>
+                    </div>
+                  ` : ''}
+                  <button onclick="openSlotOptions(${idx})" title="Reassign Slot #${idx + 1}" class="w-6 h-6 rounded-md hover:bg-white/10 flex items-center justify-center text-[10px]" style="color: var(--text-secondary);">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                  </button>
+                `}
+              </div>
+            </div>
+
+            <button onclick="playAssignableSlot(${idx})" class="text-left mt-1.5 w-full">
+              <div class="font-bold text-xs sm:text-sm leading-tight truncate">${escapeHtml(slot.name)}</div>
+              <div class="text-[10px] truncate mt-0.5" style="color: var(--text-secondary);">
+                ${escapeHtml(slot.subtitle || slot.location || 'Custom Preset')}
+              </div>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function playPermanentStation(permId) {
+      const found = PERMANENT_STATIONS.find(s => s.id === permId);
+      if (found) playStation(found, 0);
+    }
+
+    function playAssignableSlot(slotIdx) {
+      if (state.editSpeedDialMode) {
+        handleEmptySlotTap(slotIdx);
+        return;
+      }
+      const station = state.assignableSlots[slotIdx];
+      if (station) playStation(station, 0);
+    }
+
+    function toggleSpeedDialEditMode() {
+      state.editSpeedDialMode = !state.editSpeedDialMode;
+      const btnText = document.getElementById('editDialBtnText');
+      const btn = document.getElementById('editDialBtn');
+      if (state.editSpeedDialMode) {
+        btnText.textContent = 'Done Editing';
+        btn.classList.add('border-sky-400', 'text-sky-400');
+        showToast('Edit Mode: Tap any preset slot to replace or clear it', 'fa-pen-to-square');
+      } else {
+        btnText.textContent = 'Customize Slots';
+        btn.classList.remove('border-sky-400', 'text-sky-400');
+      }
+      renderSpeedDial();
+    }
+
+    function clearSpeedDialSlot(slotIdx) {
+      state.assignableSlots[slotIdx] = null;
+      saveState();
+      renderSpeedDial();
+      showToast(`Speed Dial Slot #${slotIdx + 1} cleared`, 'fa-trash-can');
+    }
+
+    function handleEmptySlotTap(slotIdx) {
+      state.targetSlotForEmptyTap = slotIdx;
+      showToast(`Pick any station in Station Vault or Curated Waves for Slot #${slotIdx + 1}`, 'fa-thumbtack');
+      switchTab('vault');
+    }
+
+    function openSlotOptions(slotIdx) {
+      // Allow pinning currently playing station or jumping to Vault to replace this slot
+      state.stationPendingAssignment = state.currentStation;
+      openAssignModal(state.currentStation, slotIdx);
+    }
+
+    /* ==========================================================================
+       9. ASSIGN TO SPEED DIAL MODAL
+       ========================================================================== */
+    function openAssignModalForCurrent() {
+      if (!state.currentStation) return;
+      openAssignModal(state.currentStation);
+    }
+
+    function openAssignModal(station, highlightSlotIdx = null) {
+      if (!station) return;
+      state.stationPendingAssignment = station;
+
+      const modal = document.getElementById('assignModal');
+      const titleEl = document.getElementById('assignModalTitle');
+      const subEl = document.getElementById('assignModalSubtitle');
+      const listEl = document.getElementById('assignModalSlotList');
+
+      titleEl.textContent = `Pin "${station.name}" to Speed Dial`;
+      subEl.textContent = 'Tap any slot below to assign this station';
+
+      const count = getTargetAssignableCount();
+      const slots = state.assignableSlots.slice(0, count);
+
+      listEl.innerHTML = slots.map((existing, idx) => {
+        const isHighlighted = highlightSlotIdx === idx;
+        return `
+          <button
+            onclick="confirmAssignStationToSlot(${idx})"
+            class="surface-card ${isHighlighted ? 'border-sky-400' : ''} p-3 rounded-2xl text-left flex flex-col justify-between hover:border-sky-400 transition"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono font-bold text-sky-400">SLOT #${idx + 1}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-white/5" style="color: var(--text-secondary);">
+                ${existing ? 'Replace' : 'Empty'}
+              </span>
+            </div>
+            <div class="mt-1.5">
+              <div class="text-xs font-bold truncate">${existing ? escapeHtml(existing.name) : 'Available Slot'}</div>
+              <div class="text-[10px] truncate" style="color: var(--text-secondary);">
+                ${existing ? escapeHtml(existing.subtitle || existing.location || '') : 'Tap to save here'}
+              </div>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeAssignModal() {
+      const modal = document.getElementById('assignModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      state.stationPendingAssignment = null;
+    }
+
+    function confirmAssignStationToSlot(slotIdx) {
+      const st = state.stationPendingAssignment;
+      if (!st) return;
+
+      state.assignableSlots[slotIdx] = { ...st };
+      state.targetSlotForEmptyTap = null;
+      saveState();
+      renderSpeedDial();
+      closeAssignModal();
+      showToast(`Pinned "${st.name}" to Speed Dial #${slotIdx + 1}`, 'fa-thumbtack');
+    }
+
+    /* ==========================================================================
+       10. CURATED WAVES SCREEN (GENRE, LANGUAGE ES/PT PRIORITY, & GROUPING)
+       ========================================================================== */
+    function renderLanguageQuickBar() {
+      const bar = document.getElementById('languageQuickBar');
+      const label = document.getElementById('activeLangFilterLabel');
+      if (!bar) return;
+
+      const activeObj = LANGUAGE_PILLS.find(l => l.id === state.wavesLanguageFilter) || LANGUAGE_PILLS[0];
+      if (label) label.textContent = `${activeObj.flag} ${activeObj.label}`;
+
+      bar.innerHTML = LANGUAGE_PILLS.map(lang => {
+        const isActive = state.wavesLanguageFilter === lang.id;
+        const baseClasses = isActive
+          ? 'bg-sky-500 text-white border-sky-400 shadow-md shadow-sky-500/20'
+          : (lang.highlight
+              ? 'surface-card border-amber-400/40 text-amber-300'
+              : 'surface-card');
+
+        return `
+          <button
+            onclick="selectWavesLanguage('${lang.id}')"
+            class="${baseClasses} px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 border transition"
+          >
+            <span>${lang.flag}</span>
+            <span>${escapeHtml(lang.label)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectWavesLanguage(langId) {
+      state.wavesLanguageFilter = langId;
+      renderLanguageQuickBar();
+      loadSelectedWaveStations();
+    }
+
+    function changeWavesGrouping(groupingMode) {
+      state.wavesGroupingMode = groupingMode;
+      const categories = WAVES_GROUPINGS[groupingMode] || WAVES_GROUPINGS.genre;
+      state.activeWaveCategoryId = categories[0].id;
+      renderWavesCategories();
+      loadSelectedWaveStations();
+    }
+
+    function renderWavesCategories() {
+      const grid = document.getElementById('wavesCategoryGrid');
+      const select = document.getElementById('wavesGroupingSelect');
+      if (!grid) return;
+      if (select) select.value = state.wavesGroupingMode;
+
+      const categories = WAVES_GROUPINGS[state.wavesGroupingMode] || WAVES_GROUPINGS.genre;
+
+      grid.innerHTML = categories.map(cat => {
+        const isSelected = state.activeWaveCategoryId === cat.id;
+        return `
+          <button
+            onclick="selectWaveCategory('${cat.id}')"
+            class="surface-card ${isSelected ? 'speed-dial-active' : ''} p-3 rounded-2xl text-left flex items-center gap-2.5"
+          >
+            <div class="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0 ${cat.color}">
+              <i class="fa-solid ${cat.icon} text-sm"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-bold truncate">${escapeHtml(cat.name)}</div>
+              <div class="text-[10px] truncate" style="color: var(--text-secondary);">Tap to tune</div>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectWaveCategory(catId) {
+      state.activeWaveCategoryId = catId;
+      renderWavesCategories();
+      loadSelectedWaveStations();
+    }
+
+    async function loadSelectedWaveStations() {
+      const categories = WAVES_GROUPINGS[state.wavesGroupingMode] || WAVES_GROUPINGS.genre;
+      const activeCat = categories.find(c => c.id === state.activeWaveCategoryId) || categories[0];
+
+      const titleEl = document.getElementById('wavesResultsTitle');
+      const countEl = document.getElementById('wavesResultCount');
+      const listEl = document.getElementById('wavesStationList');
+
+      if (titleEl) {
+        const langSuffix = state.wavesLanguageFilter !== 'all'
+          ? ` (${state.wavesLanguageFilter.toUpperCase()})`
+          : '';
+        titleEl.textContent = `${activeCat.name}${langSuffix}`;
+      }
+
+      if (listEl) {
+        listEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Scanning global broadcast waves...</span>
+          </div>
+        `;
+      }
+
+      // Combine category params with language quick-bar filter
+      const queryParams = { ...activeCat.params, limit: 25 };
+      if (state.wavesLanguageFilter !== 'all' && !queryParams.language) {
+        queryParams.language = state.wavesLanguageFilter;
+      }
+
+      const stations = await queryRadioBrowser(queryParams);
+      state.wavesStations = stations;
+      if (countEl) countEl.textContent = String(stations.length);
+      renderStationCardsList(stations, listEl, 'waves');
+    }
+
+    function refreshCurrentWave() {
+      loadSelectedWaveStations();
+    }
+
+    /* ==========================================================================
+       11. STATION VAULT SCREEN (TYPE-TO-SEARCH & METADATA LIBRARY)
+       ========================================================================== */
+    let vaultDebounceTimer = null;
+
+    function setVaultSearchField(field) {
+      state.vaultSearchField = field;
+      document.querySelectorAll('.vault-field-btn').forEach(btn => {
+        if (btn.getAttribute('data-field') === field) {
+          btn.className = 'vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-sky-500 text-white transition';
+        } else {
+          btn.className = 'vault-field-btn py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white/5 hover:bg-white/10 transition';
+        }
+      });
+      executeVaultSearch();
+    }
+
+    function handleVaultSearchInput(value) {
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', !value || value.length === 0);
+      }
+      clearTimeout(vaultDebounceTimer);
+      vaultDebounceTimer = setTimeout(() => {
+        if (value.trim().length >= 2) {
+          executeVaultSearch();
+        }
+      }, 380);
+    }
+
+    function clearVaultSearch() {
+      const input = document.getElementById('vaultSearchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      if (input) input.value = '';
+      if (clearBtn) clearBtn.classList.add('hidden');
+      showVaultRecent();
+    }
+
+    function quickVaultChip(term, field, lang) {
+      const input = document.getElementById('vaultSearchInput');
+      const langSelect = document.getElementById('vaultLangSelect');
+      if (input) input.value = term;
+      if (langSelect) langSelect.value = lang || '';
+      setVaultSearchField(field);
+    }
+
+    async function executeVaultSearch() {
+      const input = document.getElementById('vaultSearchInput');
+      const langSelect = document.getElementById('vaultLangSelect');
+      const orderSelect = document.getElementById('vaultOrderSelect');
+      const listEl = document.getElementById('vaultResultsList');
+      const labelEl = document.getElementById('vaultResultsLabel');
+      const countEl = document.getElementById('vaultResultsCount');
+
+      const queryText = (input ? input.value : '').trim();
+      const langFilter = langSelect ? langSelect.value : '';
+      const orderFilter = orderSelect ? orderSelect.value : 'clickcount';
+
+      if (!queryText && !langFilter) {
+        showVaultRecent();
+        return;
+      }
+
+      if (labelEl) labelEl.textContent = `Searching by ${state.vaultSearchField.toUpperCase()}...`;
+      if (listEl) {
+        listEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400 text-lg"></i>
+            <span class="text-xs font-medium" style="color: var(--text-secondary);">Querying Radio-Browser directory...</span>
+          </div>
+        `;
+      }
+
+      const params = {
+        limit: 35,
+        order: orderFilter
+      };
+      if (queryText) {
+        params[state.vaultSearchField] = queryText;
+      }
+      if (langFilter) {
+        params.language = langFilter;
+      }
+
+      const results = await queryRadioBrowser(params);
+      state.vaultResults = results;
+
+      if (labelEl) labelEl.textContent = `Found ${results.length} Stations`;
+      if (countEl) countEl.textContent = results.length > 0 ? 'Tap to play or pin' : '';
+
+      renderStationCardsList(results, listEl, 'vault');
+    }
+
+    function showVaultRecent() {
+      const listEl = document.getElementById('vaultResultsList');
+      const labelEl = document.getElementById('vaultResultsLabel');
+      const countEl = document.getElementById('vaultResultsCount');
+
+      const items = state.recentStations.length > 0
+        ? state.recentStations
+        : [...PERMANENT_STATIONS, ...state.assignableSlots.filter(Boolean)];
+
+      state.vaultResults = items;
+      if (labelEl) labelEl.textContent = state.recentStations.length > 0 ? 'Recently Tuned Stations' : 'Recommended Starter Library';
+      if (countEl) countEl.textContent = `${items.length} stations`;
+
+      renderStationCardsList(items, listEl, 'vault');
+    }
+
+    function addToRecentStations(station) {
+      if (!station || !station.id) return;
+      state.recentStations = [
+        station,
+        ...state.recentStations.filter(s => s.id !== station.id)
+      ].slice(0, 20);
+    }
+
+    /* Shared Station List Renderer for Curated Waves & Station Vault */
+    function renderStationCardsList(stations, containerEl, sourceKey) {
+      if (!containerEl) return;
+
+      if (!stations || stations.length === 0) {
+        containerEl.innerHTML = `
+          <div class="surface-card rounded-2xl p-6 text-center flex flex-col items-center gap-2">
+            <i class="fa-solid fa-radio text-slate-500 text-xl"></i>
+            <div class="text-xs font-bold">No matching broadcasts found</div>
+            <p class="text-[11px]" style="color: var(--text-secondary);">Try broadening your search term or switching the metadata tab.</p>
+          </div>
+        `;
+        return;
+      }
+
+      containerEl.innerHTML = stations.map((st, idx) => {
+        const isCurrent = state.currentStation && state.currentStation.id === st.id;
+        const isPlayingThis = isCurrent && state.isPlaying;
+
+        return `
+          <div class="surface-card ${isCurrent ? 'speed-dial-active' : ''} rounded-2xl p-3 flex items-center justify-between gap-3">
+            <button
+              onclick="playStationFromList('${sourceKey}', ${idx})"
+              class="flex-1 min-w-0 flex items-center gap-3 text-left"
+            >
+              <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-400/25 flex items-center justify-center shrink-0 text-sky-400">
+                ${isPlayingThis
+                  ? '<i class="fa-solid fa-volume-high animate-pulse text-sm"></i>'
+                  : '<i class="fa-solid fa-play text-xs ml-0.5"></i>'}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-xs sm:text-sm font-bold truncate">${escapeHtml(st.name)}</div>
+                <div class="text-[11px] truncate mt-0.5" style="color: var(--text-secondary);">
+                  ${escapeHtml(st.subtitle || st.location || 'Live Broadcast')}
+                </div>
+                <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-sky-300">
+                    ${escapeHtml(st.codec || 'MP3')} ${st.bitrate ? st.bitrate + 'k' : ''}
+                  </span>
+                  ${st.language ? `
+                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-white/5" style="color: var(--text-secondary);">
+                      ${escapeHtml(st.language.slice(0, 18))}
+                    </span>
+                  ` : ''}
+                </div>
+              </div>
+            </button>
+
+            <!-- Pin to Speed Dial Action -->
+            <button
+              onclick="pinStationFromList('${sourceKey}', ${idx})"
+              title="Pin to Speed Dial"
+              class="px-2.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-xs font-semibold flex items-center gap-1 shrink-0 transition"
+            >
+              <i class="fa-solid fa-thumbtack text-[11px]"></i>
+              <span class="text-[11px]">Pin</span>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function playStationFromList(sourceKey, idx) {
+      const list = sourceKey === 'waves' ? state.wavesStations : state.vaultResults;
+      const st = list[idx];
+      if (!st) return;
+      playStation(st, 0);
+    }
+
+    function pinStationFromList(sourceKey, idx) {
+      const list = sourceKey === 'waves' ? state.wavesStations : state.vaultResults;
+      const st = list[idx];
+      if (!st) return;
+
+      // If user came here by tapping an empty slot on the home screen, assign directly!
+      if (typeof state.targetSlotForEmptyTap === 'number') {
+        const slotIdx = state.targetSlotForEmptyTap;
+        state.assignableSlots[slotIdx] = { ...st };
+        state.targetSlotForEmptyTap = null;
+        saveState();
+        renderSpeedDial();
+        showToast(`Assigned "${st.name}" to Speed Dial #${slotIdx + 1}`, 'fa-thumbtack');
+        switchTab('home');
+        return;
+      }
+
+      openAssignModal(st);
+    }
+
+    /* ==========================================================================
+       12. STUDIO PREFS (SETTINGS MENU) & SLEEP TIMER LOGIC
+       ========================================================================== */
+    function applySettingsToDOM() {
+      // Apply Theme attribute
+      document.documentElement.setAttribute('data-theme', state.settings.theme || 'midnight');
+
+      // Highlight active theme button
+      document.querySelectorAll('.theme-choice-btn').forEach(btn => {
+        const t = btn.getAttribute('data-theme-btn');
+        if (t === state.settings.theme) {
+          btn.classList.add('speed-dial-active');
+        } else {
+          btn.classList.remove('speed-dial-active');
+        }
+      });
+
+      const capEl = document.getElementById('settingDialCapacity');
+      const grpEl = document.getElementById('settingDefaultGrouping');
+      const bitEl = document.getElementById('settingMinBitrate');
+      const httpsEl = document.getElementById('settingHttpsOnly');
+      const reconEl = document.getElementById('settingAutoReconnect');
+      const visEl = document.getElementById('settingVisualizer');
+      const apiEl = document.getElementById('settingApiMirror');
+
+      if (capEl) capEl.value = state.settings.dialCapacity;
+      if (grpEl) grpEl.value = state.settings.defaultGrouping;
+      if (bitEl) bitEl.value = String(state.settings.minBitrate);
+      if (httpsEl) httpsEl.checked = Boolean(state.settings.httpsOnly);
+      if (reconEl) reconEl.checked = Boolean(state.settings.autoReconnect);
+      if (visEl) visEl.value = state.settings.visualizerMode;
+      if (apiEl) apiEl.value = state.settings.apiMirror;
+    }
+
+    function updateSetting(key, value) {
+      state.settings[key] = value;
+      saveState();
+      applySettingsToDOM();
+
+      if (key === 'dialCapacity') {
+        renderSpeedDial();
+      } else if (key === 'defaultGrouping') {
+        changeWavesGrouping(value);
+      }
+
+      showToast('Studio preference updated', 'fa-sliders');
+    }
+
+    function exportPresetsJSON() {
+      const backup = JSON.stringify({
+        assignableSlots: state.assignableSlots,
+        settings: state.settings
+      }, null, 2);
+
+      // Copy using iframe-safe fallback
+      const tempArea = document.createElement('textarea');
+      tempArea.value = backup;
+      document.body.appendChild(tempArea);
+      tempArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('Speed Dial & Settings JSON copied to clipboard!', 'fa-copy');
+      } catch (_) {
+        showToast('Backup ready in storage', 'fa-check');
+      }
+      document.body.removeChild(tempArea);
+    }
+
+    function resetFactoryDefaults() {
+      state.assignableSlots = [...DEFAULT_ASSIGNABLE_SLOTS];
+      state.settings = {
+        theme: 'midnight',
+        dialCapacity: 'auto',
+        defaultGrouping: 'genre',
+        minBitrate: 0,
+        httpsOnly: true,
+        autoReconnect: true,
+        visualizerMode: 'bars',
+        apiMirror: 'auto'
+      };
+      saveState();
+      applySettingsToDOM();
+      renderSpeedDial();
+      showToast('Speed Dial & Studio Prefs restored to factory defaults', 'fa-rotate-left');
+    }
+
+    /* Sleep Timer Modal & Gentle Audio Fade-Out */
+    function openSleepModal() {
+      const m = document.getElementById('sleepModal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeSleepModal() {
+      const m = document.getElementById('sleepModal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function setSleepTimer(minutes) {
+      clearInterval(state.sleepIntervalId);
+      const badge = document.getElementById('headerSleepBadge');
+
+      if (!minutes || minutes <= 0) {
+        state.sleepSecondsRemaining = 0;
+        if (badge) {
+          badge.classList.add('hidden');
+          badge.classList.remove('inline-flex');
+        }
+        closeSleepModal();
+        showToast('Sleep timer turned off', 'fa-moon');
+        return;
+      }
+
+      state.sleepSecondsRemaining = minutes * 60;
+      if (badge) {
+        badge.classList.remove('hidden');
+        badge.classList.add('inline-flex');
+      }
+      updateSleepBadgeText();
+      closeSleepModal();
+      showToast(`Sleep timer set for ${minutes} minutes`, 'fa-moon');
+
+      state.sleepIntervalId = setInterval(() => {
+        state.sleepSecondsRemaining -= 1;
+        updateSleepBadgeText();
+
+        // Gentle volume fade during last 15 seconds
+        if (state.sleepSecondsRemaining > 0 && state.sleepSecondsRemaining <= 15 && state.isPlaying && !state.isMuted) {
+          const factor = state.sleepSecondsRemaining / 15;
+          audioEl.volume = (state.volume / 100) * factor;
+        }
+
+        if (state.sleepSecondsRemaining <= 0) {
+          clearInterval(state.sleepIntervalId);
+          if (state.isPlaying) {
+            togglePlayPause();
+          }
+          audioEl.volume = state.isMuted ? 0 : (state.volume / 100);
+          if (badge) {
+            badge.classList.add('hidden');
+            badge.classList.remove('inline-flex');
+          }
+          showToast('Sleep timer finished — Goodnight!', 'fa-moon');
+        }
+      }, 1000);
+    }
+
+    function updateSleepBadgeText() {
+      const el = document.getElementById('headerSleepCountdown');
+      if (!el) return;
+      const mins = Math.floor(state.sleepSecondsRemaining / 60);
+      const secs = state.sleepSecondsRemaining % 60;
+      el.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    /* ==========================================================================
+       13. NAVIGATION & UI UTILITIES
+       ========================================================================== */
+    function switchTab(tabId) {
+      state.activeTab = tabId;
+      const views = ['home', 'waves', 'vault', 'settings'];
+      views.forEach(v => {
+        const el = document.getElementById(`view-${v}`);
+        const navBtn = document.getElementById(`nav-${v}`);
+        if (el) {
+          if (v === tabId) {
+            el.classList.remove('hidden');
+            el.classList.add('flex');
+          } else {
+            el.classList.add('hidden');
+            el.classList.remove('flex');
+          }
+        }
+        if (navBtn) {
+          if (v === tabId) {
+            navBtn.className = 'nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-sky-400 bg-sky-500/10 transition';
+            navBtn.style.color = '';
+          } else {
+            navBtn.className = 'nav-tab-btn flex flex-col items-center justify-center py-1.5 rounded-2xl transition';
+            navBtn.style.color = 'var(--text-secondary)';
+          }
+        }
+      });
+
+      if (tabId === 'waves' && state.wavesStations.length === 0) {
+        renderLanguageQuickBar();
+        renderWavesCategories();
+        loadSelectedWaveStations();
+      } else if (tabId === 'vault' && state.vaultResults.length === 0) {
+        showVaultRecent();
+      }
+    }
+
+    let toastTimeout = null;
+    function showToast(message, iconClass = 'fa-circle-check') {
+      const banner = document.getElementById('toastBanner');
+      const textEl = document.getElementById('toastText');
+      const iconEl = document.getElementById('toastIcon');
+      if (!banner || !textEl) return;
+
+      textEl.textContent = message;
+      if (iconEl) iconEl.className = `fa-solid ${iconClass} text-sky-400`;
+
+      banner.classList.remove('opacity-0');
+      banner.classList.add('opacity-100');
+
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        banner.classList.remove('opacity-100');
+        banner.classList.add('opacity-0');
+      }, 2800);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    window.addEventListener('resize', () => {
+      if (state.settings.dialCapacity === 'auto') {
+        renderSpeedDial();
+      }
+    });
+
+    /* ==========================================================================
+       14. BOOTSTRAP ON WINDOW LOAD
+       ========================================================================== */
+    window.onload = function () {
+      loadSavedState();
+      state.wavesGroupingMode = state.settings.defaultGrouping || 'genre';
+      applySettingsToDOM();
+      updateVolumeUI();
+      renderNowOnAir();
+      renderSpeedDial();
+      renderLanguageQuickBar();
+      renderWavesCategories();
+      startVisualizerLoop();
+      enrichPermanentStationsFromApi();
+    };
+  </script>
+</body>
+</html>
