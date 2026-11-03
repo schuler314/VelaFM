@@ -584,69 +584,68 @@
       </div>
 
       <!-- Active Podcast Channel Banner (With Pin Entire Channel Button!) -->
-      <div id="activePodcastBanner" class="surface-card rounded-2xl p-3.5 flex items-center justify-between gap-3 border border-sky-500/30">
-        <div class="flex items-center gap-3 min-w-0 flex-1">
-          <img id="activePodcastArt" src="https://placehold.co/120x120/0f172a/38bdf8?text=BP" alt="Podcast Artwork" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-white/10" />
-          <div class="min-w-0 flex-1">
-            <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold">ACTIVE CHANNEL</div>
-            <h3 id="activePodcastTitle" class="text-sm font-extrabold truncate">BibleProject</h3>
-            <p id="activePodcastAuthor" class="text-xs truncate" style="color: var(--text-secondary);">Tim Mackie &amp; Jon Collins</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-1.5 shrink-0">
-          <!-- Pin Entire Podcast Channel to Speed Dial -->
-          <button onclick="pinActivePodcastChannel()" title="Pin Channel to Speed Dial" class="px-2.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-xs font-bold flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-thumbtack text-[11px]"></i>
-            <span>Pin Show</span>
-          </button>
-          <button onclick="reloadActivePodcastShow()" title="Refresh Episodes" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
-            <i class="fa-solid fa-rotate"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Dedicated BibleProject Series & Themes Browser (Shown automatically when BibleProject or Strange Bible is active!) -->
-      <div id="bibleProjectThemesPanel" class="surface-card rounded-2xl p-3.5 flex flex-col gap-3 border border-sky-400/25">
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <div class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold flex items-center gap-1.5">
-              <i class="fa-solid fa-layer-group text-[10px]"></i>
-              <span>BIBLEPROJECT THEMES &amp; SERIES ARCHIVE</span>
+      <div id="activePodcastBanner" class="surface-card rounded-2xl p-3.5 flex flex-col gap-3 border border-sky-500/30">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0 flex-1">
+            <img id="activePodcastArt" src="https://placehold.co/120x120/0f172a/38bdf8?text=BP" alt="Podcast Artwork" class="w-14 h-14 rounded-2xl object-cover shrink-0 border border-white/10" />
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-bold">ACTIVE CHANNEL</span>
+                <span id="podcastEpisodeCountBadge" class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-white/5 text-slate-300"></span>
+              </div>
+              <h3 id="activePodcastTitle" class="text-sm font-extrabold truncate mt-0.5">BibleProject</h3>
+              <p id="activePodcastAuthor" class="text-xs truncate" style="color: var(--text-secondary);">Tim Mackie &amp; Jon Collins</p>
             </div>
-            <p class="text-[11px] mt-0.5" style="color: var(--text-secondary);">
-              Browse all 540+ episodes grouped by biblical theme or search within this channel
-            </p>
           </div>
-          <span id="bpTotalArchiveBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 shrink-0">
-            Full Archive
-          </span>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <!-- Pin Entire Podcast Channel to Speed Dial -->
+            <button onclick="pinActivePodcastChannel()" title="Pin Channel to Speed Dial" class="px-2.5 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 text-sky-400 text-xs font-bold flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-thumbtack text-[11px]"></i>
+              <span>Pin Show</span>
+            </button>
+            <button onclick="reloadActivePodcastShow()" title="Refresh Episodes" class="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-xs text-slate-300">
+              <i class="fa-solid fa-rotate"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Theme / Series Selector Pills -->
-        <div id="bibleProjectThemePills" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <!-- Rendered by renderBibleProjectThemesBar() -->
-        </div>
+        <!-- Unified Channel Episode Search + Conditional BibleProject Themes Modal Button -->
+        <div class="flex items-center gap-2 pt-2.5 border-t border-white/10">
+          <!-- BibleProject Themes & Series Modal Trigger (Strictly hidden unless a BibleProject channel is active) -->
+          <button
+            id="bpThemesModalTriggerBtn"
+            onclick="openBibleProjectThemesModal()"
+            class="hidden px-3 py-2 rounded-xl bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/30 text-sky-300 text-xs font-bold items-center gap-2 shrink-0 transition"
+          >
+            <i class="fa-solid fa-layer-group text-[11px] text-sky-400"></i>
+            <span id="bpActiveThemeBtnLabel">Themes &amp; Series</span>
+            <i class="fa-solid fa-chevron-down text-[10px] opacity-70"></i>
+          </button>
 
-        <!-- Filter Within Channel Episodes Input -->
-        <div class="relative flex items-center">
-          <i class="fa-solid fa-filter absolute left-3 text-[11px]" style="color: var(--text-secondary);"></i>
-          <input
-            id="podcastEpisodeFilterInput"
-            type="search"
-            placeholder="Filter episodes in this channel (e.g., Genesis, Spirit, Sabbath, Dragon, Q+R)..."
-            oninput="handleEpisodeFilterInput(this.value)"
-            class="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
-            style="color: var(--text-primary);"
-          />
+          <!-- Filter Within Channel Episodes Input -->
+          <div class="relative flex-1 flex items-center">
+            <i class="fa-solid fa-filter absolute left-3 text-[11px]" style="color: var(--text-secondary);"></i>
+            <input
+              id="podcastEpisodeFilterInput"
+              type="search"
+              placeholder="Filter episodes in this channel..."
+              oninput="handleEpisodeFilterInput(this.value)"
+              class="w-full pl-8 pr-3 py-2 rounded-xl text-xs bg-black/25 border border-white/10 focus:border-sky-400 outline-none"
+              style="color: var(--text-primary);"
+            />
+          </div>
         </div>
       </div>
 
       <!-- Episode List -->
       <div class="flex flex-col gap-2.5">
         <div class="flex items-center justify-between px-1">
-          <span id="podcastEpisodesHeader" class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Episodes</span>
-          <span id="podcastEpisodeCountBadge" class="text-[11px] font-mono text-sky-400"></span>
+          <span id="podcastEpisodesHeader" class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--text-secondary);">Channel Episodes</span>
+          <button id="bpClearThemeFilterBtn" onclick="selectBibleProjectTheme('all')" class="hidden text-[11px] font-bold text-sky-400 items-center gap-1">
+            <span>Reset Theme</span>
+            <i class="fa-solid fa-xmark text-[10px]"></i>
+          </button>
         </div>
         <div id="podcastEpisodesList" class="flex flex-col gap-2.5">
           <!-- Populated dynamically by loadPodcastShow() -->
@@ -1127,6 +1126,34 @@
           <i class="fa-solid fa-play text-[11px]"></i>
           <span id="resumeConfirmBtnLabel">Resume</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: BIBLEPROJECT THEMES & SERIES EXPLORER MODAL
+       Clean 2-column grid modal so you never have to swipe horizontally!
+       ========================================================================== -->
+  <div id="bpThemesModalBackdrop" onclick="if(event.target === this) closeBibleProjectThemesModal()" class="drawer-backdrop fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="drawer-panel surface-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 flex flex-col gap-4 border-t sm:border border-white/15 shadow-2xl max-h-[82vh]">
+      <div class="w-10 h-1 rounded-full bg-white/20 mx-auto -mt-1 sm:hidden"></div>
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold">BibleProject Themes &amp; Series</h3>
+            <p id="bpModalTotalSubtitle" class="text-xs" style="color: var(--text-secondary);">Select a biblical theme to filter episodes</p>
+          </div>
+        </div>
+        <button onclick="closeBibleProjectThemesModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs shrink-0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="bibleProjectThemesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto pr-1">
+        <!-- Populated by renderBibleProjectThemesModal() -->
       </div>
     </div>
   </div>
@@ -2093,34 +2120,103 @@
 
     /* ==========================================================================
        5B. REAL LIVE SONG & ARTIST METADATA RESOLVER FOR "NOW ON AIR"
-       Queries real-time track endpoints for K-LOVE, Air1, Air1 Música de Adoración,
-       HIS Radio (89.3 WLFJ), HIS Radio Z (WHRZ), SomaFM, TuneIn & Icecast servers
-       with automatic CORS proxy fallback so actual Song & Artist names appear!
+       Multi-tiered live track resolver designed to work when deployed on GitHub Pages:
+       - Tier 1: EMF / iHeart Live Track API + TuneIn JSONP/XML/JSON (K-LOVE, Air1, Air1 Música de Adoración)
+       - Tier 2: TuneIn RadioTime Describe API + SecureNet Systems XML + RTN Playlist Parser (HIS Radio 89.3, HIS Radio Z, The Life FM, Keys for Kids)
+       - Tier 3: Auto-TuneIn Station Search & NowPlaying Resolution for any station in the 30,000+ directory!
+       - Tier 4: SomaFM & Icecast status-json.xsl
        ========================================================================== */
+    const tuneInStationIdCache = {};
+
     function startLiveTrackMetadataPolling() {
       clearInterval(state.metadataPollTimer);
       fetchNowPlayingTrackInfo(false);
       state.metadataPollTimer = setInterval(() => {
         fetchNowPlayingTrackInfo(false);
-      }, 22000);
+      }, 20000);
     }
 
-    /* Helper: Fetch JSON or Text directly first, then fallback to CORS proxies */
+    /* Multi-Proxy CORS Fetcher built for GitHub Pages reliability */
     async function fetchWithCorsFallback(targetUrl, asJson = true) {
+      const bustUrl = targetUrl.includes('?') ? `${targetUrl}&_cb=${Date.now()}` : `${targetUrl}?_cb=${Date.now()}`;
       const attempts = [
-        targetUrl,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`
+        { url: bustUrl, wrapper: 'raw' },
+        { url: `https://api.allorigins.win/get?url=${encodeURIComponent(bustUrl)}`, wrapper: 'allorigins' },
+        { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(bustUrl)}`, wrapper: 'raw' },
+        { url: `https://corsproxy.io/?${encodeURIComponent(bustUrl)}`, wrapper: 'raw' }
       ];
-      for (const url of attempts) {
+
+      for (const attempt of attempts) {
         try {
           const ctrl = new AbortController();
-          const tid = setTimeout(() => ctrl.abort(), 4500);
-          const res = await fetch(url, { signal: ctrl.signal });
+          const tid = setTimeout(() => ctrl.abort(), 4200);
+          const res = await fetch(attempt.url, { signal: ctrl.signal });
           clearTimeout(tid);
           if (!res.ok) continue;
-          return asJson ? await res.json() : await res.text();
+
+          if (attempt.wrapper === 'allorigins') {
+            const wrapped = await res.json();
+            if (!wrapped || !wrapped.contents) continue;
+            return asJson ? JSON.parse(wrapped.contents) : String(wrapped.contents);
+          }
+
+          if (asJson) {
+            const text = await res.text();
+            if (!text || !text.trim()) continue;
+            return JSON.parse(text);
+          } else {
+            const text = await res.text();
+            if (text && text.trim().length > 0) return text;
+          }
         } catch (_) {}
+      }
+      return null;
+    }
+
+    /* Parse TuneIn Describe.ashx?c=nowplaying payload (extracts Song & Artist cleanly) */
+    function extractTrackFromTuneInPayload(tiData, stationName) {
+      const body = tiData?.body;
+      if (!Array.isArray(body) || body.length === 0) return null;
+
+      let artwork = '';
+      for (const item of body) {
+        if (item.image && String(item.image).startsWith('http')) {
+          artwork = String(item.image).replace(/^http:/, 'https:');
+        }
+        const title = (item.title || item.text || '').trim();
+        const sub = (item.subtitle || item.subtext || '').trim();
+
+        // When TuneIn lists a song, either item.key === 'song' or title/sub holds Artist/Song
+        if (title && sub && !isGenericStationPlaceholder(sub, stationName)) {
+          // Often on TuneIn: title = Station Name or Show Name, sub = "Artist - Song"
+          if (isGenericStationPlaceholder(title, stationName) && sub.includes(' - ')) {
+            const parts = sub.split(' - ');
+            return {
+              artist: parts[0].trim(),
+              track: parts.slice(1).join(' - ').trim(),
+              artwork
+            };
+          }
+          if (!isGenericStationPlaceholder(title, stationName)) {
+            return {
+              track: sub,
+              artist: title,
+              artwork
+            };
+          }
+        }
+
+        // Check if subtext itself is formatted as "Artist - Song Title"
+        if (sub && sub.includes(' - ') && !isGenericStationPlaceholder(sub, stationName)) {
+          const parts = sub.split(' - ');
+          if (parts.length >= 2) {
+            return {
+              artist: parts[0].trim(),
+              track: parts.slice(1).join(' - ').trim(),
+              artwork
+            };
+          }
+        }
       }
       return null;
     }
@@ -2129,25 +2225,39 @@
       const st = state.currentStation;
       if (!st) return;
 
+      const requestedStationId = st.id;
       const spinner = document.getElementById('trackRefreshSpinner');
-      if (spinner && manualRefresh) spinner.classList.add('fa-spin');
+      if (spinner) spinner.classList.add('fa-spin');
+      state.isFetchingTrack = true;
+      if (manualRefresh) renderNowOnAir();
+
+      const applyFoundTrack = (track, artist, artwork = '') => {
+        if (!state.currentStation || state.currentStation.id !== requestedStationId) return false;
+        state.nowPlayingTrack = String(track || '').trim();
+        state.nowPlayingArtist = String(artist || '').trim();
+        if (artwork && String(artwork).startsWith('http')) {
+          state.nowPlayingArtwork = String(artwork).replace(/^http:/, 'https:');
+        }
+        state.isFetchingTrack = false;
+        renderNowOnAir();
+        updateMediaSessionMetadata();
+        return true;
+      };
 
       try {
         // 1. Podcast Episode: Show Episode Title & Series Author
         if (st.isPodcast) {
-          state.nowPlayingTrack = st.name;
-          state.nowPlayingArtist = st.location || st.subtitle || 'Podcast Episode';
-          state.nowPlayingArtwork = st.favicon || '';
-          renderNowOnAir();
+          applyFoundTrack(st.name, st.location || st.subtitle || 'Podcast Episode', st.favicon || '');
           return;
         }
 
         const nameLower = (st.name || '').toLowerCase();
+        const streamUrl = st.url_resolved || '';
 
-        // Determine known iHeart / RTN / TuneIn / SomaFM identifiers even if station was loaded from storage
+        // Identify station metadata IDs even if restored from localStorage
         let iheartId = st.iheartId || '';
         let rtnSlug = st.rtnSlug || '';
-        let tuneinId = st.tuneinId || '';
+        let tuneinId = st.tuneinId || tuneInStationIdCache[st.id] || '';
 
         if (!iheartId) {
           if (st.id === 'perm-klove-945' || (nameLower.includes('k-love') && !nameLower.includes('air1'))) iheartId = '5162';
@@ -2155,97 +2265,113 @@
           else if (nameLower.includes('air1')) iheartId = '5163';
         }
         if (!rtnSlug) {
-          if (st.id === 'perm-his-radio-z' || nameLower.includes('his radio z')) rtnSlug = 'hisradioz';
-          else if (nameLower.includes('his radio praise')) rtnSlug = 'hisradiopraise';
-          else if (st.id === 'perm-his-radio-893' || nameLower.includes('his radio')) rtnSlug = 'hisradio';
+          if (st.id === 'perm-his-radio-z' || nameLower.includes('his radio z') || nameLower.includes('whrz') || streamUrl.includes('2567_')) rtnSlug = 'hisradioz';
+          else if (nameLower.includes('his radio praise') || streamUrl.includes('2568_')) rtnSlug = 'hisradiopraise';
+          else if (st.id === 'perm-his-radio-893' || nameLower.includes('his radio') || nameLower.includes('wlfj') || streamUrl.includes('2566_')) rtnSlug = 'hisradio';
         }
         if (!tuneinId) {
           if (rtnSlug === 'hisradio') tuneinId = 's30611';
           else if (rtnSlug === 'hisradioz') tuneinId = 's67495';
+          else if (rtnSlug === 'hisradiopraise') tuneinId = 's128198';
+          else if (st.id === 'perm-air1-adoracion' || iheartId === '10183') tuneinId = 's299923';
           else if (iheartId === '5162') tuneinId = 's33828';
           else if (iheartId === '5163') tuneinId = 's24937';
+          else if (nameLower.includes('light fm') || streamUrl.includes('2815_')) tuneinId = 's29795';
+          else if (nameLower.includes('ngen')) tuneinId = 's142661';
+          else if (nameLower.includes('third rock')) tuneinId = 's151899';
+          else if (nameLower.includes('wcrb')) tuneinId = 's27531';
         }
 
-        // 2. SOURCE A: iHeart Live Track Metadata API (K-LOVE, Air1, Air1 Música de Adoración)
+        // 2. SOURCE A: iHeart Live Track API (K-LOVE, Air1, Air1 Música de Adoración)
         if (iheartId) {
-          const ihUrl = `https://us.api.iheart.com/api/v3/live-meta/stream/${iheartId}/currentTrackMeta?defaultMetadata=true&_=${Date.now()}`;
+          const ihUrl = `https://us.api.iheart.com/api/v3/live-meta/stream/${iheartId}/currentTrackMeta?defaultMetadata=true`;
           const data = await fetchWithCorsFallback(ihUrl, true);
           if (data && data.title && !isGenericStationPlaceholder(data.title, st.name)) {
-            state.nowPlayingTrack = String(data.title).trim();
-            state.nowPlayingArtist = String(data.artist || '').trim();
-            if (data.imagePath && String(data.imagePath).startsWith('http')) {
-              state.nowPlayingArtwork = String(data.imagePath).replace(/^http:/, 'https:');
-            }
-            renderNowOnAir();
-            updateMediaSessionMetadata();
-            return;
+            if (applyFoundTrack(data.title, data.artist || '', data.imagePath || '')) return;
           }
         }
 
-        // 3. SOURCE B: TuneIn RadioTime NowPlaying API (Works for HIS Radio 89.3, HIS Radio Z, K-LOVE, Classical WCRB, NASA, etc.)
-        if (tuneinId) {
-          const tiUrl = `https://opml.radiotime.com/Describe.ashx?c=nowplaying&id=${tuneinId}&render=json&_=${Date.now()}`;
-          const tiData = await fetchWithCorsFallback(tiUrl, true);
-          const body = tiData?.body;
-          if (Array.isArray(body) && body.length > 0) {
-            // TuneIn puts current song or show in body[0] or body[1]
-            for (const item of body) {
-              const title = item.title || item.text || '';
-              const sub = item.subtitle || item.subtext || '';
-              if (title && sub && !isGenericStationPlaceholder(title, st.name) && !isGenericStationPlaceholder(sub, st.name)) {
-                state.nowPlayingTrack = sub;
-                state.nowPlayingArtist = title;
-                if (item.image && String(item.image).startsWith('http')) {
-                  state.nowPlayingArtwork = String(item.image).replace(/^http:/, 'https:');
-                }
-                renderNowOnAir();
-                updateMediaSessionMetadata();
-                return;
-              }
-            }
-          }
-        }
-
-        // 4. SOURCE C: RTN Live Playlist Scraper (HIS Radio 89.3, HIS Radio Z, HIS Radio Praise)
+        // 3. SOURCE B: RTN Live Playlist Page (HIS Radio 89.3 WLFJ, HIS Radio Z WHRZ, HIS Radio Praise)
         if (rtnSlug) {
-          const rtnUrl = `https://www.rtndev.com/pages/playlist/${rtnSlug}/?_=${Date.now()}`;
-          const html = await fetchWithCorsFallback(rtnUrl, false);
-          if (html && typeof html === 'string') {
+          const rtnUrls = [
+            `https://www.hisradio.com/playlist/${rtnSlug}/`,
+            `https://www.rtndev.com/pages/playlist/${rtnSlug}/`
+          ];
+          for (const rUrl of rtnUrls) {
+            const html = await fetchWithCorsFallback(rUrl, false);
+            if (!html || typeof html !== 'string') continue;
             const doc = new DOMParser().parseFromString(html, 'text/html');
-            const songLink = doc.querySelector('a[href*="/song/"]');
+
+            // Pattern 1: Look for links to /song/ or playlist rows
+            const songLink = doc.querySelector('a[href*="/song/"], .song-title, .track-title, h4, h3');
             if (songLink) {
-              const rawText = songLink.textContent.replace(/\s+/g, ' ').trim();
-              const containerText = songLink.parentElement ? songLink.parentElement.textContent.replace(/\s+/g, ' ').trim() : '';
-              if (rawText) {
-                state.nowPlayingTrack = rawText;
-                const rest = containerText.replace(rawText, '').replace(/\d{1,2}:\d{2}\s*(am|pm)/gi, '').trim();
-                state.nowPlayingArtist = rest.slice(0, 50);
-                renderNowOnAir();
-                updateMediaSessionMetadata();
-                return;
+              const rawSong = songLink.textContent.replace(/\s+/g, ' ').trim();
+              const parentText = songLink.parentElement ? songLink.parentElement.textContent.replace(/\s+/g, ' ').trim() : '';
+              if (rawSong && rawSong.length > 1 && !isGenericStationPlaceholder(rawSong, st.name)) {
+                const rawArtist = parentText
+                  .replace(rawSong, '')
+                  .replace(/\bby\b/i, '')
+                  .replace(/\d{1,2}:\d{2}\s*(am|pm)?/gi, '')
+                  .trim()
+                  .slice(0, 55);
+                if (applyFoundTrack(rawSong, rawArtist)) return;
               }
             }
           }
         }
 
-        // 5. SOURCE D: SomaFM Live Track API
-        if (st.somaChannel || (st.url_resolved && st.url_resolved.includes('somafm.com'))) {
-          const ch = st.somaChannel || (st.url_resolved.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
+        // 4. SOURCE C: SecureNet Systems Live XML (The Life FM WHQA, Keys for Kids, etc.)
+        const secureNetMatch = streamUrl.match(/securenetsystems\.net\/([A-Za-z0-9_]+)/i);
+        if (secureNetMatch && secureNetMatch[1]) {
+          const callSign = secureNetMatch[1].toUpperCase();
+          const xmlText = await fetchWithCorsFallback(`https://streamdb6web.securenetsystems.net/player_status_update/${callSign}.xml`, false);
+          if (xmlText && typeof xmlText === 'string') {
+            const xmlDoc = new DOMParser().parseFromString(xmlText, 'text/xml');
+            const title = xmlDoc.querySelector('title')?.textContent?.trim() || '';
+            const artist = xmlDoc.querySelector('artist')?.textContent?.trim() || '';
+            const cover = xmlDoc.querySelector('albumart, cover')?.textContent?.trim() || '';
+            if (title && !isGenericStationPlaceholder(title, st.name)) {
+              if (applyFoundTrack(title, artist, cover)) return;
+            }
+          }
+        }
+
+        // 5. SOURCE D: TuneIn RadioTime NowPlaying API (Direct ID or Auto-Discovered Station ID!)
+        if (!tuneinId && st.name) {
+          // Automatically look up the station on TuneIn by name so even custom/vault stations get live Song & Artist!
+          const searchClean = st.name.replace(/\([^)]*\)/g, '').trim();
+          const searchUrl = `https://opml.radiotime.com/Search.ashx?query=${encodeURIComponent(searchClean)}&filter=s:mp3,aac&render=json`;
+          const searchData = await fetchWithCorsFallback(searchUrl, true);
+          const firstStation = (searchData?.body || []).find(item => item.type === 'audio' && item.guide_id && String(item.guide_id).startsWith('s'));
+          if (firstStation && firstStation.guide_id) {
+            tuneinId = firstStation.guide_id;
+            tuneInStationIdCache[st.id] = tuneinId;
+          }
+        }
+
+        if (tuneinId) {
+          const tiUrl = `https://opml.radiotime.com/Describe.ashx?c=nowplaying&id=${encodeURIComponent(tuneinId)}&render=json`;
+          const tiData = await fetchWithCorsFallback(tiUrl, true);
+          const extracted = extractTrackFromTuneInPayload(tiData, st.name);
+          if (extracted && extracted.track) {
+            if (applyFoundTrack(extracted.track, extracted.artist, extracted.artwork)) return;
+          }
+        }
+
+        // 6. SOURCE E: SomaFM Live Track API
+        if (st.somaChannel || streamUrl.includes('somafm.com')) {
+          const ch = st.somaChannel || (streamUrl.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
           const somaData = await fetchWithCorsFallback(`https://api.somafm.com/songs/${ch}.json`, true);
           const latest = somaData?.songs?.[0];
           if (latest && latest.title) {
-            state.nowPlayingTrack = latest.title;
-            state.nowPlayingArtist = latest.artist || '';
-            renderNowOnAir();
-            updateMediaSessionMetadata();
-            return;
+            if (applyFoundTrack(latest.title, latest.artist || '')) return;
           }
         }
 
-        // 6. SOURCE E: Icecast Server status-json.xsl (For 30,000+ Radio-Browser Streams)
-        if (st.url_resolved && st.url_resolved.startsWith('https://')) {
+        // 7. SOURCE F: Icecast Server status-json.xsl & Shoutcast 7.html
+        if (streamUrl && streamUrl.startsWith('https://')) {
           try {
-            const parsedUrl = new URL(st.url_resolved);
+            const parsedUrl = new URL(streamUrl);
             const iceUrl = `${parsedUrl.origin}/status-json.xsl`;
             const iceData = await fetchWithCorsFallback(iceUrl, true);
             let sources = iceData?.icestats?.source;
@@ -2257,25 +2383,24 @@
               if (rawTitle && !isGenericStationPlaceholder(rawTitle, st.name)) {
                 const parts = String(rawTitle).split(' - ');
                 if (parts.length >= 2) {
-                  state.nowPlayingArtist = parts[0].trim();
-                  state.nowPlayingTrack = parts.slice(1).join(' - ').trim();
+                  if (applyFoundTrack(parts.slice(1).join(' - '), parts[0])) return;
                 } else {
-                  state.nowPlayingTrack = String(rawTitle).trim();
-                  state.nowPlayingArtist = '';
+                  if (applyFoundTrack(rawTitle, '')) return;
                 }
-                renderNowOnAir();
-                updateMediaSessionMetadata();
-                return;
               }
             }
           } catch (_) {}
         }
 
-        // If no live song metadata is broadcast by this station right now, clear duplicate station text
-        state.nowPlayingTrack = '';
-        state.nowPlayingArtist = '';
-        renderNowOnAir();
+        // If no live song title is currently broadcast (e.g. during DJ talk segment or station ID)
+        if (state.currentStation && state.currentStation.id === requestedStationId) {
+          state.nowPlayingTrack = '';
+          state.nowPlayingArtist = '';
+          state.isFetchingTrack = false;
+          renderNowOnAir();
+        }
       } finally {
+        state.isFetchingTrack = false;
         if (spinner) spinner.classList.remove('fa-spin');
       }
     }
@@ -2284,7 +2409,19 @@
       if (!text) return true;
       const t = String(text).toLowerCase().trim();
       const s = String(stationName || '').toLowerCase().trim();
-      if (t === s || t.includes('k-love') || t.includes('air1') || t.includes('commercial break') || t === 'unknown') {
+      if (
+        t.length < 2 ||
+        t === s ||
+        t === 'k-love' ||
+        t === 'his radio' ||
+        t === 'his radio z' ||
+        t === 'air1' ||
+        t.includes('positive & encouraging') ||
+        t.includes('commercial break') ||
+        t.includes('stream online') ||
+        t === 'unknown' ||
+        t === 'live broadcast'
+      ) {
         return true;
       }
       return false;
@@ -2576,12 +2713,7 @@
       if (trackTextEl && artistTextEl) {
         if (st.isPodcast) {
           trackTextEl.textContent = st.subtitle || 'Podcast Episode';
-          artistTextEl.textContent = st.location || '';
-          artistTextEl.classList.toggle('hidden', !st.location);
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-podcast text-xs text-sky-300 shrink-0';
-        } else if (state.nowPlayingTrack) {
-          trackTextEl.textContent = state.nowPlayingTrack;
-          if (state.nowPlayingArtist) {
+          if ( state.nowPlayingArtist) {
             artistTextEl.textContent = state.nowPlayingArtist;
             artistTextEl.classList.remove('hidden');
           } else {
@@ -2589,13 +2721,18 @@
             artistTextEl.classList.add('hidden');
           }
           if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-xs text-emerald-300 shrink-0';
-        } else {
-          trackTextEl.textContent = state.isPlaying
-            ? 'Live Broadcast • Tap ↻ to check song'
-            : 'Tap ↻ or Play for live song & artist';
+        } else if (state.isFetchingTrack) {
+          trackTextEl.textContent = 'Checking live song & artist...';
           artistTextEl.textContent = '';
           artistTextEl.classList.add('hidden');
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-xs text-sky-300/70 shrink-0';
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-compact-disc fa-spin text-xs text-sky-300 shrink-0';
+        } else {
+          trackTextEl.textContent = state.isPlaying
+            ? `${st.freq && st.freq !== 'LIVE' ? st.freq + ' • ' : ''}Live Studio Broadcast`
+            : 'Ready to Tune • Tap Play';
+          artistTextEl.textContent = st.location || '';
+          artistTextEl.classList.toggle('hidden', !st.location);
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-tower-broadcast text-xs text-sky-300/80 shrink-0';
         }
       }
 
@@ -3386,22 +3523,22 @@
       const artEl = document.getElementById('activePodcastArt');
       const listEl = document.getElementById('podcastEpisodesList');
       const countBadge = document.getElementById('podcastEpisodeCountBadge');
-      const bpPanel = document.getElementById('bibleProjectThemesPanel');
+      const bpTriggerBtn = document.getElementById('bpThemesModalTriggerBtn');
+      const bpClearBtn = document.getElementById('bpClearThemeFilterBtn');
 
       if (titleEl) titleEl.textContent = show.title;
       if (authorEl) authorEl.textContent = show.author || show.desc || 'Podcast Series';
       if (artEl && show.artwork) artEl.src = show.artwork;
 
-      // Show the dedicated BibleProject Themes & Series Explorer panel when on BibleProject channels
-      const isBp = Boolean(
-        show.isBibleProjectChannel ||
-        (show.title && show.title.toLowerCase().includes('bibleproject')) ||
-        (show.title && show.title.toLowerCase().includes('strange bible')) ||
-        (show.title && show.title.toLowerCase().includes('proyecto biblia'))
-      );
-      if (bpPanel) {
-        bpPanel.classList.toggle('hidden', !isBp);
-        bpPanel.classList.toggle('flex', isBp);
+      // Strictly check if the selected channel is a BibleProject channel
+      const isBp = isBibleProjectShow(show);
+      if (bpTriggerBtn) {
+        bpTriggerBtn.classList.toggle('hidden', !isBp);
+        bpTriggerBtn.classList.toggle('inline-flex', isBp);
+      }
+      if (bpClearBtn) {
+        bpClearBtn.classList.add('hidden');
+        bpClearBtn.classList.remove('inline-flex');
       }
 
       if (listEl) {
@@ -3431,11 +3568,9 @@
       }
 
       state.podcastEpisodes = episodes;
-      if (countBadge) countBadge.textContent = `${episodes.length} total episodes`;
+      if (countBadge) countBadge.textContent = `${episodes.length} eps`;
 
-      if (isBp) {
-        renderBibleProjectThemesBar();
-      }
+      updateBibleProjectThemeTriggerUI();
       renderFilteredPodcastEpisodes();
 
       // If opened from a pinned Podcast Channel on the Home Speed Dial, automatically play/resume latest episode!
@@ -3443,6 +3578,18 @@
         const inProgressEp = episodes.find(ep => state.podcastProgress[ep.id]?.currentTime > 15);
         playStation(inProgressEp || episodes[0], 0);
       }
+    }
+
+    function isBibleProjectShow(show) {
+      if (!show) return false;
+      const t = (show.title || '').toLowerCase();
+      return Boolean(
+        show.isBibleProjectChannel ||
+        t.includes('bibleproject') ||
+        t.includes('bible project') ||
+        t.includes('strange bible') ||
+        t.includes('proyecto biblia')
+      );
     }
 
     /* Classify any BibleProject episode into matching BibleProject Theme IDs + extract its Series Badge */
@@ -3469,17 +3616,51 @@
       return { matchedThemes, seriesBadge };
     }
 
-    function renderBibleProjectThemesBar() {
-      const pillsEl = document.getElementById('bibleProjectThemePills');
-      const archiveBadge = document.getElementById('bpTotalArchiveBadge');
-      if (!pillsEl) return;
+    function openBibleProjectThemesModal() {
+      renderBibleProjectThemesModal();
+      const el = document.getElementById('bpThemesModalBackdrop');
+      if (el) el.classList.add('open');
+    }
 
-      const allEps = state.podcastEpisodes || [];
-      if (archiveBadge) {
-        archiveBadge.textContent = `${allEps.length} Episodes Loaded`;
+    function closeBibleProjectThemesModal() {
+      const el = document.getElementById('bpThemesModalBackdrop');
+      if (el) el.classList.remove('open');
+    }
+
+    function updateBibleProjectThemeTriggerUI() {
+      const btn = document.getElementById('bpThemesModalTriggerBtn');
+      const labelEl = document.getElementById('bpActiveThemeBtnLabel');
+      const clearBtn = document.getElementById('bpClearThemeFilterBtn');
+      const isBp = isBibleProjectShow(state.activePodcastShow);
+
+      if (btn) {
+        btn.classList.toggle('hidden', !isBp);
+        btn.classList.toggle('inline-flex', isBp);
       }
 
-      pillsEl.innerHTML = BIBLEPROJECT_THEMES.map(theme => {
+      const activeTheme = BIBLEPROJECT_THEMES.find(t => t.id === state.activeBibleProjectTheme) || BIBLEPROJECT_THEMES[0];
+      if (labelEl) {
+        labelEl.textContent = activeTheme.id === 'all' ? 'Themes & Series' : activeTheme.name;
+      }
+
+      if (clearBtn) {
+        const showReset = isBp && activeTheme.id !== 'all';
+        clearBtn.classList.toggle('hidden', !showReset);
+        clearBtn.classList.toggle('inline-flex', showReset);
+      }
+    }
+
+    function renderBibleProjectThemesModal() {
+      const gridEl = document.getElementById('bibleProjectThemesGrid');
+      const subtitleEl = document.getElementById('bpModalTotalSubtitle');
+      if (!gridEl) return;
+
+      const allEps = state.podcastEpisodes || [];
+      if (subtitleEl) {
+        subtitleEl.textContent = `${allEps.length} episodes in ${state.activePodcastShow?.title || 'BibleProject'} archive`;
+      }
+
+      gridEl.innerHTML = BIBLEPROJECT_THEMES.map(theme => {
         const count = theme.id === 'all'
           ? allEps.length
           : allEps.filter(ep => Array.isArray(ep.bpThemes) && ep.bpThemes.includes(theme.id)).length;
@@ -3489,13 +3670,19 @@
         const isActive = state.activeBibleProjectTheme === theme.id;
         return `
           <button
-            onclick="selectBibleProjectTheme('${theme.id}')"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0 transition ${isActive ? 'bg-sky-500 text-white shadow-sm' : 'bg-white/5 hover:bg-white/10'}"
-            style="${isActive ? '' : 'color: var(--text-secondary);'}"
+            onclick="selectBibleProjectTheme('${theme.id}'); closeBibleProjectThemesModal();"
+            class="surface-card ${isActive ? 'speed-dial-active bg-sky-500/15' : ''} p-3 rounded-2xl text-left flex items-center justify-between gap-2.5"
           >
-            <i class="fa-solid ${theme.icon} text-[10px]"></i>
-            <span>${escapeHtml(theme.name)}</span>
-            <span class="text-[10px] font-mono px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/25 text-white' : 'bg-white/5 text-sky-400'}">${count}</span>
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-8 h-8 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid ${theme.icon} text-xs"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="text-xs font-bold leading-snug break-words">${escapeHtml(theme.name)}</div>
+                <div class="text-[10px] font-mono text-sky-400 mt-0.5">${count} episodes</div>
+              </div>
+            </div>
+            <i class="fa-solid ${isActive ? 'fa-circle-check text-sky-400' : 'fa-circle opacity-20'} text-sm shrink-0"></i>
           </button>
         `;
       }).join('');
@@ -3504,7 +3691,7 @@
     function selectBibleProjectTheme(themeId) {
       state.activeBibleProjectTheme = themeId;
       state.podcastEpisodesDisplayLimit = 40;
-      renderBibleProjectThemesBar();
+      updateBibleProjectThemeTriggerUI();
       renderFilteredPodcastEpisodes();
     }
 
@@ -3521,8 +3708,9 @@
 
     function getCurrentlyFilteredEpisodes() {
       const allEps = state.podcastEpisodes || [];
+      const isBp = isBibleProjectShow(state.activePodcastShow);
       return allEps.filter(ep => {
-        if (state.activeBibleProjectTheme !== 'all') {
+        if (isBp && state.activeBibleProjectTheme !== 'all') {
           if (!Array.isArray(ep.bpThemes) || !ep.bpThemes.includes(state.activeBibleProjectTheme)) {
             return false;
           }
@@ -3544,14 +3732,15 @@
       const moreBtn = document.getElementById('podcastShowMoreEpisodesBtn');
       const moreTxt = document.getElementById('podcastShowMoreEpisodesText');
 
+      const isBp = isBibleProjectShow(state.activePodcastShow);
       const themeObj = BIBLEPROJECT_THEMES.find(t => t.id === state.activeBibleProjectTheme);
       if (headerEl) {
-        headerEl.textContent = themeObj && themeObj.id !== 'all'
-          ? `Theme: ${themeObj.name}`
-          : 'Channel Episodes';
+        headerEl.textContent = (isBp && themeObj && themeObj.id !== 'all')
+          ? `${themeObj.name} (${filtered.length})`
+          : `Channel Episodes (${filtered.length})`;
       }
       if (countBadge) {
-        countBadge.textContent = `${filtered.length} episodes`;
+        countBadge.textContent = `${(state.podcastEpisodes || []).length} eps`;
       }
 
       const visibleSlice = filtered.slice(0, state.podcastEpisodesDisplayLimit);
