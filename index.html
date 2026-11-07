@@ -107,6 +107,40 @@
       --hero-grad-end: #2e1505;
     }
 
+    [data-theme="emerald"] {
+      --bg-primary: #06130e;
+      --bg-secondary: #0b2018;
+      --bg-card: rgba(14, 36, 27, 0.86);
+      --bg-card-hover: rgba(20, 50, 38, 0.96);
+      --bg-glass: rgba(8, 22, 16, 0.92);
+      --text-primary: #ecfdf5;
+      --text-secondary: #6ee7b7;
+      --text-muted: #047857;
+      --accent-primary: #10b981;
+      --accent-secondary: #14b8a6;
+      --accent-glow: rgba(16, 185, 129, 0.26);
+      --border-subtle: rgba(52, 211, 153, 0.16);
+      --hero-grad-start: #062016;
+      --hero-grad-end: #0f2926;
+    }
+
+    [data-theme="rose"] {
+      --bg-primary: #140810;
+      --bg-secondary: #210d1b;
+      --bg-card: rgba(38, 16, 31, 0.86);
+      --bg-card-hover: rgba(54, 23, 44, 0.96);
+      --bg-glass: rgba(24, 10, 20, 0.92);
+      --text-primary: #fff1f2;
+      --text-secondary: #fda4af;
+      --text-muted: #9f1239;
+      --accent-primary: #fb7185;
+      --accent-secondary: #e879f9;
+      --accent-glow: rgba(251, 113, 133, 0.26);
+      --border-subtle: rgba(251, 113, 133, 0.16);
+      --hero-grad-start: #240b1b;
+      --hero-grad-end: #2e1035;
+    }
+
     * {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
@@ -300,22 +334,33 @@
     <!-- ========================================================================
          HERO FOCAL CONSOLE: "NOW ON AIR"
          Clean, high-contrast focal card with generous whitespace, live Song &
-         Artist metadata readout, subtle equalizer, and automatic Podcast timeline
-         controls when listening to podcast episodes.
+         Artist metadata readout, Smart EQ status pill, subtle equalizer, and
+         automatic Podcast timeline controls when listening to podcast episodes.
          ======================================================================== -->
     <section id="nowOnAirSection" aria-label="Now On Air Station Console" class="now-on-air-deck rounded-3xl p-5 text-white transition-all duration-300">
       <div class="relative z-10 flex flex-col gap-3.5">
         
-        <!-- Top Minimal Status Row -->
-        <div id="nowTopMetaRow" class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-widest bg-white/10 text-sky-300">
+        <!-- Top Minimal Status Row: On Air Status + Active Smart EQ Badge + Quick Actions -->
+        <div id="nowTopMetaRow" class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span id="liveBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold uppercase tracking-widest bg-white/10 text-sky-300 shrink-0">
               <span id="liveIndicatorDot" class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
               <span id="liveStatusText">STANDBY</span>
             </span>
+
+            <!-- Smart EQ Live Profile Badge (Click to inspect 5-band curve or toggle) -->
+            <button
+              id="smartEqBadgeBtn"
+              onclick="openSmartEqModal()"
+              title="Smart EQ Profile (Tap to inspect or toggle)"
+              class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/25 hover:bg-emerald-500/25 transition truncate"
+            >
+              <i class="fa-solid fa-wand-magic-sparkles text-[9px]"></i>
+              <span id="smartEqBadgeText">EQ: Worship</span>
+            </button>
           </div>
 
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 shrink-0">
             <!-- Switch Stream Signal -->
             <button id="cycleStreamBtn" onclick="tryAlternateStream()" title="Switch backup signal" class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/15 text-xs text-slate-200 flex items-center justify-center transition">
               <i class="fa-solid fa-satellite-dish text-[11px] text-sky-300"></i>
@@ -327,9 +372,9 @@
           </div>
         </div>
 
-        <!-- Center Focal Row: Emblem + Clean Typographic Hierarchy + Sculptural Play Button -->
-        <div class="flex items-center justify-between gap-4">
-          <!-- Station / Podcast Artwork Emblem -->
+        <!-- Center Focal Row: Emblem + Station Title + Sculptural Play Button -->
+        <div class="flex items-center justify-between gap-3.5">
+          <!-- Station / Live Song Artwork Emblem -->
           <div id="nowEmblemBox" class="relative w-14 h-14 rounded-2xl bg-white/10 border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-inner transition-all">
             <img id="nowStationLogo" src="" alt="" class="w-full h-full object-cover hidden" onerror="this.classList.add('hidden'); document.getElementById('nowStationFallbackIcon').classList.remove('hidden');" />
             <div id="nowStationFallbackIcon" class="flex flex-col items-center justify-center text-center">
@@ -337,34 +382,37 @@
             </div>
           </div>
 
-          <!-- Station Title, Live Track/Artist Metadata & Calm Subtitle -->
+          <!-- Station Name & Location Subtitle -->
           <div class="flex-1 min-w-0">
-            <h2 id="nowStationName" class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-snug truncate">
+            <h2 id="nowStationName" class="text-lg sm:text-xl font-extrabold tracking-tight text-white leading-tight truncate">
               K-LOVE
             </h2>
-
-            <!-- Live Now Playing Song & Artist PillBox -->
-            <div id="nowTrackContainer" class="mt-1 px-2.5 py-1 rounded-xl bg-white/10 border border-white/10 flex items-center gap-2">
-              <i id="nowTrackIcon" class="fa-solid fa-music text-[10px] text-sky-300 shrink-0"></i>
-              <div class="min-w-0 flex-1">
-                <p id="nowPlayingTrackText" class="text-xs font-bold text-sky-200 truncate">
-                  Checking live song...
-                </p>
-                <p id="nowPlayingArtistText" class="text-[10px] text-slate-300 truncate hidden"></p>
-              </div>
-              <button onclick="fetchNowPlayingTrackInfo(true)" title="Refresh live song info" class="text-[10px] text-sky-300/70 hover:text-sky-200 shrink-0">
-                <i id="trackRefreshSpinner" class="fa-solid fa-arrows-rotate"></i>
-              </button>
-            </div>
-
-            <p id="nowStationSubtitle" class="text-[11px] text-slate-300/75 truncate mt-1">
-              Spartanburg, SC
+            <p id="nowStationSubtitle" class="text-[11px] text-slate-300/80 truncate mt-0.5">
+              Spartanburg, SC • Positive &amp; Encouraging
             </p>
           </div>
 
           <!-- Primary Tactile Play / Pause Transport Button -->
           <button id="mainPlayBtn" onclick="togglePlayPause()" aria-label="Play or Pause Current Audio" class="relative w-14 h-14 rounded-full bg-white text-slate-950 hover:bg-sky-50 flex items-center justify-center shadow-lg active:scale-95 transition shrink-0">
             <i id="mainPlayIcon" class="fa-solid fa-play text-lg ml-0.5"></i>
+          </button>
+        </div>
+
+        <!-- Dedicated Live Now Playing Song & Artist Spotlight Box -->
+        <div id="nowTrackContainer" class="px-3 py-2 rounded-2xl bg-black/25 border border-white/10 flex items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="w-7 h-7 rounded-xl bg-sky-500/15 border border-sky-400/25 flex items-center justify-center shrink-0">
+              <i id="nowTrackIcon" class="fa-solid fa-music text-xs text-sky-300"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <p id="nowPlayingTrackText" class="text-xs font-bold text-white leading-snug truncate">
+                Checking live song...
+              </p>
+              <p id="nowPlayingArtistText" class="text-[11px] text-sky-300/90 font-medium leading-tight truncate hidden"></p>
+            </div>
+          </div>
+          <button onclick="fetchNowPlayingTrackInfo(true)" title="Refresh live song & artist" class="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center text-[11px] text-sky-300/80 hover:text-sky-200 shrink-0 transition">
+            <i id="trackRefreshSpinner" class="fa-solid fa-arrows-rotate"></i>
           </button>
         </div>
 
@@ -813,6 +861,22 @@
                 <div class="text-[10px]" style="color: var(--text-secondary);">Bedside low blue-light</div>
               </div>
             </button>
+
+            <button onclick="updateSetting('theme', 'emerald')" data-theme-btn="emerald" class="theme-choice-btn surface-card p-2.5 rounded-xl flex items-center gap-2.5 text-left">
+              <span class="w-5 h-5 rounded-full bg-emerald-950 border-2 border-emerald-400 shrink-0"></span>
+              <div>
+                <div class="text-xs font-bold">Emerald Hi-Fi</div>
+                <div class="text-[10px]" style="color: var(--text-secondary);">Botanical tube-tuner glow</div>
+              </div>
+            </button>
+
+            <button onclick="updateSetting('theme', 'rose')" data-theme-btn="rose" class="theme-choice-btn surface-card p-2.5 rounded-xl flex items-center gap-2.5 text-left">
+              <span class="w-5 h-5 rounded-full bg-rose-950 border-2 border-rose-400 shrink-0"></span>
+              <div>
+                <div class="text-xs font-bold">Sunset Velvet</div>
+                <div class="text-[10px]" style="color: var(--text-secondary);">Warm rosewood lounge</div>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -856,8 +920,25 @@
         <div class="flex flex-col gap-3 pt-2 border-t border-white/10">
           <label class="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: var(--text-secondary);">
             <i class="fa-solid fa-signal text-emerald-400"></i>
-            <span>4. Mobile Audio &amp; Stream Resilience</span>
+            <span>4. Smart EQ &amp; Mobile Audio Resilience</span>
           </label>
+
+          <!-- Smart EQ Toggle (Auto-optimizes EQ from Station & Song Metadata) -->
+          <div class="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-between gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-xs text-emerald-400"></i>
+                <span class="text-xs font-extrabold">Smart EQ (Auto-Optimize)</span>
+              </div>
+              <div class="text-[11px] mt-0.5" style="color: var(--text-secondary);">
+                Automatically tunes 5-band EQ &amp; tonal balance using live station genre and song metadata
+              </div>
+              <div id="settingsSmartEqActiveProfile" class="text-[10px] font-mono text-emerald-400 mt-1">
+                Active Profile: Worship &amp; Vocal Warmth
+              </div>
+            </div>
+            <input id="settingSmartEq" type="checkbox" onchange="updateSetting('smartEq', this.checked)" class="w-5 h-5 accent-emerald-400 rounded cursor-pointer shrink-0" />
+          </div>
 
           <!-- Minimum Bitrate Filter -->
           <div class="flex items-center justify-between">
@@ -1159,6 +1240,44 @@
   </div>
 
   <!-- ==========================================================================
+       MODAL 5: SMART EQ 5-BAND INSPECTOR & METADATA TUNING MODAL
+       ========================================================================== -->
+  <div id="smartEqModal" onclick="if(event.target === this) closeSmartEqModal()" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-end sm:items-center justify-center p-3">
+    <div class="surface-card w-full max-w-md rounded-3xl p-5 flex flex-col gap-4 border border-emerald-500/30 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-extrabold">Smart EQ Studio</h3>
+            <p id="smartEqModalReason" class="text-[11px]" style="color: var(--text-secondary);">Auto-matched to station &amp; song metadata</p>
+          </div>
+        </div>
+        <button onclick="closeSmartEqModal()" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-xs">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- On/Off Master Switch inside Modal -->
+      <div class="flex items-center justify-between p-3 rounded-2xl bg-black/25 border border-white/10">
+        <div>
+          <div id="smartEqModalProfileTitle" class="text-xs font-extrabold text-emerald-400">Worship &amp; Vocal Warmth</div>
+          <div id="smartEqModalProfileDesc" class="text-[11px] mt-0.5" style="color: var(--text-secondary);">Lifts vocal intimacy (910Hz) &amp; acoustic air (14kHz)</div>
+        </div>
+        <button id="smartEqModalToggleBtn" onclick="toggleSmartEqQuick()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition">
+          Enabled
+        </button>
+      </div>
+
+      <!-- 5-Band Visual Graphic Equalizer Readout -->
+      <div id="smartEqBandsContainer" class="grid grid-cols-5 gap-2 pt-1 pb-1">
+        <!-- Populated dynamically by renderSmartEqModal() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
        SLIDE-OUT DRAWER 3: PODCAST TOPIC / CATEGORY BROWSER
        ========================================================================== -->
   <div id="podcastCategoryDrawerBackdrop" onclick="if(event.target === this) closePodcastCategoryDrawer()" class="drawer-backdrop fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end justify-center p-0 sm:p-4">
@@ -1275,7 +1394,8 @@
     /* ==========================================================================
        1. PERMANENT SIGNATURE STATIONS & DEFAULT SPEED DIAL CONFIGURATION
        Includes verified multi-CDN fallback streams AND live track metadata IDs
-       (iHeart IDs & TuneIn/RTN IDs) for real-time Song & Artist display!
+       (iHeart IDs, OnlineRadioBox scraper2 slugs, & TuneIn IDs) for real-time
+       Song & Artist display across all stations!
        ========================================================================== */
     const PERMANENT_STATIONS = [
       {
@@ -1285,12 +1405,14 @@
         subtitle: 'Spartanburg, SC • Positive & Encouraging',
         location: 'Spartanburg, SC',
         language: 'English',
+        tags: 'christian, worship, contemporary christian, positive',
         codec: 'AAC+',
         bitrate: 128,
         accent: 'border-l-4 border-l-sky-400',
         badgeColor: 'text-sky-400',
         emfCode: 'klove',
         iheartId: '5162',
+        orbSlug: 'us.klve',
         tuneinId: 's33828',
         searchQuery: 'K-LOVE',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/k-love/tunein/aac',
@@ -1308,11 +1430,14 @@
         subtitle: 'Greenville & Spartanburg • WLFJ',
         location: 'Greenville / Spartanburg, SC',
         language: 'English',
+        tags: 'christian, contemporary christian, worship, family',
         codec: 'AAC',
         bitrate: 96,
         accent: 'border-l-4 border-l-indigo-400',
         badgeColor: 'text-indigo-400',
         rtnSlug: 'hisradio',
+        orbSlug: 'us.wlfj',
+        orbFallbackSlug: 'us.hisradio',
         tuneinId: 's30611',
         searchQuery: 'WLFJ',
         url_resolved: 'https://rtn.cdnstream1.com/2566_96.aac',
@@ -1329,11 +1454,14 @@
         subtitle: 'Spartanburg WHRZ • Upbeat & Pop',
         location: 'Spartanburg, SC',
         language: 'English',
+        tags: 'christian pop, christian rock, christian hip hop, upbeat',
         codec: 'AAC',
         bitrate: 96,
         accent: 'border-l-4 border-l-emerald-400',
         badgeColor: 'text-emerald-400',
         rtnSlug: 'hisradioz',
+        orbSlug: 'us.histhez',
+        orbFallbackSlug: 'us.thez',
         tuneinId: 's67495',
         searchQuery: 'HIS Radio',
         url_resolved: 'https://rtn.cdnstream1.com/2567_96.aac',
@@ -1350,12 +1478,15 @@
         subtitle: 'Adoración en Español • By K-LOVE',
         location: 'Red Air1 / K-LOVE',
         language: 'Spanish',
+        tags: 'spanish worship, adoracion, alabanza, christian, latin',
         codec: 'AAC+',
         bitrate: 128,
         accent: 'border-l-4 border-l-amber-400',
         badgeColor: 'text-amber-400',
         emfCode: 'air1-adoracion',
-        iheartId: '10183',
+        orbSlug: 'us.adoracion',
+        orbFallbackSlug: 'us.kfis',
+        iheartId: '5163',
         searchQuery: 'Air1 Musica de Adoracion',
         url_resolved: 'https://maestro.emfcdn.com/stream_for/air1-musica-de-adoracion/tunein/aac',
         fallbackUrls: [
@@ -1378,6 +1509,7 @@
         location: 'Houston, TX • NASA Johnson Space Center',
         language: 'English',
         tags: 'nasa, space, science, kids, educational, indie, rock, third rock',
+        orbSlug: 'us.thirdrock',
         tuneinId: 's151899',
         codec: 'AAC',
         bitrate: 128,
@@ -1395,6 +1527,7 @@
         location: 'Grand Rapids, MI',
         language: 'English',
         tags: 'kids, children, family, christian kids, stories, nasa kids',
+        orbSlug: 'us.keysforkids',
         tuneinId: 's199315',
         codec: 'MP3',
         bitrate: 128,
@@ -1413,6 +1546,7 @@
         location: 'Houston, TX',
         language: 'English',
         tags: 'christian hip hop, christian rap, hip hop, rap, urban gospel, youth',
+        orbSlug: 'us.ksbj',
         tuneinId: 's142661',
         codec: 'AAC',
         bitrate: 128,
@@ -1430,6 +1564,7 @@
         location: 'St. Louis, MO',
         language: 'English',
         tags: 'christian hip hop, christian rap, hip hop, pop, upbeat',
+        orbSlug: 'us.kprv',
         codec: 'AAC',
         bitrate: 128,
         url_resolved: 'https://gateway.streamguys1.com/boost-aac',
@@ -1601,7 +1736,9 @@
         subtitle: '24/7 Contemporary Worship',
         location: 'United States',
         language: 'English',
+        tags: 'worship, christian, praise',
         iheartId: '5163',
+        orbSlug: 'us.kfis',
         tuneinId: 's24937',
         codec: 'AAC',
         bitrate: 128,
@@ -1615,7 +1752,10 @@
         subtitle: 'Upstate SC Praise & Worship',
         location: 'Greenville / Spartanburg, SC',
         language: 'English',
+        tags: 'worship, praise, christian',
         rtnSlug: 'hisradiopraise',
+        orbSlug: 'us.hispraise',
+        orbFallbackSlug: 'us.wlfj',
         tuneinId: 's128198',
         codec: 'AAC',
         bitrate: 96,
@@ -1629,6 +1769,8 @@
         subtitle: 'Billy Graham Evangelistic Assoc.',
         location: 'Asheville / Upstate SC',
         language: 'English',
+        tags: 'christian, gospel, teaching, worship',
+        orbSlug: 'us.wsmx',
         tuneinId: 's29795',
         codec: 'AAC',
         bitrate: 96,
@@ -1642,6 +1784,8 @@
         subtitle: 'South Carolina Southern Gospel',
         location: 'Greenville / Belton, SC',
         language: 'English',
+        tags: 'southern gospel, gospel, christian',
+        orbSlug: 'us.whqa',
         codec: 'AAC',
         bitrate: 64,
         url_resolved: 'https://ice41.securenetsystems.net/WHQA',
@@ -1654,6 +1798,8 @@
         subtitle: 'Música Cristiana Latina',
         location: 'Miami / América Latina',
         language: 'Spanish',
+        tags: 'spanish, latin, christian, pop latino',
+        orbSlug: 'ar.cvclavoz',
         codec: 'MP3',
         bitrate: 128,
         searchQuery: 'CVC La Voz',
@@ -1667,6 +1813,8 @@
         subtitle: 'MPB, Bossa Nova & Brazilian Jazz',
         location: 'Santos, Brasil',
         language: 'Portuguese',
+        tags: 'bossa nova, jazz, mpb, brazil',
+        orbSlug: 'br.bossajazzbrasil',
         codec: 'MP3',
         bitrate: 128,
         searchQuery: 'Bossa Jazz Brasil',
@@ -1680,6 +1828,7 @@
         subtitle: 'Ambient Beats & Downtempo',
         location: 'San Francisco, CA',
         language: 'English',
+        tags: 'ambient, chillout, downtempo, electronic',
         somaChannel: 'groovesalad',
         codec: 'MP3',
         bitrate: 128,
@@ -1693,6 +1842,9 @@
         subtitle: '24/7 Symphony & Chamber Music',
         location: 'Boston, MA',
         language: 'English',
+        tags: 'classical, symphony, orchestral',
+        orbSlug: 'us.wcrb',
+        orbFallbackSlug: 'us.wcrbbach',
         tuneinId: 's27531',
         codec: 'MP3',
         bitrate: 128,
@@ -1728,6 +1880,9 @@
       nowPlayingArtwork: '',
       isFetchingTrack: false,
       metadataPollTimer: null,
+
+      // Smart EQ Active Profile State
+      activeSmartEqProfile: null,
 
       // Curated Waves Discovery State
       wavesLanguageFilter: 'all',
@@ -1768,6 +1923,7 @@
         theme: 'midnight',
         dialCapacity: 'auto',
         defaultGrouping: 'genre',
+        smartEq: true,
         minBitrate: 0,
         httpsOnly: true,
         autoReconnect: true,
@@ -2120,13 +2276,38 @@
 
     /* ==========================================================================
        5B. REAL LIVE SONG & ARTIST METADATA RESOLVER FOR "NOW ON AIR"
-       Multi-tiered live track resolver designed to work when deployed on GitHub Pages:
-       - Tier 1: EMF / iHeart Live Track API + TuneIn JSONP/XML/JSON (K-LOVE, Air1, Air1 Música de Adoración)
-       - Tier 2: TuneIn RadioTime Describe API + SecureNet Systems XML + RTN Playlist Parser (HIS Radio 89.3, HIS Radio Z, The Life FM, Keys for Kids)
-       - Tier 3: Auto-TuneIn Station Search & NowPlaying Resolution for any station in the 30,000+ directory!
-       - Tier 4: SomaFM & Icecast status-json.xsl
+       Multi-Engine live track resolver built to work on GitHub Pages across ALL stations:
+       - Engine 1: OnlineRadioBox Live Scraper JSON (scraper2.onlineradiobox.com/{slug}?l=0) + Playlist HTML Fallback + Auto-Slug Search
+       - Engine 2: iHeart Live Track API + Native-CORS Station Auto-Discovery (us.api.iheart.com)
+       - Engine 3: SomaFM Native-CORS Live Track JSON (somafm.com/songs/{channel}.json)
+       - Engine 4: SecureNet Systems Live XML (WHQA, KEYS, etc.)
+       - Engine 5: TuneIn RadioTime NowPlaying API (Describe.ashx)
+       - Engine 6: Icecast status-json.xsl
        ========================================================================== */
     const tuneInStationIdCache = {};
+    const orbSlugCache = {};
+    const iheartIdCache = {};
+
+    /* Map known station IDs or names to their OnlineRadioBox & iHeart identifiers even if loaded from older saved state */
+    const KNOWN_STATION_META_MAP = {
+      'perm-klove-945': { iheartId: '5162', orbSlug: 'us.klve', tuneinId: 's33828' },
+      'perm-his-radio-893': { orbSlug: 'us.wlfj', orbFallbackSlug: 'us.hisradio', tuneinId: 's30611' },
+      'perm-his-radio-z': { orbSlug: 'us.histhez', orbFallbackSlug: 'us.thez', tuneinId: 's67495' },
+      'perm-air1-adoracion': { orbSlug: 'us.adoracion', orbFallbackSlug: 'us.kfis', iheartId: '5163' },
+      'slot-1': { iheartId: '5163', orbSlug: 'us.kfis', tuneinId: 's24937' },
+      'slot-2': { orbSlug: 'us.hispraise', orbFallbackSlug: 'us.wlfj', tuneinId: 's128198' },
+      'slot-3': { orbSlug: 'us.wsmx', tuneinId: 's29795' },
+      'slot-4': { orbSlug: 'us.whqa' },
+      'slot-5': { orbSlug: 'ar.cvclavoz' },
+      'slot-6': { orbSlug: 'br.bossajazzbrasil' },
+      'slot-7': { somaChannel: 'groovesalad' },
+      'slot-8': { orbSlug: 'us.wcrb', orbFallbackSlug: 'us.wcrbbach', tuneinId: 's27531' },
+      'spec-nasa-third-rock': { orbSlug: 'us.thirdrock', tuneinId: 's151899' },
+      'spec-keys-for-kids': { orbSlug: 'us.keysforkids', tuneinId: 's199315' },
+      'spec-ngen-christian-hiphop': { orbSlug: 'us.ksbj', tuneinId: 's142661' },
+      'spec-boost-radio': { orbSlug: 'us.kprv' },
+      'spec-somafm-missioncontrol': { somaChannel: 'missioncontrol' }
+    };
 
     function startLiveTrackMetadataPolling() {
       clearInterval(state.metadataPollTimer);
@@ -2173,6 +2354,58 @@
       return null;
     }
 
+    /* Parse OnlineRadioBox scraper2 JSON or Playlist HTML for any station slug */
+    async function fetchTrackFromOnlineRadioBoxSlug(slug, stationName) {
+      if (!slug) return null;
+
+      // 1. Try fast scraper2 JSON endpoint first: https://scraper2.onlineradiobox.com/us.wlfj?l=0
+      const scraperUrl = `https://scraper2.onlineradiobox.com/${encodeURIComponent(slug)}?l=0`;
+      const sData = await fetchWithCorsFallback(scraperUrl, true);
+      if (sData) {
+        let track = (sData.iName || '').trim();
+        let artist = (sData.iArtist || '').trim();
+        const rawTitle = (sData.title || '').trim();
+        if ((!track || !artist) && rawTitle.includes(' - ')) {
+          const parts = rawTitle.split(' - ');
+          artist = artist || parts[0].trim();
+          track = track || parts.slice(1).join(' - ').trim();
+        } else if (!track && rawTitle) {
+          track = rawTitle;
+        }
+        if (track && !isGenericStationPlaceholder(track, stationName)) {
+          return {
+            track,
+            artist,
+            artwork: sData.iImg || ''
+          };
+        }
+      }
+
+      // 2. Fallback: Check the station's OnlineRadioBox live playlist page (stores the latest song played)
+      const pathSlug = slug.replace('.', '/');
+      const html = await fetchWithCorsFallback(`https://onlineradiobox.com/${pathSlug}/playlist/`, false);
+      if (html && typeof html === 'string') {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const firstTrackCell = doc.querySelector('table.tablelist-schedule td.track_history_item, .tablelist-schedule tr td:nth-child(2), .playlist__item');
+        if (firstTrackCell) {
+          const rawText = firstTrackCell.textContent.replace(/\s+/g, ' ').trim();
+          if (rawText && !isGenericStationPlaceholder(rawText, stationName)) {
+            const sep = rawText.includes(' — ') ? ' — ' : (rawText.includes(' - ') ? ' - ' : null);
+            if (sep) {
+              const parts = rawText.split(sep);
+              return {
+                artist: parts[0].trim(),
+                track: parts.slice(1).join(sep).trim(),
+                artwork: ''
+              };
+            }
+            return { track: rawText, artist: '', artwork: '' };
+          }
+        }
+      }
+      return null;
+    }
+
     /* Parse TuneIn Describe.ashx?c=nowplaying payload (extracts Song & Artist cleanly) */
     function extractTrackFromTuneInPayload(tiData, stationName) {
       const body = tiData?.body;
@@ -2186,9 +2419,7 @@
         const title = (item.title || item.text || '').trim();
         const sub = (item.subtitle || item.subtext || '').trim();
 
-        // When TuneIn lists a song, either item.key === 'song' or title/sub holds Artist/Song
         if (title && sub && !isGenericStationPlaceholder(sub, stationName)) {
-          // Often on TuneIn: title = Station Name or Show Name, sub = "Artist - Song"
           if (isGenericStationPlaceholder(title, stationName) && sub.includes(' - ')) {
             const parts = sub.split(' - ');
             return {
@@ -2206,7 +2437,6 @@
           }
         }
 
-        // Check if subtext itself is formatted as "Artist - Song Title"
         if (sub && sub.includes(' - ') && !isGenericStationPlaceholder(sub, stationName)) {
           const parts = sub.split(' - ');
           if (parts.length >= 2) {
@@ -2239,6 +2469,7 @@
           state.nowPlayingArtwork = String(artwork).replace(/^http:/, 'https:');
         }
         state.isFetchingTrack = false;
+        applySmartEqForCurrentAudio();
         renderNowOnAir();
         updateMediaSessionMetadata();
         return true;
@@ -2251,38 +2482,72 @@
           return;
         }
 
+        const knownMeta = KNOWN_STATION_META_MAP[st.id] || {};
         const nameLower = (st.name || '').toLowerCase();
         const streamUrl = st.url_resolved || '';
 
-        // Identify station metadata IDs even if restored from localStorage
-        let iheartId = st.iheartId || '';
-        let rtnSlug = st.rtnSlug || '';
-        let tuneinId = st.tuneinId || tuneInStationIdCache[st.id] || '';
+        let iheartId = st.iheartId || knownMeta.iheartId || iheartIdCache[st.id] || '';
+        let orbSlug = st.orbSlug || knownMeta.orbSlug || orbSlugCache[st.id] || '';
+        let orbFallbackSlug = st.orbFallbackSlug || knownMeta.orbFallbackSlug || '';
+        let tuneinId = st.tuneinId || knownMeta.tuneinId || tuneInStationIdCache[st.id] || '';
+        let somaChannel = st.somaChannel || knownMeta.somaChannel || '';
 
-        if (!iheartId) {
-          if (st.id === 'perm-klove-945' || (nameLower.includes('k-love') && !nameLower.includes('air1'))) iheartId = '5162';
-          else if (st.id === 'perm-air1-adoracion' || nameLower.includes('adoraci')) iheartId = '10183';
-          else if (nameLower.includes('air1')) iheartId = '5163';
-        }
-        if (!rtnSlug) {
-          if (st.id === 'perm-his-radio-z' || nameLower.includes('his radio z') || nameLower.includes('whrz') || streamUrl.includes('2567_')) rtnSlug = 'hisradioz';
-          else if (nameLower.includes('his radio praise') || streamUrl.includes('2568_')) rtnSlug = 'hisradiopraise';
-          else if (st.id === 'perm-his-radio-893' || nameLower.includes('his radio') || nameLower.includes('wlfj') || streamUrl.includes('2566_')) rtnSlug = 'hisradio';
-        }
-        if (!tuneinId) {
-          if (rtnSlug === 'hisradio') tuneinId = 's30611';
-          else if (rtnSlug === 'hisradioz') tuneinId = 's67495';
-          else if (rtnSlug === 'hisradiopraise') tuneinId = 's128198';
-          else if (st.id === 'perm-air1-adoracion' || iheartId === '10183') tuneinId = 's299923';
-          else if (iheartId === '5162') tuneinId = 's33828';
-          else if (iheartId === '5163') tuneinId = 's24937';
-          else if (nameLower.includes('light fm') || streamUrl.includes('2815_')) tuneinId = 's29795';
-          else if (nameLower.includes('ngen')) tuneinId = 's142661';
-          else if (nameLower.includes('third rock')) tuneinId = 's151899';
-          else if (nameLower.includes('wcrb')) tuneinId = 's27531';
+        if (!orbSlug) {
+          if (nameLower.includes('his radio z') || nameLower.includes('whrz') || streamUrl.includes('2567_')) {
+            orbSlug = 'us.histhez';
+            orbFallbackSlug = 'us.thez';
+          } else if (nameLower.includes('his radio praise') || streamUrl.includes('2568_')) {
+            orbSlug = 'us.hispraise';
+            orbFallbackSlug = 'us.wlfj';
+          } else if (nameLower.includes('his radio') || nameLower.includes('wlfj') || streamUrl.includes('2566_')) {
+            orbSlug = 'us.wlfj';
+            orbFallbackSlug = 'us.hisradio';
+          } else if (nameLower.includes('light fm') || streamUrl.includes('2815_')) {
+            orbSlug = 'us.wsmx';
+          } else if (nameLower.includes('life fm') || streamUrl.includes('WHQA')) {
+            orbSlug = 'us.whqa';
+          } else if (nameLower.includes('cvc la voz')) {
+            orbSlug = 'ar.cvclavoz';
+          } else if (nameLower.includes('bossa jazz')) {
+            orbSlug = 'br.bossajazzbrasil';
+          } else if (nameLower.includes('third rock')) {
+            orbSlug = 'us.thirdrock';
+          } else if (nameLower.includes('keys for kids')) {
+            orbSlug = 'us.keysforkids';
+          } else if (nameLower.includes('boost radio')) {
+            orbSlug = 'us.kprv';
+          } else if (nameLower.includes('ngen') || nameLower.includes('ksbj')) {
+            orbSlug = 'us.ksbj';
+          } else if (nameLower.includes('wcrb')) {
+            orbSlug = 'us.wcrb';
+          }
         }
 
-        // 2. SOURCE A: iHeart Live Track API (K-LOVE, Air1, Air1 Música de Adoración)
+        // ENGINE 1: OnlineRadioBox Live Scraper & Playlist (Works for HIS Radio 89.3, HIS Radio Z, Air1 Adoración, The Light FM, Bossa Jazz, etc.)
+        for (const candidateSlug of [orbSlug, orbFallbackSlug].filter(Boolean)) {
+          const orbResult = await fetchTrackFromOnlineRadioBoxSlug(candidateSlug, st.name);
+          if (orbResult && orbResult.track) {
+            if (applyFoundTrack(orbResult.track, orbResult.artist, orbResult.artwork)) return;
+          }
+        }
+
+        // ENGINE 2: iHeart Live Track API (Native CORS in Browser — Direct fetch first!)
+        if (!iheartId && st.name) {
+          // Try native-CORS iHeart station search for any US/Global station!
+          try {
+            const cleanQuery = st.name.replace(/\([^)]*\)/g, '').trim();
+            const ihSearchRes = await fetch(`https://us.api.iheart.com/api/v3/search/all?keywords=${encodeURIComponent(cleanQuery)}&maxRows=3&bundle=false&station=true&artist=false&track=false&podcast=false`);
+            if (ihSearchRes.ok) {
+              const ihSearchData = await ihSearchRes.json();
+              const topStation = ihSearchData?.results?.stations?.[0];
+              if (topStation && topStation.id) {
+                iheartId = String(topStation.id);
+                iheartIdCache[st.id] = iheartId;
+              }
+            }
+          } catch (_) {}
+        }
+
         if (iheartId) {
           const ihUrl = `https://us.api.iheart.com/api/v3/live-meta/stream/${iheartId}/currentTrackMeta?defaultMetadata=true`;
           const data = await fetchWithCorsFallback(ihUrl, true);
@@ -2291,36 +2556,17 @@
           }
         }
 
-        // 3. SOURCE B: RTN Live Playlist Page (HIS Radio 89.3 WLFJ, HIS Radio Z WHRZ, HIS Radio Praise)
-        if (rtnSlug) {
-          const rtnUrls = [
-            `https://www.hisradio.com/playlist/${rtnSlug}/`,
-            `https://www.rtndev.com/pages/playlist/${rtnSlug}/`
-          ];
-          for (const rUrl of rtnUrls) {
-            const html = await fetchWithCorsFallback(rUrl, false);
-            if (!html || typeof html !== 'string') continue;
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-
-            // Pattern 1: Look for links to /song/ or playlist rows
-            const songLink = doc.querySelector('a[href*="/song/"], .song-title, .track-title, h4, h3');
-            if (songLink) {
-              const rawSong = songLink.textContent.replace(/\s+/g, ' ').trim();
-              const parentText = songLink.parentElement ? songLink.parentElement.textContent.replace(/\s+/g, ' ').trim() : '';
-              if (rawSong && rawSong.length > 1 && !isGenericStationPlaceholder(rawSong, st.name)) {
-                const rawArtist = parentText
-                  .replace(rawSong, '')
-                  .replace(/\bby\b/i, '')
-                  .replace(/\d{1,2}:\d{2}\s*(am|pm)?/gi, '')
-                  .trim()
-                  .slice(0, 55);
-                if (applyFoundTrack(rawSong, rawArtist)) return;
-              }
-            }
+        // ENGINE 3: SomaFM Native-CORS Songs Endpoint (https://somafm.com/songs/{channel}.json)
+        if (somaChannel || streamUrl.includes('somafm.com')) {
+          const ch = somaChannel || (streamUrl.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
+          const somaData = await fetchWithCorsFallback(`https://somafm.com/songs/${ch}.json`, true);
+          const latest = somaData?.songs?.[0];
+          if (latest && latest.title) {
+            if (applyFoundTrack(latest.title, latest.artist || '')) return;
           }
         }
 
-        // 4. SOURCE C: SecureNet Systems Live XML (The Life FM WHQA, Keys for Kids, etc.)
+        // ENGINE 4: SecureNet Systems Live XML (The Life FM WHQA, Keys for Kids, etc.)
         const secureNetMatch = streamUrl.match(/securenetsystems\.net\/([A-Za-z0-9_]+)/i);
         if (secureNetMatch && secureNetMatch[1]) {
           const callSign = secureNetMatch[1].toUpperCase();
@@ -2336,9 +2582,25 @@
           }
         }
 
-        // 5. SOURCE D: TuneIn RadioTime NowPlaying API (Direct ID or Auto-Discovered Station ID!)
+        // ENGINE 5: Dynamic OnlineRadioBox Search for Any Station in the 30,000+ Catalog
+        if (!orbSlug && st.name) {
+          const cleanName = st.name.replace(/\([^)]*\)/g, '').trim();
+          const searchHtml = await fetchWithCorsFallback(`https://onlineradiobox.com/search?q=${encodeURIComponent(cleanName)}`, false);
+          if (searchHtml && typeof searchHtml === 'string') {
+            const slugMatch = searchHtml.match(/href="\/([a-z]{2}\/[a-z0-9_-]+)\/?"/i);
+            if (slugMatch && slugMatch[1]) {
+              const discoveredSlug = slugMatch[1].replace('/', '.');
+              orbSlugCache[st.id] = discoveredSlug;
+              const orbResult = await fetchTrackFromOnlineRadioBoxSlug(discoveredSlug, st.name);
+              if (orbResult && orbResult.track) {
+                if (applyFoundTrack(orbResult.track, orbResult.artist, orbResult.artwork)) return;
+              }
+            }
+          }
+        }
+
+        // ENGINE 6: TuneIn RadioTime NowPlaying API (Direct ID or Auto-Discovered Station ID)
         if (!tuneinId && st.name) {
-          // Automatically look up the station on TuneIn by name so even custom/vault stations get live Song & Artist!
           const searchClean = st.name.replace(/\([^)]*\)/g, '').trim();
           const searchUrl = `https://opml.radiotime.com/Search.ashx?query=${encodeURIComponent(searchClean)}&filter=s:mp3,aac&render=json`;
           const searchData = await fetchWithCorsFallback(searchUrl, true);
@@ -2358,17 +2620,7 @@
           }
         }
 
-        // 6. SOURCE E: SomaFM Live Track API
-        if (st.somaChannel || streamUrl.includes('somafm.com')) {
-          const ch = st.somaChannel || (streamUrl.match(/somafm\.com\/([a-z0-9]+)-/i)?.[1]) || 'groovesalad';
-          const somaData = await fetchWithCorsFallback(`https://api.somafm.com/songs/${ch}.json`, true);
-          const latest = somaData?.songs?.[0];
-          if (latest && latest.title) {
-            if (applyFoundTrack(latest.title, latest.artist || '')) return;
-          }
-        }
-
-        // 7. SOURCE F: Icecast Server status-json.xsl & Shoutcast 7.html
+        // ENGINE 7: Icecast Server status-json.xsl
         if (streamUrl && streamUrl.startsWith('https://')) {
           try {
             const parsedUrl = new URL(streamUrl);
@@ -2392,16 +2644,370 @@
           } catch (_) {}
         }
 
-        // If no live song title is currently broadcast (e.g. during DJ talk segment or station ID)
+        // If no song metadata is currently broadcast (e.g. during a live host break or station ID)
         if (state.currentStation && state.currentStation.id === requestedStationId) {
           state.nowPlayingTrack = '';
           state.nowPlayingArtist = '';
           state.isFetchingTrack = false;
+          applySmartEqForCurrentAudio();
           renderNowOnAir();
         }
       } finally {
         state.isFetchingTrack = false;
         if (spinner) spinner.classList.remove('fa-spin');
+      }
+    }
+
+    function isGenericStationPlaceholder(text, stationName) {
+      if (!text) return true;
+      const t = String(text).toLowerCase().trim();
+      const s = String(stationName || '').toLowerCase().trim();
+      if (
+        t.length < 2 ||
+        t === s ||
+        t === 'k-love' ||
+        t === 'his radio' ||
+        t === 'his radio z' ||
+        t === 'air1' ||
+        t.includes('positive & encouraging') ||
+        t.includes('commercial break') ||
+        t.includes('stream online') ||
+        t.includes('tunein') ||
+        t.includes('listen live') ||
+        t === 'unknown' ||
+        t === 'live broadcast'
+      ) {
+        return true;
+      }
+      return false;
+    }
+
+    /* ==========================================================================
+       5C. SMART EQ ENGINE (METADATA-DRIVEN 5-BAND ACOUSTIC OPTIMIZATION)
+       Analyzes station genre/tags + live playing song/artist metadata to select
+       the optimal 5-band EQ curve and tonal balance.
+       ========================================================================== */
+    const SMART_EQ_PROFILES = {
+      worship: {
+        id: 'worship',
+        shortLabel: 'Worship',
+        title: 'Worship & Vocal Warmth',
+        desc: 'Lifts vocal intimacy (910Hz) & shimmering acoustic air (14kHz)',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 2.5 },
+          { freq: '230Hz', label: 'Warmth', db: 2.0 },
+          { freq: '910Hz', label: 'Vocal', db: 3.0 },
+          { freq: '3.6kHz', label: 'Presence', db: 2.5 },
+          { freq: '14kHz', label: 'Air', db: 3.5 }
+        ],
+        trimFactor: 1.0
+      },
+      pop: {
+        id: 'pop',
+        shortLabel: 'Pop Hits',
+        title: 'Positive Pop & Upbeat Punch',
+        desc: 'Tight low-end punch (60Hz) and crisp modern top-end sparkle',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 3.5 },
+          { freq: '230Hz', label: 'Warmth', db: 1.5 },
+          { freq: '910Hz', label: 'Vocal', db: 1.0 },
+          { freq: '3.6kHz', label: 'Presence', db: 2.5 },
+          { freq: '14kHz', label: 'Air', db: 3.0 }
+        ],
+        trimFactor: 0.98
+      },
+      hiphop: {
+        id: 'hiphop',
+        shortLabel: 'Hip-Hop Bass',
+        title: 'Hip-Hop, Rap & Rhythmic',
+        desc: 'Extended sub-bass weight (+5dB @ 60Hz) with crisp lyric articulation',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 5.0 },
+          { freq: '230Hz', label: 'Warmth', db: 2.0 },
+          { freq: '910Hz', label: 'Vocal', db: -0.5 },
+          { freq: '3.6kHz', label: 'Presence', db: 3.0 },
+          { freq: '14kHz', label: 'Air', db: 3.0 }
+        ],
+        trimFactor: 0.96
+      },
+      rock: {
+        id: 'rock',
+        shortLabel: 'Rock Drive',
+        title: 'Rock, Indie & Alternative',
+        desc: 'Energizes kick drum, electric guitar midrange bite & cymbal definition',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 3.5 },
+          { freq: '230Hz', label: 'Warmth', db: 1.0 },
+          { freq: '910Hz', label: 'Vocal', db: 2.5 },
+          { freq: '3.6kHz', label: 'Presence', db: 3.5 },
+          { freq: '14kHz', label: 'Air', db: 2.5 }
+        ],
+        trimFactor: 0.98
+      },
+      latin: {
+        id: 'latin',
+        shortLabel: 'Latin / Bossa',
+        title: 'Latin, Español & Bossa Acoustic',
+        desc: 'Warm acoustic body (230Hz) for nylon guitar, upright bass & percussion',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 2.5 },
+          { freq: '230Hz', label: 'Warmth', db: 3.0 },
+          { freq: '910Hz', label: 'Vocal', db: 2.0 },
+          { freq: '3.6kHz', label: 'Presence', db: 2.5 },
+          { freq: '14kHz', label: 'Air', db: 3.5 }
+        ],
+        trimFactor: 1.0
+      },
+      classical: {
+        id: 'classical',
+        shortLabel: 'Symphonic',
+        title: 'Classical, Symphony & Ambient',
+        desc: 'Natural concert-hall staging with extended high-frequency air (+4dB @ 14kHz)',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 1.5 },
+          { freq: '230Hz', label: 'Warmth', db: 2.0 },
+          { freq: '910Hz', label: 'Vocal', db: 0.5 },
+          { freq: '3.6kHz', label: 'Presence', db: 2.0 },
+          { freq: '14kHz', label: 'Air', db: 4.0 }
+        ],
+        trimFactor: 1.02
+      },
+      voice: {
+        id: 'voice',
+        shortLabel: 'Voice Clarity',
+        title: 'Podcast, Teaching & Story Clarity',
+        desc: 'Reduces low rumble (-2.5dB @ 60Hz) and boosts spoken vocal intelligibility',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: -2.5 },
+          { freq: '230Hz', label: 'Warmth', db: 1.0 },
+          { freq: '910Hz', label: 'Vocal', db: 4.0 },
+          { freq: '3.6kHz', label: 'Presence', db: 3.5 },
+          { freq: '14kHz', label: 'Air', db: 1.0 }
+        ],
+        trimFactor: 1.04
+      },
+      flat: {
+        id: 'flat',
+        shortLabel: 'Off (Flat)',
+        title: 'Studio Flat Bypass',
+        desc: 'Unprocessed 0dB reference response across all frequency bands',
+        gains: [
+          { freq: '60Hz', label: 'Sub', db: 0 },
+          { freq: '230Hz', label: 'Warmth', db: 0 },
+          { freq: '910Hz', label: 'Vocal', db: 0 },
+          { freq: '3.6kHz', label: 'Presence', db: 0 },
+          { freq: '14kHz', label: 'Air', db: 0 }
+        ],
+        trimFactor: 1.0
+      }
+    };
+
+    function resolveSmartEqProfile() {
+      if (!state.settings.smartEq) {
+        return { profile: SMART_EQ_PROFILES.flat, reason: 'Smart EQ turned off in Studio Prefs' };
+      }
+
+      const st = state.currentStation || PERMANENT_STATIONS[0];
+      const track = (state.nowPlayingTrack || '').toLowerCase();
+      const artist = (state.nowPlayingArtist || '').toLowerCase();
+      const metaCorpus = `${st.name || ''} ${st.subtitle || ''} ${st.tags || ''} ${st.language || ''} ${track} ${artist}`.toLowerCase();
+
+      if (st.isPodcast || metaCorpus.includes('podcast') || metaCorpus.includes('sermon') || metaCorpus.includes('talk') || metaCorpus.includes('news') || metaCorpus.includes('bibleproject') || metaCorpus.includes('keys for kids')) {
+        return {
+          profile: SMART_EQ_PROFILES.voice,
+          reason: `Optimized for ${st.isPodcast ? 'Podcast Episode' : 'Spoken Word & Story'}`
+        };
+      }
+
+      if (
+        metaCorpus.includes('hip hop') ||
+        metaCorpus.includes('hip-hop') ||
+        metaCorpus.includes('rap') ||
+        metaCorpus.includes('ngen') ||
+        metaCorpus.includes('boost') ||
+        metaCorpus.includes('lecrae') ||
+        metaCorpus.includes('hulvey') ||
+        metaCorpus.includes('kb') ||
+        metaCorpus.includes('116') ||
+        metaCorpus.includes('forrest frank') ||
+        metaCorpus.includes('tobymac')
+      ) {
+        return {
+          profile: SMART_EQ_PROFILES.hiphop,
+          reason: state.nowPlayingArtist
+            ? `Matched rhythmic/hip-hop style (${state.nowPlayingArtist})`
+            : `Matched ${st.name} rhythmic & bass profile`
+        };
+      }
+
+      if (
+        metaCorpus.includes('third rock') ||
+        metaCorpus.includes('switchfoot') ||
+        metaCorpus.includes('skillet') ||
+        metaCorpus.includes('needtobreathe') ||
+        metaCorpus.includes('linkin park') ||
+        metaCorpus.includes('muse') ||
+        metaCorpus.includes('indie') ||
+        metaCorpus.includes('classic rock') ||
+        (metaCorpus.includes('rock') && !metaCorpus.includes('soft rock'))
+      ) {
+        return {
+          profile: SMART_EQ_PROFILES.rock,
+          reason: state.nowPlayingArtist
+            ? `Matched rock/indie dynamics (${state.nowPlayingArtist})`
+            : `Matched ${st.name} rock & guitar profile`
+        };
+      }
+
+      if (
+        metaCorpus.includes('bossa') ||
+        metaCorpus.includes('mpb') ||
+        metaCorpus.includes('jazz') ||
+        metaCorpus.includes('salsa') ||
+        metaCorpus.includes('bachata') ||
+        metaCorpus.includes('portuguese') ||
+        metaCorpus.includes('cvc la voz') ||
+        metaCorpus.includes('latino')
+      ) {
+        return {
+          profile: SMART_EQ_PROFILES.latin,
+          reason: `Matched ${st.name} Latin/Acoustic instrumentation`
+        };
+      }
+
+      if (
+        metaCorpus.includes('classical') ||
+        metaCorpus.includes('symphony') ||
+        metaCorpus.includes('wcrb') ||
+        metaCorpus.includes('piano') ||
+        metaCorpus.includes('ambient') ||
+        metaCorpus.includes('somafm') ||
+        metaCorpus.includes('chill')
+      ) {
+        return {
+          profile: SMART_EQ_PROFILES.classical,
+          reason: `Matched ${st.name} wide-stage instrumental profile`
+        };
+      }
+
+      if (
+        st.id === 'perm-his-radio-z' ||
+        metaCorpus.includes('upbeat') ||
+        metaCorpus.includes('positive hits') ||
+        metaCorpus.includes('top 40') ||
+        metaCorpus.includes('80s') ||
+        metaCorpus.includes('90s') ||
+        metaCorpus.includes('pop')
+      ) {
+        return {
+          profile: SMART_EQ_PROFILES.pop,
+          reason: state.nowPlayingTrack
+            ? `Optimized for upbeat track "${state.nowPlayingTrack}"`
+            : `Matched ${st.name} upbeat pop contour`
+        };
+      }
+
+      return {
+        profile: SMART_EQ_PROFILES.worship,
+        reason: state.nowPlayingTrack
+          ? `Tuned vocal & acoustic clarity for "${state.nowPlayingTrack}"`
+          : `Matched ${st.name} worship & vocal warmth`
+      };
+    }
+
+    function applySmartEqForCurrentAudio() {
+      const resolved = resolveSmartEqProfile();
+      state.activeSmartEqProfile = resolved;
+
+      const badgeBtn = document.getElementById('smartEqBadgeBtn');
+      const badgeTxt = document.getElementById('smartEqBadgeText');
+      const settingsReadout = document.getElementById('settingsSmartEqActiveProfile');
+
+      if (badgeTxt) {
+        badgeTxt.textContent = state.settings.smartEq
+          ? `EQ: ${resolved.profile.shortLabel}`
+          : 'EQ: Off';
+      }
+      if (badgeBtn) {
+        badgeBtn.className = state.settings.smartEq
+          ? 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-400/25 hover:bg-emerald-500/25 transition truncate'
+          : 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-white/10 text-slate-300 border border-white/10 hover:bg-white/15 transition truncate';
+      }
+      if (settingsReadout) {
+        settingsReadout.textContent = state.settings.smartEq
+          ? `Active Profile: ${resolved.profile.title} (${resolved.reason})`
+          : 'Smart EQ Disabled (Flat 0dB bypass)';
+      }
+
+      // Apply subtle headroom/loudness compensation when playing
+      if (!state.isMuted && state.sleepSecondsRemaining <= 0) {
+        const baseVol = state.volume / 100;
+        const trim = state.settings.smartEq ? (resolved.profile.trimFactor || 1.0) : 1.0;
+        audioEl.volume = Math.min(1, Math.max(0, baseVol * trim));
+      }
+    }
+
+    function openSmartEqModal() {
+      applySmartEqForCurrentAudio();
+      renderSmartEqModal();
+      const modal = document.getElementById('smartEqModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function closeSmartEqModal() {
+      const modal = document.getElementById('smartEqModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function toggleSmartEqQuick() {
+      updateSetting('smartEq', !state.settings.smartEq);
+      applySmartEqForCurrentAudio();
+      renderSmartEqModal();
+    }
+
+    function renderSmartEqModal() {
+      const resolved = state.activeSmartEqProfile || resolveSmartEqProfile();
+      const prof = resolved.profile;
+      const reasonEl = document.getElementById('smartEqModalReason');
+      const titleEl = document.getElementById('smartEqModalProfileTitle');
+      const descEl = document.getElementById('smartEqModalProfileDesc');
+      const toggleBtn = document.getElementById('smartEqModalToggleBtn');
+      const bandsEl = document.getElementById('smartEqBandsContainer');
+
+      if (reasonEl) reasonEl.textContent = resolved.reason;
+      if (titleEl) titleEl.textContent = prof.title;
+      if (descEl) descEl.textContent = prof.desc;
+      if (toggleBtn) {
+        toggleBtn.textContent = state.settings.smartEq ? 'Enabled' : 'Off';
+        toggleBtn.className = state.settings.smartEq
+          ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition'
+          : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-white/10 text-slate-300 transition';
+      }
+
+      if (bandsEl) {
+        bandsEl.innerHTML = prof.gains.map(band => {
+          // Map -5dB..+6dB to a percentage bar height (15%..95%)
+          const pct = Math.min(95, Math.max(15, Math.round(((band.db + 5) / 11) * 80 + 15)));
+          const sign = band.db > 0 ? `+${band.db}dB` : `${band.db}dB`;
+          return `
+            <div class="surface-card rounded-2xl p-2.5 flex flex-col items-center gap-2">
+              <span class="text-[10px] font-mono font-bold text-emerald-400">${sign}</span>
+              <div class="w-3 h-20 rounded-full bg-black/40 border border-white/10 flex items-end overflow-hidden p-0.5">
+                <div class="w-full rounded-full bg-gradient-to-t from-sky-500 to-emerald-400 transition-all duration-300" style="height: ${pct}%"></div>
+              </div>
+              <div class="text-center">
+                <div class="text-[10px] font-bold leading-none">${band.freq}</div>
+                <div class="text-[9px] mt-0.5" style="color: var(--text-secondary);">${band.label}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
       }
     }
 
@@ -2709,30 +3315,38 @@
 
       if (nameEl) nameEl.textContent = st.name;
 
-      // Display Real Current Song & Artist (Never duplicate the station name/slogan!)
+      // Update Smart EQ Profile Badge whenever station or song renders
+      applySmartEqForCurrentAudio();
+
+      // Display Real Current Song & Artist in the Spotlight Box
       if (trackTextEl && artistTextEl) {
         if (st.isPodcast) {
-          trackTextEl.textContent = st.subtitle || 'Podcast Episode';
-          if ( state.nowPlayingArtist) {
+          trackTextEl.textContent = st.name || 'Podcast Episode';
+          artistTextEl.textContent = st.subtitle || st.location || 'On-Demand Teaching';
+          artistTextEl.classList.remove('hidden');
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-podcast text-xs text-sky-300';
+        } else if (state.nowPlayingTrack) {
+          trackTextEl.textContent = state.nowPlayingTrack;
+          if (state.nowPlayingArtist) {
             artistTextEl.textContent = state.nowPlayingArtist;
             artistTextEl.classList.remove('hidden');
           } else {
-            artistTextEl.textContent = '';
-            artistTextEl.classList.add('hidden');
+            artistTextEl.textContent = 'Now Playing on ' + st.name;
+            artistTextEl.classList.remove('hidden');
           }
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-xs text-emerald-300 shrink-0';
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-music text-xs text-emerald-300';
         } else if (state.isFetchingTrack) {
-          trackTextEl.textContent = 'Checking live song & artist...';
-          artistTextEl.textContent = '';
-          artistTextEl.classList.add('hidden');
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-compact-disc fa-spin text-xs text-sky-300 shrink-0';
+          trackTextEl.textContent = 'Identifying live song & artist...';
+          artistTextEl.textContent = st.location || st.subtitle || '';
+          artistTextEl.classList.toggle('hidden', !artistTextEl.textContent);
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-compact-disc fa-spin text-xs text-sky-300';
         } else {
           trackTextEl.textContent = state.isPlaying
-            ? `${st.freq && st.freq !== 'LIVE' ? st.freq + ' • ' : ''}Live Studio Broadcast`
-            : 'Ready to Tune • Tap Play';
-          artistTextEl.textContent = st.location || '';
-          artistTextEl.classList.toggle('hidden', !st.location);
-          if (trackIconEl) trackIconEl.className = 'fa-solid fa-tower-broadcast text-xs text-sky-300/80 shrink-0';
+            ? 'Live Studio Segment / Music Mix'
+            : 'Tap Play to Tune Live Stream';
+          artistTextEl.textContent = `${st.freq && st.freq !== 'LIVE' ? st.freq + ' • ' : ''}${st.location || 'Tap ↻ to check song'}`;
+          artistTextEl.classList.remove('hidden');
+          if (trackIconEl) trackIconEl.className = 'fa-solid fa-tower-broadcast text-xs text-sky-300/80';
         }
       }
 
@@ -4724,6 +5338,7 @@
 
       const capEl = document.getElementById('settingDialCapacity');
       const grpEl = document.getElementById('settingDefaultGrouping');
+      const smartEqEl = document.getElementById('settingSmartEq');
       const bitEl = document.getElementById('settingMinBitrate');
       const httpsEl = document.getElementById('settingHttpsOnly');
       const reconEl = document.getElementById('settingAutoReconnect');
@@ -4732,11 +5347,14 @@
 
       if (capEl) capEl.value = state.settings.dialCapacity;
       if (grpEl) grpEl.value = state.settings.defaultGrouping;
+      if (smartEqEl) smartEqEl.checked = state.settings.smartEq !== false;
       if (bitEl) bitEl.value = String(state.settings.minBitrate);
       if (httpsEl) httpsEl.checked = Boolean(state.settings.httpsOnly);
       if (reconEl) reconEl.checked = Boolean(state.settings.autoReconnect);
       if (visEl) visEl.value = state.settings.visualizerMode;
       if (apiEl) apiEl.value = state.settings.apiMirror;
+
+      applySmartEqForCurrentAudio();
     }
 
     function updateSetting(key, value) {
